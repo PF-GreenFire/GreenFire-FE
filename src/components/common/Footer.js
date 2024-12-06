@@ -1,4 +1,4 @@
-function PagingBar() {
+function Footer() {
     return(
         <>
         
@@ -6,4 +6,4 @@ function PagingBar() {
     );
 }
 
-export default PagingBar;
+export default Footer;
