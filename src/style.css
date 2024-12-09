@@ -1,0 +1,17 @@
+.main {
+    width: 100%;
+}
+
+.navbar .nav-item .dropdown-toggle {
+    color: white;
+}
+
+* {
+    font-family: "Noto Sans KR", sans-serif;
+    font-weight: 400;
+}
+
+.iconbtn {
+    background: none;
+    border: none;
+}

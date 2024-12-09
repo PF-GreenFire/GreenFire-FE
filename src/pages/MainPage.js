@@ -1,8 +1,12 @@
+import { Container } from "react-bootstrap";
 
 const MainPage = () => {
     return (
         <>
-            <h1>Test</h1>
+            <Container style={{ marginBottom: "100px" }}>
+                <h1>MainPage Test</h1>
+
+            </Container>
         </>
     )
 }
