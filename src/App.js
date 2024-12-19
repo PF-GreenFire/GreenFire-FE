@@ -1,25 +1,37 @@
-import './App.css';
-import { Route, Routes } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import CustomLayout from './components/layout/CustomLayout';
 import MainPage from './pages/MainPage';
 import ExDesign from './pages/ExDesign';
-import CustomLayout from './layouts/common/CustomLayout';
-import RegistChallenge from './pages/challenge/RegistChallenge';
+import RegistChallenge from './pages/RegistChallenge';
+import AppBar from './components/common/AppBar';
+import NearbyMain from './pages/map/NearbyMain';
+import ChallengeMain from './pages/challenge/ChallengeMain';
+import FeedMain from './pages/feed/FeedMain';
+import MyPageMain from './pages/mypage/MypageMain';
 
-function App() {
+const App = () => {
   return (
-    <Routes>
-      <Route path="/" element={<CustomLayout />}>
-      
-      <Route index element={<MainPage />} />
-      <Route path="/ex" element={<ExDesign />} />
+    <Router>
+      <AppBar />
+      <Routes>
+        <Route path="/" element={<CustomLayout />}>
+          <Route index element={<MainPage />} />
+          <Route path="/ex" element={<ExDesign />} />
 
-      {/* challenge */}
-      <Route path="/challenge">
-        <Route index element={<RegistChallenge />} />
-      </Route>
+          {/* AppBar */}
+          <Route path="/nearby" element={<NearbyMain />} />
+          <Route path="/challenges" element={<ChallengeMain />} />
+          <Route path="/feed" element={<FeedMain />} />
+          <Route path="/mypage" element={<MyPageMain />} />
 
-      </Route>
-    </Routes>
+          {/* challenge */}
+          <Route path="/challenge">
+            <Route index element={<RegistChallenge />} />
+          </Route>
+        </Route>
+      </Routes>
+    </Router>
   );
 }
 

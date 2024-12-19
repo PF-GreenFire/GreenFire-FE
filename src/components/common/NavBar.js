@@ -4,6 +4,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import { useState } from 'react';
 import { IoMdMenu } from "react-icons/io";
 import Offcanvas from 'react-bootstrap/Offcanvas';
+import { Nav } from 'react-bootstrap';
 
 function NavBar() {
     const [show, setShow] = useState(false);
@@ -20,7 +21,11 @@ function NavBar() {
                         <Offcanvas.Title>Offcanvas</Offcanvas.Title>
                     </Offcanvas.Header>
                     <Offcanvas.Body>
-                        Content here
+                    <Nav defaultActiveKey="/home" className="flex-column">
+                    <Nav.Link href="/home">Active</Nav.Link>
+                    <Nav.Link eventKey="link-1">Link</Nav.Link>
+                    <Nav.Link eventKey="link-2">Link</Nav.Link>
+                    </Nav>
                     </Offcanvas.Body>
                 </Offcanvas>
             </Container>

@@ -1,7 +1,7 @@
 function RegistChallenge() {
     return(
         <>
-        
+            
         </>
     );
 }
