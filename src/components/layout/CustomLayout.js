@@ -1,9 +1,9 @@
 import {Outlet} from "react-router-dom";
 import Container from "react-bootstrap/Container";
-import Navbar from "../../components/common/NavBar";
-import Header from "../../components/common/Header";
-import Footer from "../../components/common/Footer";
-import AppBar from "../../components/common/AppBar";
+import Navbar from "../common/NavBar";
+import Header from "../common/Header";
+import Footer from "../common/Footer";
+import AppBar from "../common/AppBar";
 
 function CustomLayout() {
 
