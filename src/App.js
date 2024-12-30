@@ -12,7 +12,7 @@ import MyPageMain from './pages/mypage/MypageMain';
 
 const App = () => {
   return (
-    <Router>
+    <>
       <AppBar />
       <Routes>
         <Route path="/" element={<CustomLayout />}>
@@ -31,7 +31,7 @@ const App = () => {
           </Route>
         </Route>
       </Routes>
-    </Router>
+    </>
   );
 }
 
