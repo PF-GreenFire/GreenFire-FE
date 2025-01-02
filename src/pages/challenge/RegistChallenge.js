@@ -1,7 +1,7 @@
 function RegistChallenge() {
     return(
         <>
-            
+            <h1>RegistChallenge</h1>
         </>
     );
 }

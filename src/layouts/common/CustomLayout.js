@@ -2,7 +2,6 @@ import {Outlet} from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import Navbar from "../../components/common/NavBar";
 import Header from "../../components/common/Header";
-import Footer from "../../components/common/Footer";
 import AppBar from "../../components/common/AppBar";
 
 function CustomLayout() {
@@ -21,7 +20,7 @@ function CustomLayout() {
                     <Outlet/>
                 </main>
             </Container>
-            <AppBar/>
+            {/* <AppBar/> */}
         </div>
         </>
     );
