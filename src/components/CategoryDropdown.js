@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import { Dropdown } from 'react-bootstrap';
 import {useDispatch, useSelector} from "react-redux";
 import {getCategoriesAPI} from "../apis/categoryAPI";
@@ -7,10 +7,16 @@ import {getCategoriesAPI} from "../apis/categoryAPI";
 function CategoryDropdown({categoryType}) {
     const { categories } = useSelector(state => state.categoryReducer);
     const dispatch = useDispatch();
+    const [selectedCategory, setSelectedCategory] = useState(null);
+
 
     useEffect(() => {
         dispatch(getCategoriesAPI(categoryType));
-    }, []);
+    }, [categoryType]);
+
+    const handleSelectCategory = (categoryName) => {
+        setSelectedCategory(categoryName);
+    };
 
     return (
         <div className="d-flex justify-content-center m-5">
@@ -28,14 +34,19 @@ function CategoryDropdown({categoryType}) {
                         alignItems: 'center',
                     }}
                 >
-                    카테고리
+                    {
+                        selectedCategory || '카테고리'
+                    }
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu>
                     {
                         categories &&
                         categories.map((category, index) => (
-                            <Dropdown.Item key={index}>{category.categoryName}</Dropdown.Item>
+                            <Dropdown.Item key={index}
+                                           onClick={() => handleSelectCategory(category.categoryName)}>
+                                {category.categoryName}
+                            </Dropdown.Item>
                         ))
                     }
                 </Dropdown.Menu>
