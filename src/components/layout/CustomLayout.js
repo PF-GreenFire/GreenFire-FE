@@ -1,9 +1,8 @@
 import {Outlet} from "react-router-dom";
 import Container from "react-bootstrap/Container";
-import Navbar from "../common/NavBar";
-import Header from "../common/Header";
-import Footer from "../common/Footer";
-import AppBar from "../common/AppBar";
+import Navbar from "../../components/common/NavBar";
+import Header from "../../components/common/Header";
+import AppBar from "../../components/common/AppBar";
 
 function CustomLayout() {
 
@@ -21,7 +20,7 @@ function CustomLayout() {
                     <Outlet/>
                 </main>
             </Container>
-            <AppBar/>
+            {/* <AppBar/> */}
         </div>
         </>
     );
