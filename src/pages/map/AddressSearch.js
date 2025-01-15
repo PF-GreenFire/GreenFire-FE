@@ -30,6 +30,7 @@ const AddressSearch = () => {
             {zonecode && <p>우편번호: {zonecode}</p>}
             {address && <p>주소: {address}</p>}
             상세주소 <input type="text" />
+            <button>저장</button>
         </div>
     );
 };
