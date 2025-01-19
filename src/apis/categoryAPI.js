@@ -19,6 +19,25 @@ export const getCategoriesAPI = (categoryType) => {
     }
 }
 
+export const addCategoryAPI = (categoryRequest) => {
+    return async (dispatch, getState) => {
+        try {
+            const result = await api.post(
+                `/v1/category`,
+                categoryRequest
+            );
+
+            console.log('addCategoryAPI result : ', result.data);
+
+            if(result.status === 201) {
+                dispatch(success());
+            }
+        } catch {
+            console.error("통신 중 에러가 발생했습니다.");
+        }
+    }
+}
+
 export const deleteCategoryAPI = (categoryType, categoryId) => {
     return async (dispatch, getState) => {
         try {
