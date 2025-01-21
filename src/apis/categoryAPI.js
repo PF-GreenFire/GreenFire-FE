@@ -37,3 +37,24 @@ export const addCategoryAPI = (categoryRequest) => {
         }
     }
 }
+
+export const deleteCategoryAPI = (categoryType, categoryId) => {
+    return async (dispatch, getState) => {
+        try {
+            const result = await api.delete(
+                `/v1/category/${categoryId}`,
+                {
+                    params: {categoryType}
+                }
+            );
+
+            console.log('deleteCategoryAPI result : ', result.data);
+
+            if(result.status === 204) {
+                dispatch(success());
+            }
+        } catch {
+            console.error("통신 중 에러가 발생했습니다.");
+        }
+    }
+}
