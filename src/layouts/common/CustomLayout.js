@@ -13,7 +13,7 @@ function CustomLayout() {
             flexDirection: 'column',
             minHeight: '100vh'
         }}>
-            <Header/>
+            {/* <Header/> */}
             <Navbar/>
             <Container className="mt-5 flex-grow-1">
                 <main>
