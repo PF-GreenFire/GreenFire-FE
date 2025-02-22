@@ -51,7 +51,7 @@ const MainPage = () => {
                     mainText="인기 장소"
                     subText="최근 가장 방문이 많은 장소"
                 />
-                <Row>
+                <Row className="d-flex gap-2">
                     <StoreInfoCard store={store} imageUrl={imageUrl} />
                     <StoreInfoCard store={store} imageUrl={imageUrl} />
                     <StoreInfoCard store={store} imageUrl={imageUrl} />
