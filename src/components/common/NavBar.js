@@ -26,7 +26,7 @@ function NavBar() {
         <>
             {/* 전체 배경 div */}
             <div style={{
-                backgroundColor: "#004B29",
+                backgroundColor: "#ffffff",
                 width: "100%",
                 position: "relative",
                 height: "124px"
@@ -35,13 +35,14 @@ function NavBar() {
                     {/* Header with logo and icons */}
                     <div className="d-flex justify-content-between align-items-center py-2">
                         <div>
-                            <img src="/mainlogo.png" alt="GREEN FIRE" width="180" height="30" />
+                            {/* <img src="/mainlogo.png" alt="GREEN FIRE" width="180" height="30" /> */}
+                            <h5 className="fw-bold text-success">GREEN FIRE</h5>
                         </div>
                         <div className="d-flex">
-                            <Button variant="link" className="text-white p-1">
+                            <Button variant="link" className="text-success p-1">
                                 <FaSearch size={20} />
                             </Button>
-                            <Button variant="link" className="text-white p-1" onClick={handleShow}>
+                            <Button variant="link" className="text-success p-1" onClick={handleShow}>
                                 <IoMdMenu size={25} />
                             </Button>
                         </div>
