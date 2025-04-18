@@ -1,8 +1,7 @@
 import React from 'react';
-import { Row } from 'react-bootstrap';
 import HighlightedText from "../item/title/HighlightedTitle";
 
-const Challenge = () => {
+const Challenge = ({ showHeader = true }) => {
     const challenges = [
         { id: 1, name: '플로깅', icon: '/Frame 299.png' },
         { id: 2, name: '비건식', icon: '/Frame 300.png' },
@@ -14,10 +13,12 @@ const Challenge = () => {
 
     return (
         <div className="mb-4" style={{ maxWidth: "563px", margin: "0 auto" }}>
-            <HighlightedText
-                mainText="챌린지 - 마감임박"
-                subText="모집이 곧 마감됩니다! 서둘러 신청해주세요."
-            />
+            {showHeader && ( // ⭐ 조건부 렌더링
+                <HighlightedText
+                    mainText="챌린지 - 마감임박"
+                    subText="모집이 곧 마감됩니다! 서둘러 신청해주세요."
+                />
+            )}
 
             <div className="d-flex justify-content-between mt-3">
                 {challenges.map(challenge => (
