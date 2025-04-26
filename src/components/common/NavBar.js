@@ -8,10 +8,12 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 import Nav from 'react-bootstrap/Nav';
 import { useNavigate } from 'react-router-dom';
 import { Button, Form, InputGroup } from 'react-bootstrap';
-// public 폴더에서 이미지 로드
+import LoginPopup from '../../pages/auth/LoginPopup';
 
 function NavBar() {
     const [show, setShow] = useState(false);
+    const [showLoginPopup, setShowLoginPopup] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const navigate = useNavigate();
 
     const handleClose = () => setShow(false);
@@ -19,7 +21,17 @@ function NavBar() {
 
     const handleNavigation = (path) => {
         navigate(path);
-        handleClose();  // 사이드바 닫기
+        handleClose();
+    };
+
+    const handleLogin = () => {
+        setShowLoginPopup(true);
+        handleClose();
+    };
+
+    const handleLogout = () => {
+        setIsLoggedIn(false);
+        handleClose();
     };
 
     return (
@@ -71,6 +83,32 @@ function NavBar() {
                 </Offcanvas.Header>
                 <Offcanvas.Body>
                     <Nav className="flex-column">
+                        {!isLoggedIn ? (
+                            <Nav.Link
+                                onClick={handleLogin}
+                                className="text-success fw-bold py-2 px-3 border-bottom"
+                                style={{ cursor: "pointer" }}
+                            >
+                                로그인
+                            </Nav.Link>
+                        ) : (
+                            <>
+                                <Nav.Link
+                                    onClick={() => handleNavigation('/profile')}
+                                    className="text-dark fw-medium py-2 px-3 border-bottom"
+                                    style={{ cursor: "pointer" }}
+                                >
+                                    나의 정보
+                                </Nav.Link>
+                                <Nav.Link
+                                    onClick={handleLogout}
+                                    className="text-danger fw-medium py-2 px-3 border-bottom"
+                                    style={{ cursor: "pointer" }}
+                                >
+                                    로그아웃
+                                </Nav.Link>
+                            </>
+                        )}
                         <Nav.Link
                             onClick={() => handleNavigation('/cs')}
                             className="text-dark fw-medium py-2 px-3 border-bottom"
@@ -99,23 +137,15 @@ function NavBar() {
                         >
                             설정
                         </Nav.Link>
-                        <Nav.Link
-                            onClick={() => handleNavigation('/profile')}
-                            className="text-dark fw-medium py-2 px-3 border-bottom"
-                            style={{ cursor: "pointer" }}
-                        >
-                            나의 정보
-                        </Nav.Link>
-                        <Nav.Link
-                            onClick={() => handleNavigation('/logout')}
-                            className="text-danger fw-medium py-2 px-3 border-bottom"
-                            style={{ cursor: "pointer" }}
-                        >
-                            로그아웃
-                        </Nav.Link>
                     </Nav>
                 </Offcanvas.Body>
             </Offcanvas>
+
+            {/* Login Popup */}
+            <LoginPopup 
+                show={showLoginPopup} 
+                onHide={() => setShowLoginPopup(false)}
+            />
         </>
     );
 }
