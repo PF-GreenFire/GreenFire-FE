@@ -1,9 +1,41 @@
 import React, { useState } from 'react';
 import { Modal, Container, Row, Col, Button, Form, InputGroup } from 'react-bootstrap';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { login } from '../../apis/authAPI';
 
 const LoginPopup = ({ show, onHide }) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    try {
+      await login(formData.email, formData.password);
+      onHide();
+      window.location.reload();
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error.message || '로그인에 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Modal
@@ -38,16 +70,26 @@ const LoginPopup = ({ show, onHide }) => {
               />
 
               {/* 로그인 폼 */}
-              <Form className="mb-4">
+              <Form onSubmit={handleSubmit} className="mb-4">
+                {error && (
+                  <div className="alert alert-danger" role="alert">
+                    {error}
+                  </div>
+                )}
                 <Form.Group className="mb-3">
                   <Form.Control
-                    type="text"
-                    placeholder="아이디를 입력하세요"
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="이메일을 입력하세요"
                     style={{ 
                       height: '48px', 
                       fontSize: '14px',
                       borderColor: '#dee2e6'
                     }}
+                    disabled={isLoading}
+                    required
                   />
                 </Form.Group>
 
@@ -55,17 +97,31 @@ const LoginPopup = ({ show, onHide }) => {
                   <InputGroup>
                     <Form.Control
                       type={showPassword ? "text" : "password"}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
                       placeholder="비밀번호를 입력하세요"
                       style={{ 
                         height: '48px', 
                         fontSize: '14px',
                         borderColor: '#dee2e6'
                       }}
+                      disabled={isLoading}
+                      required
                     />
+                    <Button
+                      variant="outline-secondary"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{ borderColor: '#dee2e6' }}
+                      disabled={isLoading}
+                    >
+                      {showPassword ? <FaEyeSlash /> : <FaEye />}
+                    </Button>
                   </InputGroup>
                 </Form.Group>
 
                 <Button
+                  type="submit"
                   variant="success"
                   className="w-100"
                   style={{ 
@@ -75,8 +131,9 @@ const LoginPopup = ({ show, onHide }) => {
                     backgroundColor: '#198754',
                     fontWeight: '600'
                   }}
+                  disabled={isLoading}
                 >
-                  로그인
+                  {isLoading ? '로그인 중...' : '로그인'}
                 </Button>
 
                 <div className="d-flex justify-content-center gap-3 text-secondary mb-4" style={{ fontSize: '14px' }}>
