@@ -1,20 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Container, Image, Row } from 'react-bootstrap';
 import Challenge from '../../components/main/Challenge';
 import ChallengeList from '../../components/ChallengeList';
 import { BiMedal } from 'react-icons/bi';
+import { useNavigate } from 'react-router-dom';
 
 const ChallengeMain = () => {
+  const navigate = useNavigate();
+  const [selectedCategory, setSelectedCategory] = useState('전체보기');
   const challenges = [
-    { title: "비건간식 만들기", tag: "", status: "모집중", date: "2024-09-10 13:19" },
-    { title: "10/11 마포구 플로깅", tag: "플로깅", status: "진행중", date: "2024-09-10 13:19" },
-    { title: "초록색 전시회 방문 / 대상: 초등학생", tag: "", status: "종료", date: "2024-09-10 13:19" },
-    { title: "유기견 보호소 견사 청소 봉사", tag: "봉사활동", status: "모집중", date: "2024-09-10 13:19" },
+    { id: 1, title: "비건간식 만들기", tag: "비건식", status: "모집중", date: "2024-09-10 13:19" },
+    { id: 2, title: "10/11 마포구 플로깅", tag: "플로깅", status: "진행중", date: "2024-09-10 13:19" },
+    { id: 3, title: "초록색 전시회 방문 / 대상: 초등학생", tag: "제로웨이스트", status: "종료", date: "2024-09-10 13:19" },
+    { id: 4, title: "유기견 보호소 견사 청소 봉사", tag: "봉사", status: "모집중", date: "2024-09-10 13:19" },
+    { id: 5, title: "동물보호 캠페인", tag: "동물보호", status: "모집중", date: "2024-09-10 13:19" },
+    { id: 6, title: "환경 독서모임", tag: "독서모임", status: "진행중", date: "2024-09-10 13:19" },
   ];  
 
-  const handleRowClick = (row) => {
-    console.log('Row clicked:', row);
+  // 카테고리 클릭 시 해당 카테고리로 필터링
+  const handleCategoryClick = (category) => {
+    setSelectedCategory(category);
   };
+
+  // 챌린지 리스트 클릭 시 상세로 이동
+  const handleRowClick = (row) => {
+    navigate(`/challenges/${row.id}`);
+  };
+
+  // 챌린지 등록 버튼 클릭 시 등록 페이지로 이동
+  const handleMedalClick = () => {
+    navigate('/challenge');
+  };
+
+  // 카테고리 필터링
+  const filteredChallenges = selectedCategory === '전체보기'
+    ? challenges
+    : challenges.filter(ch => ch.tag === selectedCategory);
 
   return (
     <>
@@ -34,9 +55,8 @@ const ChallengeMain = () => {
       </Row>
 
       <Container className="text-center justify-content-center">
-        <Challenge showHeader={false}/>
-        {/* headers는 필요 없고 challenges를 넘겨줍니다 */}
-        <ChallengeList rows={challenges} onRowClick={handleRowClick} />
+        <Challenge showHeader={false} onIconClick={handleCategoryClick} selectedCategory={selectedCategory}/>
+        <ChallengeList rows={filteredChallenges} onRowClick={handleRowClick} />
       </Container>
 
       <Button 
@@ -55,6 +75,7 @@ const ChallengeMain = () => {
           boxShadow: "0px 4px 10px rgba(0,0,0,0.3)",
           zIndex: 1000,
         }}
+        onClick={handleMedalClick}
       >
         <BiMedal />
       </Button>

@@ -20,7 +20,7 @@ function CustomLayout() {
             }}>
                 {/* <Header/> */}
                 <Navbar/>
-                <Container className="mt-5 flex-grow-1">
+                <Container className="mt-5 flex-grow-1" style={{ maxWidth: "563px", margin: "0 auto", padding: "0 15px" }}>
                     <main>
                         <Outlet/>
                     </main>
