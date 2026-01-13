@@ -18,7 +18,7 @@ const AppBar = () => {
             }}
         >
             <Nav.Link
-                href="/nearby"
+                href="/location"
                 className="nav-item text-center"
                 style={{ width: '120px' }}
             >

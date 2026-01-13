@@ -9,6 +9,7 @@ import MyPageMain from './pages/mypage/MypageMain';
 import CustomLayout from './layouts/common/CustomLayout';
 import RegistChallenge from './pages/challenge/RegistChallenge';
 import ChallengeDetail from './pages/challenge/ChallengeDetail';
+import LocationMain from './pages/location/LocationMain';
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
 
           {/* AppBar */}
           <Route path="nearby" element={<NearbyMain />} />
+          <Route path="location" element={<LocationMain />} />
           <Route path="challenges" element={<ChallengeMain />} />
           <Route path="challenges/:id" element={<ChallengeDetail />} />
           <Route path="feed" element={<FeedMain />} />
