@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Container, Form, Button, InputGroup } from 'react-bootstrap';
 import { FaSearch, FaBars, FaBookmark } from 'react-icons/fa';
-import { IoMdMenu } from 'react-icons/io';
 import LocationMapComponent from './LocationMapComponent';
 import './LocationMain.css';
 
@@ -15,32 +14,8 @@ const LocationMain = () => {
 
     return (
         <div className="location-main">
-            {/* Green Header */}
-            <div className="location-header">
-                <Container style={{ maxWidth: "600px" }}>
-                    <div className="d-flex justify-content-between align-items-center py-3">
-                        <div className="d-flex align-items-center">
-                            <div className="logo-icon me-2">
-                                <svg width="30" height="30" viewBox="0 0 24 24" fill="white">
-                                    <path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.07-.24C6.2 20.25 7.5 19 9 19c1.66 0 3 1.34 3 3 0 .24-.04.47-.12.69l2-.68C14.5 17.5 16 13 16 9c0-1.1-.9-2-2-2s-2 .9-2 2c0 3-3 3-3 5 0-2-3-2-3-5 0-1.1-.9-2-2-2s-2 .9-2 2c0 4 1.5 8.5 2.12 10.69l2 .68C6.04 22.47 6 22.24 6 22c0-1.66 1.34-3 3-3 1.5 0 2.8 1.25 3.22 2.76l.07.24 1.89-.66C12.1 16.17 10 10 1 8V6c9 2 11.5 9.13 13.18 14.34l1.89-.66C14.5 13.5 12 6 3 4v2c9 2 11.5 9.13 13.18 14.34z"/>
-                                </svg>
-                            </div>
-                            <h5 className="fw-bold text-white mb-0">GREEN FIRE</h5>
-                        </div>
-                        <div className="d-flex">
-                            <Button variant="link" className="text-white p-1">
-                                <FaSearch size={20} />
-                            </Button>
-                            <Button variant="link" className="text-white p-1">
-                                <IoMdMenu size={25} />
-                            </Button>
-                        </div>
-                    </div>
-                </Container>
-            </div>
-
             {/* Content Area */}
-            <Container style={{ maxWidth: "600px", padding: "20px 15px" }}>
+            <Container style={{ maxWidth: "600px", padding: "20px 15px 100px 15px" }}>
                 {/* Title Section */}
                 <div className="text-center mb-3">
                     <h3 className="fw-bold text-success mb-2">내 주변 초록불</h3>
@@ -133,7 +108,7 @@ const LocationMain = () => {
                     <LocationMapComponent />
 
                     {/* View List Button */}
-                    <div className="text-center" style={{ marginTop: '-30px', position: 'relative', zIndex: 1000 }}>
+                    <div className="text-center" style={{ marginTop: '-30px', marginBottom: '20px', position: 'relative', zIndex: 1000 }}>
                         <Button
                             variant="light"
                             className="rounded-pill shadow"

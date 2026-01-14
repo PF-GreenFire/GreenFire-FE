@@ -1,20 +1,5 @@
 .location-main {
-    margin-top: -20px;
-    margin-left: -15px;
-    margin-right: -15px;
-    width: calc(100% + 30px);
-}
-
-.location-header {
-    background: linear-gradient(135deg, #2d7a4d 0%, #1e5a38 100%);
-    width: 100%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.logo-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin-bottom: 100px;
 }
 
 .filter-button {
