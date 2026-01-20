@@ -14,13 +14,13 @@ const AppBar = () => {
                 height: '84px',
                 left: '50%',
                 transform: 'translateX(-50%)',
-                padding: '0 15px'
+                padding: '0'
             }}
         >
             <Nav.Link
                 href="/location"
                 className="nav-item text-center"
-                style={{ width: '120px' }}
+                style={{ flex: 1 }}
             >
                 <div className="d-flex flex-column align-items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -33,7 +33,7 @@ const AppBar = () => {
             <Nav.Link
                 href="/challenges"
                 className="nav-item text-center"
-                style={{ width: '80px' }}
+                style={{ flex: 1 }}
             >
                 <div className="d-flex flex-column align-items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -47,7 +47,7 @@ const AppBar = () => {
             <Nav.Link
                 href="/"
                 className="nav-item active text-center"
-                style={{ marginTop: '-20px', width: '90px' }}
+                style={{ marginTop: '-20px', flex: 1 }}
             >
                 <div
                     className="active-circle d-flex justify-content-center align-items-center"
@@ -63,7 +63,7 @@ const AppBar = () => {
             <Nav.Link
                 href="/feed"
                 className="nav-item text-center"
-                style={{ width: '80px' }}
+                style={{ flex: 1 }}
             >
                 <div className="d-flex flex-column align-items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -75,7 +75,7 @@ const AppBar = () => {
             <Nav.Link
                 href="/mypage"
                 className="nav-item text-center"
-                style={{ width: '80px' }}
+                style={{ flex: 1 }}
             >
                 <div className="d-flex flex-column align-items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
