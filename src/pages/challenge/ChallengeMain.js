@@ -15,7 +15,7 @@ const ChallengeMain = () => {
     { id: 4, title: "유기견 보호소 견사 청소 봉사", tag: "봉사", status: "모집중", date: "2024-09-10 13:19" },
     { id: 5, title: "동물보호 캠페인", tag: "동물보호", status: "모집중", date: "2024-09-10 13:19" },
     { id: 6, title: "환경 독서모임", tag: "독서모임", status: "진행중", date: "2024-09-10 13:19" },
-  ];  
+  ];
 
   // 카테고리 클릭 시 해당 카테고리로 필터링
   const handleCategoryClick = (category) => {
@@ -40,9 +40,9 @@ const ChallengeMain = () => {
   return (
     <>
       <Row className="justify-content-center text-center mb-5">
-      <Image 
-          src="challenge-logo.png" 
-          alt="챌린지 이미지" 
+      <Image
+          src="challenge-logo.png"
+          alt="챌린지 이미지"
           style={{ width: "300px", height: "200px", objectFit: "contain" }}
           className="mb-3"
         />
@@ -59,7 +59,7 @@ const ChallengeMain = () => {
         <ChallengeList rows={filteredChallenges} onRowClick={handleRowClick} />
       </Container>
 
-      <Button 
+      <Button
         variant="success"
         style={{
           position: "fixed",

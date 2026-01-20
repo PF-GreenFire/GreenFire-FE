@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Button } from 'react-bootstrap';
+import { Container, Row, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import './MypageMain.css';
 
@@ -28,23 +28,26 @@ const MypageMain = () => {
   };
 
   return (
-    <div className="mypage-container">
+    <>
       {/* 상단 초록색 배경 헤더 */}
-      <div className="mypage-header">
-        <svg
-          className="header-wave"
-          viewBox="0 0 400 120"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M0,0 L400,0 L400,60 Q350,100 300,70 Q250,40 200,60 Q150,80 100,50 Q50,20 0,60 Z"
-            fill="#4A7C59"
-          />
-        </svg>
-      </div>
+      <Row className="mypage-header-row">
+        <div className="mypage-header">
+          <svg
+            className="header-wave"
+            viewBox="0 0 400 120"
+            preserveAspectRatio="none"
+          >
+            <path
+              d="M0,0 L400,0 L400,60 Q350,100 300,70 Q250,40 200,60 Q150,80 100,50 Q50,20 0,60 Z"
+              fill="#4A7C59"
+            />
+          </svg>
+        </div>
+      </Row>
 
       {/* 프로필 섹션 */}
-      <div className="profile-section">
+      <Row className="profile-section-row">
+        <div className="profile-section">
         <div className="profile-image-wrapper">
           {user.profileImage ? (
             <img src={user.profileImage} alt="프로필" className="profile-image" />
@@ -70,9 +73,10 @@ const MypageMain = () => {
         >
           내 정보 수정
         </Button>
-      </div>
+        </div>
+      </Row>
 
-      <Container className="mypage-content">
+      <Container className="text-center justify-content-center">
         {/* 나의 스크랩북 */}
         <section className="mypage-section">
           <div className="section-header">
@@ -149,7 +153,7 @@ const MypageMain = () => {
           </div>
         </section>
       </Container>
-    </div>
+    </>
   );
 };
 
