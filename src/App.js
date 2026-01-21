@@ -1,13 +1,14 @@
-import React from 'react';
-import { Route, Routes } from 'react-router-dom';
-import MainPage from './pages/MainPage';
-import ExDesign from './pages/ExDesign';
-import NearbyMain from './pages/map/NearbyMain';
-import ChallengeMain from './pages/challenge/ChallengeMain';
-import FeedMain from './pages/feed/FeedMain';
-import CustomLayout from './layouts/common/CustomLayout';
-import RegistChallenge from './pages/challenge/RegistChallenge';
-import ChallengeDetail from './pages/challenge/ChallengeDetail';
+import React from "react";
+import { Route, Routes } from "react-router-dom";
+import MainPage from "./pages/MainPage";
+import ExDesign from "./pages/ExDesign";
+import NearbyMain from "./pages/map/NearbyMain";
+import ChallengeMain from "./pages/challenge/ChallengeMain";
+import FeedMain from "./pages/feed/FeedMain";
+import CustomLayout from "./layouts/common/CustomLayout";
+import RegistChallenge from "./pages/challenge/RegistChallenge";
+import ChallengeDetail from "./pages/challenge/ChallengeDetail";
+import MyPageLayout from "./layouts/MyPageLayout";
 import MyPageMain from "./pages/mypage/MypageMain";
 import MypageScrapbookMain from "./pages/mypage/ScrapbookMain";
 import MypageAchievementMain from "./pages/mypage/AchievementMain";
@@ -30,19 +31,22 @@ const App = () => {
           <Route path="challenges/:id" element={<ChallengeDetail />} />
           <Route path="feed" element={<FeedMain />} />
 
-          {/* Mypage */}
-          <Route path="mypage" element={<MyPageMain />} />
-          <Route path="mypage/scrapbook" element={<MypageScrapbookMain />} />
-          <Route path="mypage/achievements" element={<MypageAchievementMain />} />
-          <Route path="mypage/challenges" element={<MypageChallengeMain />} />
-          <Route path="mypage/eco-memories" element={<MypageEchoMemoryMain />} />
-
           {/* challenge */}
           <Route path="challenge" element={<RegistChallenge />} />
+        </Route>
+
+        {/* MyPage 전용 Layout */}
+        <Route path="mypage" element={<MyPageLayout />}>
+          {/* Mypage */}
+          <Route index element={<MyPageMain />} />
+          <Route path="scrapbook" element={<MypageScrapbookMain />} />
+          <Route path="achievements" element={<MypageAchievementMain />} />
+          <Route path="challenges" element={<MypageChallengeMain />} />
+          <Route path="eco-memories" element={<MypageEchoMemoryMain />} />
         </Route>
       </Routes>
     </>
   );
-}
+};
 
 export default App;
