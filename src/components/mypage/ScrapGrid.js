@@ -1,28 +1,22 @@
-import React from 'react';
-import ScrapStoreCard from '../item/card/ScrapStoreCard';
-import ScrapChallengeCard from '../item/card/ScrapChallengeCard';
-import ScrapFeedCard from '../item/card/ScrapFeedCard';
-import ScrapFriendCard from '../item/card/ScrapFriendCard';
+import React from "react";
+import ScrapStoreCard from "./ScrapStoreCard";
+import ScrapImageCard from "./ScrapImageCard";
+import ScrapFriendCard from "./ScrapFriendCard";
 
-const ScrapGrid = ({ scraps, currentCategory, loading, error, onLikeToggle }) => {
+const ScrapGrid = ({ scraps, currentCategory, loading, error }) => {
   // 카테고리별 카드 렌더링
   const renderCard = (item) => {
-    const props = {
-      item,
-      onLikeToggle: onLikeToggle
-    };
-
     switch (currentCategory) {
-      case '초록불':
-        return <ScrapStoreCard key={item.id} {...props} />;
-      case '챌린지':
-        return <ScrapChallengeCard key={item.id} {...props} />;
-      case '피드':
-        return <ScrapFeedCard key={item.id} {...props} />;
-      case '친구':
-        return <ScrapFriendCard key={item.id} {...props} />;
+      case "초록불":
+        return <ScrapStoreCard key={item.id} item={item} />;
+      case "챌린지":
+        return <ScrapImageCard key={item.id} item={item} type="challenge" />;
+      case "피드":
+        return <ScrapImageCard key={item.id} item={item} type="feed" />;
+      case "친구":
+        return <ScrapFriendCard key={item.id} item={item} />;
       default:
-        return <ScrapStoreCard key={item.id} {...props} />;
+        return <ScrapStoreCard key={item.id} item={item} />;
     }
   };
 
@@ -44,8 +38,16 @@ const ScrapGrid = ({ scraps, currentCategory, loading, error, onLikeToggle }) =>
     );
   }
 
+  // 카테고리별 그리드 클래스 결정
+  const getGridClassName = () => {
+    if (currentCategory === "친구") {
+      return "scrap-grid scrap-grid-friend";
+    }
+    return "scrap-grid scrap-grid-3col";
+  };
+
   return (
-    <div className="scrap-grid">
+    <div className={getGridClassName()}>
       {scraps.length > 0 ? (
         scraps.map((item) => renderCard(item))
       ) : (

@@ -8,8 +8,8 @@ import FeedMain from "./pages/feed/FeedMain";
 import CustomLayout from "./layouts/common/CustomLayout";
 import RegistChallenge from "./pages/challenge/RegistChallenge";
 import ChallengeDetail from "./pages/challenge/ChallengeDetail";
-import MyPageLayout from "./layouts/MyPageLayout";
-import MyPageMain from "./pages/mypage/MypageMain";
+import MypageLayout from "./layouts/MypageLayout";
+import MypageMain from "./pages/mypage/MypageMain";
 import MypageScrapbookMain from "./pages/mypage/ScrapbookMain";
 import MypageAchievementMain from "./pages/mypage/AchievementMain";
 import MypageChallengeMain from "./pages/mypage/ChallengeMain";
@@ -35,10 +35,10 @@ const App = () => {
           <Route path="challenge" element={<RegistChallenge />} />
         </Route>
 
-        {/* MyPage 전용 Layout */}
-        <Route path="mypage" element={<MyPageLayout />}>
+        {/* Mypage 전용 Layout */}
+        <Route path="mypage" element={<MypageLayout />}>
           {/* Mypage */}
-          <Route index element={<MyPageMain />} />
+          <Route index element={<MypageMain />} />
           <Route path="scrapbook" element={<MypageScrapbookMain />} />
           <Route path="achievements" element={<MypageAchievementMain />} />
           <Route path="challenges" element={<MypageChallengeMain />} />

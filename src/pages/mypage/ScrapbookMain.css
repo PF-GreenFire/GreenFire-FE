@@ -169,12 +169,25 @@
   display: none;
 }
 
-/* 카드 그리드 */
+/* 카드 그리드 - 공통 */
 .scrap-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
   padding: 0 20px 80px 20px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* 3열 그리드 (초록불, 챌린지, 피드) */
+.scrap-grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+/* 1열 리스트 (친구) */
+.scrap-grid-friend {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .scrap-card {
@@ -258,9 +271,12 @@
 /* 반응형 디자인 */
 @media (max-width: 576px) {
   .scrap-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
     padding: 0 15px 80px 15px;
+  }
+
+  .scrap-grid-3col {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
   }
 
   .category-tabs {
@@ -279,12 +295,6 @@
 
   .filter-controls {
     padding: 12px 15px;
-  }
-}
-
-@media (min-width: 768px) {
-  .scrap-grid {
-    grid-template-columns: repeat(3, 1fr);
   }
 }
 

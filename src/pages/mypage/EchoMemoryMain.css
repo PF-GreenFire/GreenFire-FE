@@ -14,12 +14,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
+  padding: 16px 0;
   background-color: #fff;
-  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 16px;
 }
 
 .echo-header .back-icon {
+  position: static;
   font-size: 24px;
   cursor: pointer;
   color: #333;
@@ -30,6 +31,12 @@
   font-weight: 600;
   margin: 0;
   color: #333;
+}
+
+.echo-header .header-left {
+  display: flex;
+  align-items: center;
+  gap: 0;
 }
 
 .echo-header .header-right {

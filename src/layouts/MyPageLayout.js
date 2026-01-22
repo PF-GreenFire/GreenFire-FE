@@ -3,7 +3,7 @@ import Container from "react-bootstrap/Container";
 import AppBar from "../components/common/AppBar";
 import MypageNavbar from "../components/common/MypageNavbar";
 
-function UserPageLayout() {
+function MypageLayout() {
   // 현재 로케이션 불러오기
   const location = useLocation();
 
@@ -38,4 +38,4 @@ function UserPageLayout() {
   );
 }
 
-export default UserPageLayout;
+export default MypageLayout;

@@ -136,28 +136,105 @@
     -webkit-box-orient: vertical;
 }
 
-/* 친구 카드 추가 스타일 */
-.friend-card .card-image {
+/* 친구 카드 가로형 스타일 */
+.friend-card-horizontal {
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    background-color: white;
+    border-bottom: 1px solid #e0e0e0;
+    gap: 16px;
+}
+
+.friend-profile-image {
+    flex-shrink: 0;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #f5f5f5;
+}
+
+.friend-profile-image img {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
 }
 
-.friend-bio {
-    font-size: 12px;
+.friend-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.friend-nickname {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 4px 0;
+}
+
+.friend-id {
+    font-size: 13px;
+    color: #999;
+    margin: 0 0 4px 0;
+}
+
+.friend-bio-text {
+    font-size: 13px;
     color: #666;
-    margin: 0 0 8px 0;
+    margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.friend-stats {
-    display: flex;
-    gap: 10px;
-    font-size: 11px;
-    color: #999;
+.friend-message-btn {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    background-color: #e9ecef;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
-.friend-stats span {
-    display: flex;
-    align-items: center;
+.friend-message-btn:hover {
+    background-color: #d3d7db;
+}
+
+/* 이미지 카드 스타일 (챌린지/피드 공통) */
+.scrap-image-card {
+    text-align: center;
+    cursor: pointer;
+}
+
+.scrap-image-wrapper {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+}
+
+.scrap-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.2s ease;
+}
+
+.scrap-image-card:hover .scrap-image {
+    transform: scale(1.05);
+}
+
+.scrap-image-label {
+    margin: 8px 0 0 0;
+    font-size: 13px;
+    color: #333;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
