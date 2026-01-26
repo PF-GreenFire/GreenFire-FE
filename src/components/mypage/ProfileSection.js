@@ -47,7 +47,7 @@ const ProfileSection = ({ user }) => {
         <Button
           variant="success"
           className="edit-profile-btn"
-          onClick={() => navigate("/mypage/edit")}
+          onClick={() => navigate("/mypage/info")}
         >
           내 정보 수정
         </Button>
