@@ -1,18 +1,22 @@
-import React from 'react';
+import React from "react";
+import TabButtons from "../common/TabButtons";
 
-const ScrapbookCategoryTabs = ({ categories, currentCategory, onCategoryChange }) => {
+const ScrapbookCategoryTabs = ({
+  categories,
+  currentCategory,
+  onCategoryChange,
+}) => {
+  const tabs = categories.map((category) => ({
+    id: category,
+    label: category,
+  }));
+
   return (
-    <div className="category-tabs">
-      {categories.map((category) => (
-        <button
-          key={category}
-          className={`category-tab ${currentCategory === category ? 'active' : ''}`}
-          onClick={() => onCategoryChange(category)}
-        >
-          {category}
-        </button>
-      ))}
-    </div>
+    <TabButtons
+      tabs={tabs}
+      activeTab={currentCategory}
+      onTabChange={onCategoryChange}
+    />
   );
 };
 

@@ -1,30 +1,20 @@
-import React from 'react';
-import { Row, Button } from 'react-bootstrap';
+import React from "react";
+import TabButtons from "../common/TabButtons";
+
+const CHALLENGE_TABS = [
+  { id: "all", label: "전체" },
+  { id: "participating", label: "참여중인 챌린지" },
+  { id: "created", label: "내가 만든 챌린지" },
+];
 
 const ChallengeTabs = ({ activeTab, onTabClick }) => {
   return (
-    <Row className="tab-buttons-row">
-      <div className="tab-buttons">
-        <Button
-          className={`tab-button ${activeTab === 'all' ? 'active' : ''}`}
-          onClick={() => onTabClick('all')}
-        >
-          전체
-        </Button>
-        <Button
-          className={`tab-button ${activeTab === 'participating' ? 'active' : ''}`}
-          onClick={() => onTabClick('participating')}
-        >
-          참여중인 챌린지
-        </Button>
-        <Button
-          className={`tab-button ${activeTab === 'created' ? 'active' : ''}`}
-          onClick={() => onTabClick('created')}
-        >
-          내가 만든 챌린지
-        </Button>
-      </div>
-    </Row>
+    <TabButtons
+      tabs={CHALLENGE_TABS}
+      activeTab={activeTab}
+      onTabChange={onTabClick}
+      wrapWithRow={true}
+    />
   );
 };
 

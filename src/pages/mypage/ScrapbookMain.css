@@ -38,36 +38,6 @@
   margin: 0;
 }
 
-/* 카테고리 탭 */
-.category-tabs {
-  display: flex;
-  gap: 10px;
-  padding: 20px;
-  background-color: white;
-  justify-content: center;
-}
-
-.category-tab {
-  padding: 10px 24px;
-  border-radius: 25px;
-  border: none;
-  background-color: #e9ecef;
-  color: #666;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.category-tab:hover {
-  background-color: #d3d7db;
-}
-
-.category-tab.active {
-  background-color: #4A7C59;
-  color: white;
-}
-
 /* 검색 영역 */
 .search-section {
   display: flex;
@@ -277,15 +247,6 @@
   .scrap-grid-3col {
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
-  }
-
-  .category-tabs {
-    padding: 15px;
-  }
-
-  .category-tab {
-    padding: 8px 18px;
-    font-size: 13px;
   }
 
   .search-section {
