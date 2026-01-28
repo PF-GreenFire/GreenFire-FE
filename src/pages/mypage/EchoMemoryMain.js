@@ -1,4 +1,4 @@
-import { Container, Card } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EchoMemoryHeader from "../../components/mypage/EchoMemoryHeader";
@@ -8,7 +8,6 @@ import UserDetails from "../../components/mypage/UserDetails";
 import ScrapCardsSection from "../../components/mypage/ScrapCardsSection";
 import TabNavigation from "../../components/mypage/TabNavigation";
 import PhotoGrid from "../../components/mypage/PhotoGrid";
-import "./EchoMemoryMain.css";
 
 const EchoMemoryMain = () => {
   const navigate = useNavigate();

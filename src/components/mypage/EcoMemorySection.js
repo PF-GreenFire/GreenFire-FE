@@ -4,51 +4,50 @@ import { Image } from "react-bootstrap";
 const EcoMemorySection = ({ nickname, count, memories = [] }) => {
   const navigate = useNavigate();
 
-  // 최대 5개까지만 표시하고 더보기 카드 추가
   const displayMemories = memories.slice(0, 5);
   const hasMore = memories.length > 5;
 
   return (
-    <section className="mypage-section">
-      <div className="section-header">
-        <h3 className="section-title">
+    <section className="mb-6">
+      <div className="flex justify-between items-center mb-3">
+        <h3 className="text-base font-semibold text-gray-800 m-0">
           {nickname}님의 에코메모리{" "}
-          <span className="count-badge">+{count}</span>
+          <span className="text-sm font-normal text-gray-500">+{count}</span>
         </h3>
         <button
-          className="more-btn"
+          className="bg-transparent border-none text-gray-500 text-sm cursor-pointer p-0 hover:text-green-primary"
           onClick={() => navigate("/mypage/eco-memories")}
         >
           더보기
         </button>
       </div>
       {memories.length > 0 ? (
-        <div className="eco-memory-grid">
+        <div className="grid grid-cols-3 gap-3">
           {displayMemories.map((memory) => (
             <div
               key={memory.id}
-              className="eco-memory-item"
+              className="aspect-square rounded-xl overflow-hidden cursor-pointer"
               onClick={() => navigate(`/feed/${memory.id}`)}
             >
               <Image
                 src={memory.image}
                 alt={memory.title || "에코메모리"}
-                className="eco-memory-image"
+                className="w-full h-full object-cover"
               />
             </div>
           ))}
           {hasMore && (
             <div
-              className="eco-memory-item more-card"
+              className="aspect-square rounded-xl overflow-hidden cursor-pointer bg-gray-100 flex items-center justify-center border border-gray-200"
               onClick={() => navigate("/mypage/eco-memories")}
             >
-              <span className="more-dots">···</span>
+              <span className="text-2xl text-gray-500 font-bold">···</span>
             </div>
           )}
         </div>
       ) : (
-        <div className="empty-box">
-          <p className="empty-text">에코메모리를 시작해보세요!</p>
+        <div className="bg-gray-100 rounded-xl py-10 px-5 flex items-center justify-center">
+          <p className="text-gray-500 text-sm m-0">에코메모리를 시작해보세요!</p>
         </div>
       )}
     </section>

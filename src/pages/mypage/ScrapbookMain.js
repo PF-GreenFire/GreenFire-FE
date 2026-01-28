@@ -2,17 +2,16 @@ import { Container } from "react-bootstrap";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setCategory } from "../../modules/ScrapbookReducer";
-import ScrapbookHeader from "../../components/mypage/ScrapbookHeader";
-import ScrapbookCategoryTabs from "../../components/mypage/ScrapbookCategoryTabs";
+import { setActiveTab } from "../../modules/ScrapbookReducer";
+import PageHeader from "../../components/mypage/PageHeader";
+import TabButtons from "../../components/common/TabButtons";
 import ScrapbookSearchFilter from "../../components/mypage/ScrapbookSearchFilter";
-import ScrapbookFilterControls from "../../components/mypage/ScrapbookFilterControls";
+import FilterControls from "../../components/common/FilterControls";
 import ScrapGrid from "../../components/mypage/ScrapGrid";
-import "./ScrapbookMain.css";
 
 // 임시 데이터
 const MOCK_DATA = {
-  초록불: [
+  greenFire: [
     {
       id: 1,
       name: "초록밥",
@@ -86,7 +85,7 @@ const MOCK_DATA = {
       liked: true,
     },
   ],
-  챌린지: [
+  challenge: [
     {
       id: 1,
       title: "HEJ, PLOGGING",
@@ -160,7 +159,7 @@ const MOCK_DATA = {
       liked: true,
     },
   ],
-  피드: [
+  feed: [
     {
       id: 1,
       author: "가연핑",
@@ -225,7 +224,7 @@ const MOCK_DATA = {
       liked: true,
     },
   ],
-  친구: [
+  friend: [
     {
       id: 1,
       nickname: "가연핑",
@@ -290,10 +289,10 @@ const ScrapbookMain = () => {
   const dispatch = useDispatch();
 
   // Redux 상태
-  const { currentCategory } = useSelector((state) => state.scrapbookReducer);
+  const { activeTab } = useSelector((state) => state.scrapbookReducer);
 
   // 임시 데이터 사용 (테스트용)
-  const scraps = MOCK_DATA[currentCategory] || [];
+  const scraps = MOCK_DATA[activeTab] || [];
   const loading = false;
   const error = null;
 
@@ -302,7 +301,13 @@ const ScrapbookMain = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("최신 등록순");
 
-  const categories = ["초록불", "챌린지", "피드", "친구"];
+  // 탭 옵션
+  const tabs = [
+    { id: "greenFire", label: "초록불" },
+    { id: "challenge", label: "챌린지" },
+    { id: "feed", label: "피드" },
+    { id: "friend", label: "친구" },
+  ];
   const regions = [
     "지역명",
     "서울시 강남구",
@@ -323,8 +328,8 @@ const ScrapbookMain = () => {
   // }, [currentCategory, selectedRegion, searchQuery, sortBy, dispatch]);
 
   // 카테고리 변경 핸들러
-  const handleCategoryChange = (category) => {
-    dispatch(setCategory(category));
+  const handleTabClick = (tab) => {
+    dispatch(setActiveTab(tab));
     // 필터 초기화
     setSelectedRegion("지역명");
     setSearchQuery("");
@@ -338,14 +343,13 @@ const ScrapbookMain = () => {
 
   return (
     <>
-      <ScrapbookHeader onGoBack={handleGoBack} />
+      <PageHeader title="나의 스크랩북" />
 
-      <ScrapbookCategoryTabs
-        categories={categories}
-        currentCategory={currentCategory}
-        onCategoryChange={handleCategoryChange}
+      <TabButtons
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={handleTabClick}
       />
-
       <ScrapbookSearchFilter
         regions={regions}
         selectedRegion={selectedRegion}
@@ -353,18 +357,16 @@ const ScrapbookMain = () => {
         onRegionChange={setSelectedRegion}
         onSearchChange={setSearchQuery}
       />
-
-      <ScrapbookFilterControls
+      <FilterControls
         itemCount={scraps.length}
         sortOptions={sortOptions}
         sortBy={sortBy}
         onSortChange={setSortBy}
       />
-
       <Container style={{ marginBottom: "120px", padding: "0 15px" }}>
         <ScrapGrid
           scraps={scraps}
-          currentCategory={currentCategory}
+          activeTab={activeTab}
           loading={loading}
           error={error}
         />

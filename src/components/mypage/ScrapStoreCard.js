@@ -1,5 +1,4 @@
 import React from "react";
-import { Card } from "react-bootstrap";
 import { FaRegHeart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -7,56 +6,42 @@ const ScrapStoreCard = ({ item }) => {
   const navigate = useNavigate();
 
   return (
-    <Card
-      className="border-0 shadow-sm rounded-4"
-      style={{
-        cursor: "pointer",
-        overflow: "hidden",
-      }}
+    <div
+      className="bg-white rounded-xl overflow-hidden shadow-md cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
       onClick={() => navigate(`/store/${item.storeCode || item.id}`)}
     >
-      <Card.Img
-        variant="top"
+      <img
         src={item.image || "https://via.placeholder.com/300x200"}
-        style={{ height: "120px", objectFit: "cover" }}
+        alt={item.name}
+        className="w-full h-[120px] object-cover"
       />
 
-      <Card.Body className="p-2">
-        <div className="d-flex justify-content-between align-items-start">
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <Card.Text className="text-muted small mb-1">
-              {item.location}
-            </Card.Text>
-            <Card.Title
-              className="h6 mb-1 text-success fw-bold"
-              style={{
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
+      <div className="p-2">
+        <div className="flex justify-between items-start">
+          <div className="flex-1 min-w-0">
+            <p className="text-gray-500 text-xs mb-1">{item.location}</p>
+            <h3 className="text-base font-semibold text-green-primary mb-1 overflow-hidden text-ellipsis whitespace-nowrap">
               {item.name}
-            </Card.Title>
+            </h3>
           </div>
-          <button className="btn p-0 border-0" style={{ flexShrink: 0 }}>
-            <FaRegHeart className="text-danger" />
+          <button className="p-0 border-none bg-transparent flex-shrink-0">
+            <FaRegHeart className="text-red-500" />
           </button>
         </div>
         {item.tags && item.tags.length > 0 && (
-          <div className="d-flex gap-1 flex-wrap mt-1">
+          <div className="flex gap-1 flex-wrap mt-1">
             {item.tags.map((tag, index) => (
               <span
                 key={index}
-                className="badge bg-light text-muted"
-                style={{ fontSize: "10px" }}
+                className="bg-gray-100 text-gray-500 text-[10px] py-1 px-2 rounded-xl"
               >
                 {tag}
               </span>
             ))}
           </div>
         )}
-      </Card.Body>
-    </Card>
+      </div>
+    </div>
   );
 };
 

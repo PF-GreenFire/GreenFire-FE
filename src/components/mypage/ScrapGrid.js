@@ -3,56 +3,52 @@ import ScrapStoreCard from "./ScrapStoreCard";
 import ScrapImageCard from "./ScrapImageCard";
 import ScrapFriendCard from "./ScrapFriendCard";
 
-const ScrapGrid = ({ scraps, currentCategory, loading, error }) => {
-  // 카테고리별 카드 렌더링
+const ScrapGrid = ({ scraps, activeTab, loading, error }) => {
   const renderCard = (item) => {
-    switch (currentCategory) {
-      case "초록불":
+    switch (activeTab) {
+      case "greenFire":
         return <ScrapStoreCard key={item.id} item={item} />;
-      case "챌린지":
+      case "challenge":
         return <ScrapImageCard key={item.id} item={item} type="challenge" />;
-      case "피드":
+      case "feed":
         return <ScrapImageCard key={item.id} item={item} type="feed" />;
-      case "친구":
+      case "friend":
         return <ScrapFriendCard key={item.id} item={item} />;
       default:
         return <ScrapStoreCard key={item.id} item={item} />;
     }
   };
 
-  // 로딩 상태
   if (loading) {
     return (
-      <div className="loading-container">
-        <p>로딩 중...</p>
+      <div className="text-center py-16 px-5 text-gray-600">
+        <p className="text-base">로딩 중...</p>
       </div>
     );
   }
 
-  // 에러 상태
   if (error) {
     return (
-      <div className="error-container">
-        <p>에러가 발생했습니다: {error}</p>
+      <div className="text-center py-16 px-5 text-red-500">
+        <p className="text-sm">에러가 발생했습니다: {error}</p>
       </div>
     );
   }
 
-  // 카테고리별 그리드 클래스 결정
-  const getGridClassName = () => {
-    if (currentCategory === "친구") {
-      return "scrap-grid scrap-grid-friend";
-    }
-    return "scrap-grid scrap-grid-3col";
-  };
+  const gridClassName =
+    activeTab === "friend"
+      ? "flex flex-col gap-0 pb-20 max-h-[60vh] overflow-y-auto"
+      : "grid grid-cols-3 gap-3 pb-20 max-h-[60vh] overflow-y-auto";
 
   return (
-    <div className={getGridClassName()}>
+    <div className={gridClassName}>
       {scraps.length > 0 ? (
         scraps.map((item) => renderCard(item))
       ) : (
-        <div className="empty-state">
-          <p>스크랩한 {currentCategory}이(가) 없습니다.</p>
+        <div className="col-span-full text-center py-16 px-5">
+          <p className="text-[15px] text-gray-400">
+            스크랩한 {activeTab}이(가) 없습니다.
+          </p>
         </div>
       )}
     </div>

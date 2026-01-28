@@ -10,21 +10,25 @@ const ScrapCardsSection = ({ onCardClick }) => {
   ];
 
   return (
-    <Row className="scrap-cards-row">
-      <div className="scrap-cards-container">
+    <Row className="m-0 p-0">
+      <div className="flex gap-3 p-4 overflow-x-auto scrollbar-none">
         {cards.map((card) => (
-          <div key={card.type} className="scrap-card" onClick={() => onCardClick(card.type)}>
+          <div
+            key={card.type}
+            className="relative min-w-[140px] h-[90px] rounded-xl overflow-hidden cursor-pointer flex-shrink-0"
+            onClick={() => onCardClick(card.type)}
+          >
             <img
               src={card.image}
               alt={card.label}
-              className="scrap-card-image"
+              className="w-full h-full object-cover"
               onError={(e) => {
                 e.target.src = card.fallback;
               }}
             />
-            <div className="scrap-card-overlay">
-              <FaHeart className="scrap-heart" />
-              <span className="scrap-label">{card.label}</span>
+            <div className="absolute bottom-0 left-0 right-0 py-2 px-3 bg-gradient-to-t from-black/60 to-transparent flex items-center gap-1.5">
+              <FaHeart className="text-white text-xs" />
+              <span className="text-white text-xs font-medium">{card.label}</span>
             </div>
           </div>
         ))}

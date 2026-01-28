@@ -1,32 +1,28 @@
 import React from "react";
-import { Row, Button } from "react-bootstrap";
-import "./TabButtons.css";
+import { Row } from "react-bootstrap";
 
-const TabButtons = ({
-  tabs,
-  activeTab,
-  onTabChange,
-  containerClassName = "tab-buttons",
-  buttonClassName = "tab-button",
-  wrapWithRow = false,
-  rowClassName = "tab-buttons-row",
-}) => {
+const TabButtons = ({ tabs, activeTab, onTabChange, wrapWithRow = false }) => {
   const content = (
-    <div className={containerClassName}>
+    <div className="flex justify-center gap-2.5 py-3 px-4 bg-white">
       {tabs.map((tab) => (
-        <Button
+        <button
           key={tab.id}
-          className={`${buttonClassName} ${activeTab === tab.id ? "active" : ""}`}
+          className={`px-4 py-2 rounded-full border-none !text-sm font-medium cursor-pointer transition-all duration-300 focus:outline-none whitespace-nowrap
+            ${
+              activeTab === tab.id
+                ? "bg-green-primary text-white hover:bg-green-dark"
+                : "bg-gray-200 text-gray-600 hover:bg-green-badge hover:text-green-dark"
+            }`}
           onClick={() => onTabChange(tab.id)}
         >
           {tab.label}
-        </Button>
+        </button>
       ))}
     </div>
   );
 
   if (wrapWithRow) {
-    return <Row className={rowClassName}>{content}</Row>;
+    return <Row className="m-0 p-0">{content}</Row>;
   }
 
   return content;

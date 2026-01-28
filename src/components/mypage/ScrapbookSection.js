@@ -1,59 +1,69 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setCategory } from "../../modules/ScrapbookReducer";
+import { setActiveTab } from "../../modules/ScrapbookReducer";
 
 const ScrapbookSection = ({ scrapbook }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const handleCategoryClick = (category) => {
-    dispatch(setCategory(category));
+  const handleCategoryClick = (tab) => {
+    dispatch(setActiveTab(tab));
     navigate("/mypage/scrapbook");
   };
 
   return (
-    <section className="mypage-section">
-      <div className="section-header">
-        <h3 className="section-title">나의 스크랩북</h3>
+    <section className="mb-6">
+      <div className="flex justify-between items-center mb-3">
+        <h3 className="text-base font-semibold text-gray-800 m-0">
+          나의 스크랩북
+        </h3>
         <button
-          className="more-btn"
+          className="bg-transparent border-none text-gray-500 text-sm cursor-pointer p-0 hover:text-green-primary"
           onClick={() => navigate("/mypage/scrapbook")}
         >
           더보기
         </button>
       </div>
-      <div className="scrapbook-box">
+      <div className="flex bg-green-light rounded-xl py-4 px-2">
         <div
-          className="scrapbook-item"
-          onClick={() => handleCategoryClick("초록불")}
+          className="flex-1 flex flex-col items-center gap-1 cursor-pointer"
+          onClick={() => handleCategoryClick("greenFire")}
         >
-          <span className="scrapbook-count">{scrapbook.greenFire}</span>
-          <span className="scrapbook-label">초록불</span>
+          <span className="text-lg font-semibold text-gray-800">
+            {scrapbook.greenFire}
+          </span>
+          <span className="text-sm text-gray-600">초록불</span>
         </div>
-        <div className="scrapbook-divider" />
+        <div className="w-px bg-[#B8D4B4] mx-1" />
         <div
-          className="scrapbook-item"
-          onClick={() => handleCategoryClick("챌린지")}
+          className="flex-1 flex flex-col items-center gap-1 cursor-pointer"
+          onClick={() => handleCategoryClick("challenge")}
         >
-          <span className="scrapbook-count">{scrapbook.challenge}</span>
-          <span className="scrapbook-label">챌린지</span>
+          <span className="text-lg font-semibold text-gray-800">
+            {scrapbook.challenge}
+          </span>
+          <span className="text-sm text-gray-600">챌린지</span>
         </div>
-        <div className="scrapbook-divider" />
+        <div className="w-px bg-[#B8D4B4] mx-1" />
         <div
-          className="scrapbook-item"
-          onClick={() => handleCategoryClick("피드")}
+          className="flex-1 flex flex-col items-center gap-1 cursor-pointer"
+          onClick={() => handleCategoryClick("feed")}
         >
-          <span className="scrapbook-count">{scrapbook.feed}</span>
-          <span className="scrapbook-label">피드</span>
+          <span className="text-lg font-semibold text-gray-800">
+            {scrapbook.feed}
+          </span>
+          <span className="text-sm text-gray-600">피드</span>
         </div>
-        <div className="scrapbook-divider" />
+        <div className="w-px bg-[#B8D4B4] mx-1" />
         <div
-          className="scrapbook-item"
-          onClick={() => handleCategoryClick("친구")}
+          className="flex-1 flex flex-col items-center gap-1 cursor-pointer"
+          onClick={() => handleCategoryClick("friend")}
         >
-          <span className="scrapbook-count">{scrapbook.friends}</span>
-          <span className="scrapbook-label">친구</span>
+          <span className="text-lg font-semibold text-gray-800">
+            {scrapbook.friends}
+          </span>
+          <span className="text-sm text-gray-600">친구</span>
         </div>
       </div>
     </section>

@@ -1,60 +1,35 @@
-import React from 'react';
-import { Row, Col, Dropdown } from 'react-bootstrap';
+import React from "react";
 
-const ChallengeCardGrid = ({
-  challenges,
-  totalCount,
-  sortBy,
-  onSortChange,
-  onChallengeClick,
-  getSortText
-}) => {
+const ChallengeCardGrid = ({ challenges, onChallengeClick }) => {
   return (
-    <>
-      {/* 결과 카운트 및 정렬 */}
-      <div className="result-header">
-        <span className="result-count">총 {totalCount}개</span>
-        <Dropdown className="sort-dropdown">
-          <Dropdown.Toggle className="sort-toggle">
-            {getSortText()}
-          </Dropdown.Toggle>
-          <Dropdown.Menu align="end">
-            <Dropdown.Item onClick={() => onSortChange('latest')}>최신 등록순</Dropdown.Item>
-            <Dropdown.Item onClick={() => onSortChange('popular')}>인기순</Dropdown.Item>
-            <Dropdown.Item onClick={() => onSortChange('deadline')}>마감임박순</Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-      </div>
-
-      {/* 챌린지 카드 그리드 */}
-      <Row>
-        {challenges.length > 0 ? (
-          challenges.map((challenge) => (
-            <Col xs={4} key={challenge.id} className="challenge-col">
-              <div
-                className="challenge-card"
-                onClick={() => onChallengeClick(challenge.id)}
-              >
-                <div className="challenge-image-wrapper">
-                  <img
-                    src={challenge.imageUrl || '/challenge-placeholder.png'}
-                    alt={challenge.title}
-                    className="challenge-image"
-                  />
-                </div>
-                <div className="challenge-info">
-                  <p className="challenge-type">{challenge.type || '기연빙'}</p>
-                </div>
-              </div>
-            </Col>
-          ))
-        ) : (
-          <div className="no-challenges">
-            <p>챌린지가 없습니다.</p>
+    <div className="grid grid-cols-3 gap-3 pb-20 max-h-[60vh] overflow-y-auto">
+      {challenges.length > 0 ? (
+        challenges.map((challenge) => (
+          <div
+            key={challenge.id}
+            className="cursor-pointer transition-transform duration-200 bg-white rounded-xl overflow-hidden hover:-translate-y-0.5"
+            onClick={() => onChallengeClick(challenge.id)}
+          >
+            <div className="relative w-full pb-[100%] overflow-hidden bg-gray-100 rounded-xl">
+              <img
+                src={challenge.imageUrl || "/challenge-placeholder.png"}
+                alt={challenge.title}
+                className="absolute inset-0 w-full h-full object-cover rounded-xl"
+              />
+            </div>
+            <div className="py-2 px-1 text-center">
+              <p className="m-0 text-[13px] font-normal text-gray-600">
+                {challenge.type || "기연빙"}
+              </p>
+            </div>
           </div>
-        )}
-      </Row>
-    </>
+        ))
+      ) : (
+        <div className="col-span-full text-center py-16 px-5 text-gray-400">
+          <p className="text-base m-0">챌린지가 없습니다.</p>
+        </div>
+      )}
+    </div>
   );
 };
 

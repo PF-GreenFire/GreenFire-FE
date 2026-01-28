@@ -1,12 +1,11 @@
 import React, { useState, useRef } from "react";
 import { Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import AchievementHeader from "../../components/mypage/AchievementHeader";
+import PageHeader from "../../components/mypage/PageHeader";
 import AchievementProfileCard from "../../components/mypage/AchievementProfileCard";
 import NewBadgeAlert from "../../components/mypage/NewBadgeAlert";
 import BadgesGrid from "../../components/mypage/BadgesGrid";
 import BadgeDetailModal from "../../components/mypage/BadgeDetailModal";
-import "./AchievementMain.css";
 
 const AchievementMain = () => {
   const navigate = useNavigate();
@@ -134,7 +133,7 @@ const AchievementMain = () => {
 
   return (
     <>
-      <AchievementHeader onGoBack={handleGoBack} />
+      <PageHeader title="달성한 업적" />
 
       <Container
         className="text-center justify-content-center"
@@ -162,7 +161,9 @@ const AchievementMain = () => {
 
       {/* 토스트 메시지 */}
       {showToast && (
-        <div className="toast-message">배지를 이미지로 저장했어요.</div>
+        <div className="fixed bottom-[100px] left-1/2 -translate-x-1/2 bg-black/80 text-white py-3.5 px-6 rounded-3xl text-sm z-[1000] animate-pulse">
+          배지를 이미지로 저장했어요.
+        </div>
       )}
     </>
   );

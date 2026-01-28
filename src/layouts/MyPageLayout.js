@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import AppBar from "../components/common/AppBar";
-import MypageNavbar from "../components/common/MypageNavbar";
+import MypageNavbar from "../components/mypage/MypageNavbar";
 
 function MypageLayout() {
   // 현재 로케이션 불러오기

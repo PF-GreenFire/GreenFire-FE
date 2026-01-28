@@ -4,7 +4,6 @@ import ScrapbookSection from "../../components/mypage/ScrapbookSection";
 import AchievementSection from "../../components/mypage/AchievementSection";
 import MypageChallengeSection from "../../components/mypage/MypageChallengeSection";
 import EcoMemorySection from "../../components/mypage/EcoMemorySection";
-import "./MypageMain.css";
 
 const MypageMain = () => {
   // 임시 사용자 데이터 (추후 Redux에서 가져올 수 있음)
