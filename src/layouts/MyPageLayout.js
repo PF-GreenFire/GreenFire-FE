@@ -23,6 +23,7 @@ function MypageLayout() {
     >
       <MypageNavbar />
       <Container
+        className="mt-3 flex-grow-1"
         style={{
           maxWidth: "563px",
           margin: "0 auto",

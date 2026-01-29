@@ -1,4 +1,3 @@
-import { Container } from "react-bootstrap";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EchoMemoryHeader from "../../components/mypage/EchoMemoryHeader";
@@ -8,10 +7,13 @@ import UserDetails from "../../components/mypage/UserDetails";
 import ScrapCardsSection from "../../components/mypage/ScrapCardsSection";
 import TabNavigation from "../../components/mypage/TabNavigation";
 import PhotoGrid from "../../components/mypage/PhotoGrid";
+import CoverImageModal from "../../components/mypage/CoverImageModal";
 
 const EchoMemoryMain = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("posts"); // posts, likes
+  const [activeTab, setActiveTab] = useState("posts");
+  const [showCoverModal, setShowCoverModal] = useState(false);
+  const [coverImage, setCoverImage] = useState(null);
 
   // 임시 사용자 데이터
   const user = {
@@ -20,7 +22,7 @@ const EchoMemoryMain = () => {
     profileImage: null,
     level: 8,
     bio: "자기소개 영역 안녕하세요 김초록입니다 같이 환경 보호 해요~ 봉사활동 많이 다녀요 관심있으시면 우체통 보내주세요",
-    tags: ["관심주제그나염", "비건식", "봉사활동"],
+    tags: ["관심주제태그나염", "비건식", "봉사활동"],
     stats: {
       posts: 9,
       followers: 10,
@@ -28,7 +30,7 @@ const EchoMemoryMain = () => {
     },
   };
 
-  // 임시 게시물 데이터 (이미지 그리드용)
+  // 임시 게시물 데이터
   const posts = [
     { id: 1, imageUrl: "https://picsum.photos/200?random=1" },
     { id: 2, imageUrl: "https://picsum.photos/200?random=2" },
@@ -41,17 +43,21 @@ const EchoMemoryMain = () => {
     { id: 9, imageUrl: "https://picsum.photos/200?random=9" },
   ];
 
-  // 뒤로가기 핸들러
+  // 좋아요한 게시물 데이터
+  const likedPosts = [
+    { id: 101, imageUrl: "https://picsum.photos/200?random=101" },
+    { id: 102, imageUrl: "https://picsum.photos/200?random=102" },
+    { id: 103, imageUrl: "https://picsum.photos/200?random=103" },
+  ];
+
   const handleGoBack = () => {
     navigate(-1);
   };
 
-  // 탭 클릭 핸들러
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };
 
-  // 카드 클릭 핸들러
   const handleCardClick = (type) => {
     if (type === "places") {
       navigate("/mypage/scrapbook");
@@ -62,17 +68,40 @@ const EchoMemoryMain = () => {
     }
   };
 
+  const handleSettingsClick = () => {
+    setShowCoverModal(true);
+  };
+
+  const handleCoverImageSave = (image) => {
+    setCoverImage(image);
+    // TODO: API 호출하여 서버에 저장
+  };
+
   return (
     <>
       <EchoMemoryHeader username={user.username} onGoBack={handleGoBack} />
-      <Container style={{ marginBottom: "120px", padding: "0 15px" }}>
-        <ProfileBanner />
-        <ProfileInfoSection user={user} />
-        <UserDetails user={user} />
-        <ScrapCardsSection onCardClick={handleCardClick} />
+
+      <div className="mb-[120px]">
+        <ProfileBanner coverImage={coverImage} />
+        <div className="px-4">
+          <ProfileInfoSection
+            user={user}
+            onSettingsClick={handleSettingsClick}
+          />
+          <UserDetails user={user} />
+          <ScrapCardsSection onCardClick={handleCardClick} />
+        </div>
         <TabNavigation activeTab={activeTab} onTabClick={handleTabClick} />
-        <PhotoGrid posts={posts} />
-      </Container>
+        <PhotoGrid posts={activeTab === "posts" ? posts : likedPosts} />
+      </div>
+
+      {/* 커버 이미지 변경 모달 */}
+      <CoverImageModal
+        show={showCoverModal}
+        onHide={() => setShowCoverModal(false)}
+        currentImage={coverImage}
+        onSave={handleCoverImageSave}
+      />
     </>
   );
 };

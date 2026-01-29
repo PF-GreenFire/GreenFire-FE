@@ -5,7 +5,7 @@ const ProfileSection = ({ user }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full -mx-4 w-[calc(100%+30px)]">
+    <div className="w-full w-[calc(100%+30px)]">
       {/* 배너 이미지 */}
       <div className="w-full h-[120px] overflow-hidden bg-gradient-to-br from-green-primary to-[#6B9B7A]">
         <Image

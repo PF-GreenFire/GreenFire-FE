@@ -1,5 +1,4 @@
-import React, { useState, useRef } from "react";
-import { Container } from "react-bootstrap";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import PageHeader from "../../components/mypage/PageHeader";
 import AchievementProfileCard from "../../components/mypage/AchievementProfileCard";
@@ -31,7 +30,7 @@ const AchievementMain = () => {
   };
 
   // 임시 배지 데이터
-  const badges = [
+  const [badges, setBadges] = useState([
     {
       id: 1,
       name: "초록빛 식탁",
@@ -40,6 +39,8 @@ const AchievementMain = () => {
       image: "/images/badges/natural-product.png",
       unlocked: true,
       unlockedDate: "2024.09.28",
+      isNew: true,
+      isViewed: false,
     },
     {
       id: 2,
@@ -48,6 +49,8 @@ const AchievementMain = () => {
       description: "토끼를 절대 지켰어요",
       image: "/images/badges/locked.png",
       unlocked: false,
+      isNew: false,
+      isViewed: true,
     },
     {
       id: 3,
@@ -57,6 +60,8 @@ const AchievementMain = () => {
       image: "/images/badges/organic.png",
       unlocked: true,
       unlockedDate: "2024.09.15",
+      isNew: true,
+      isViewed: false,
     },
     {
       id: 4,
@@ -66,6 +71,8 @@ const AchievementMain = () => {
       image: "/images/badges/organic-tomato.png",
       unlocked: true,
       unlockedDate: "2024.08.20",
+      isNew: false,
+      isViewed: true,
     },
     {
       id: 5,
@@ -74,6 +81,8 @@ const AchievementMain = () => {
       description: "초록불 마스터가 되었어요",
       image: "/images/badges/locked.png",
       unlocked: false,
+      isNew: false,
+      isViewed: true,
     },
     {
       id: 6,
@@ -82,14 +91,27 @@ const AchievementMain = () => {
       description: "친구에게 매장을 추천했어요",
       image: "/images/badges/locked.png",
       unlocked: false,
+      isNew: false,
+      isViewed: true,
     },
-  ];
+  ]);
 
-  // 새 배지 알림 여부 (임시 데이터)
-  const [hasNewBadge] = useState(true);
+  // 새 배지가 있는지 확인 (unlocked이면서 isViewed가 false인 배지)
+  const hasNewBadge = badges.some(
+    (badge) => badge.unlocked && badge.isNew && !badge.isViewed
+  );
 
   const handleBadgeClick = (badge) => {
     if (badge.unlocked) {
+      // 새 배지 클릭 시 isViewed를 true로 변경
+      if (badge.isNew && !badge.isViewed) {
+        setBadges((prevBadges) =>
+          prevBadges.map((b) =>
+            b.id === badge.id ? { ...b, isViewed: true } : b
+          )
+        );
+        // TODO: API 호출하여 서버에 isViewed 상태 업데이트
+      }
       setSelectedBadge(badge);
       setShowModal(true);
     }
@@ -135,10 +157,7 @@ const AchievementMain = () => {
     <>
       <PageHeader title="달성한 업적" />
 
-      <Container
-        className="text-center justify-content-center"
-        style={{ marginBottom: "120px" }}
-      >
+      <div className="px-4 mb-[120px]">
         <AchievementProfileCard
           user={user}
           progress={progress}
@@ -148,7 +167,7 @@ const AchievementMain = () => {
         {hasNewBadge && <NewBadgeAlert />}
 
         <BadgesGrid badges={badges} onBadgeClick={handleBadgeClick} />
-      </Container>
+      </div>
 
       <BadgeDetailModal
         show={showModal}

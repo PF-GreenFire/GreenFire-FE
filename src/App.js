@@ -15,6 +15,7 @@ import MypageAchievementMain from "./pages/mypage/AchievementMain";
 import MypageChallengeMain from "./pages/mypage/ChallengeMain";
 import MypageEchoMemoryMain from "./pages/mypage/EchoMemoryMain";
 import MypageInfo from "./pages/mypage/MypageInfo";
+import MypageWithdrawal from "./pages/mypage/MypageWithdrawal";
 import LocationMain from "./pages/location/LocationMain";
 
 const App = () => {
@@ -45,6 +46,7 @@ const App = () => {
           <Route path="challenges" element={<MypageChallengeMain />} />
           <Route path="eco-memories" element={<MypageEchoMemoryMain />} />
           <Route path="info" element={<MypageInfo />} />
+          <Route path="withdrawal" element={<MypageWithdrawal />} />
         </Route>
       </Routes>
     </>

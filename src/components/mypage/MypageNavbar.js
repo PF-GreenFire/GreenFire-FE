@@ -1,49 +1,147 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { HiOutlineMail } from 'react-icons/hi';
-import { RxHamburgerMenu } from 'react-icons/rx';
+import Container from "react-bootstrap/Container";
+import "bootstrap/dist/css/bootstrap.css";
+import { useState } from "react";
+import { IoMdMenu } from "react-icons/io";
+import Offcanvas from "react-bootstrap/Offcanvas";
+import Nav from "react-bootstrap/Nav";
+import { useNavigate } from "react-router-dom";
+import { Button } from "react-bootstrap";
+import LoginPopup from "../../pages/auth/LoginPopup";
 
-const MypageNavbar = () => {
+function MypageNavbar() {
+  const [show, setShow] = useState(false);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogoClick = () => {
-    navigate('/');
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
+  const handleNavigation = (path) => {
+    navigate(path);
+    handleClose();
   };
 
-  const handleMailClick = () => {
-    navigate('/mypage/mailbox');
+  const handleLogin = () => {
+    setShowLoginPopup(true);
+    handleClose();
   };
 
-  const handleMenuClick = () => {
-    // TODO: 사이드 메뉴 열기
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    handleClose();
   };
 
   return (
-    <nav className="w-full bg-white top-0 z-[100]">
-      <div className="max-w-[563px] mx-auto flex justify-between items-center py-3 px-4 border-b border-gray-100">
-        <div
-          className="text-xl font-bold text-green-primary cursor-pointer tracking-tight"
-          onClick={handleLogoClick}
-        >
-          GREEN FIRE
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            className="bg-transparent border-none p-1 cursor-pointer text-gray-800 flex items-center justify-center hover:text-green-primary"
-            onClick={handleMailClick}
-          >
-            <HiOutlineMail size={24} />
-          </button>
-          <button
-            className="bg-transparent border-none p-1 cursor-pointer text-gray-800 flex items-center justify-center hover:text-green-primary"
-            onClick={handleMenuClick}
-          >
-            <RxHamburgerMenu size={24} />
-          </button>
-        </div>
+    <>
+      <div
+        style={{
+          backgroundColor: "#ffffff",
+          width: "100%",
+          position: "relative",
+        }}
+      >
+        <Container style={{ maxWidth: "600px" }}>
+          <div className="d-flex justify-content-between align-items-center py-2">
+            <div>
+              <h5
+                className="fw-bold text-success mb-0"
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate("/")}
+              >
+                GREEN FIRE
+              </h5>
+            </div>
+            <div className="d-flex">
+              <Button
+                variant="link"
+                className="text-success p-1"
+                onClick={handleShow}
+              >
+                <IoMdMenu size={25} />
+              </Button>
+            </div>
+          </div>
+        </Container>
       </div>
-    </nav>
+
+      {/* Offcanvas Sidebar */}
+      <Offcanvas
+        show={show}
+        onHide={handleClose}
+        placement="end"
+        className="bg-light"
+      >
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title className="fw-bold text-dark">메뉴</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <Nav className="flex-column">
+            {!isLoggedIn ? (
+              <Nav.Link
+                onClick={handleLogin}
+                className="text-success fw-bold py-2 px-3 border-bottom"
+                style={{ cursor: "pointer" }}
+              >
+                로그인
+              </Nav.Link>
+            ) : (
+              <>
+                <Nav.Link
+                  onClick={() => handleNavigation("/profile")}
+                  className="text-dark fw-medium py-2 px-3 border-bottom"
+                  style={{ cursor: "pointer" }}
+                >
+                  나의 정보
+                </Nav.Link>
+                <Nav.Link
+                  onClick={handleLogout}
+                  className="text-danger fw-medium py-2 px-3 border-bottom"
+                  style={{ cursor: "pointer" }}
+                >
+                  로그아웃
+                </Nav.Link>
+              </>
+            )}
+            <Nav.Link
+              onClick={() => handleNavigation("/cs")}
+              className="text-dark fw-medium py-2 px-3 border-bottom"
+              style={{ cursor: "pointer" }}
+            >
+              CS
+            </Nav.Link>
+            <Nav.Link
+              onClick={() => handleNavigation("/main")}
+              className="text-dark fw-medium py-2 px-3 border-bottom"
+              style={{ cursor: "pointer" }}
+            >
+              공지사항
+            </Nav.Link>
+            <Nav.Link
+              onClick={() => handleNavigation("/about")}
+              className="text-dark fw-medium py-2 px-3 border-bottom"
+              style={{ cursor: "pointer" }}
+            >
+              About
+            </Nav.Link>
+            <Nav.Link
+              onClick={() => handleNavigation("/settings")}
+              className="text-dark fw-medium py-2 px-3 border-bottom"
+              style={{ cursor: "pointer" }}
+            >
+              설정
+            </Nav.Link>
+          </Nav>
+        </Offcanvas.Body>
+      </Offcanvas>
+
+      {/* Login Popup */}
+      <LoginPopup
+        show={showLoginPopup}
+        onHide={() => setShowLoginPopup(false)}
+      />
+    </>
   );
-};
+}
 
 export default MypageNavbar;
