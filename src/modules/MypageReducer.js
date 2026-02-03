@@ -7,10 +7,10 @@ const initialState = {
     profileImage: null,
   },
   scrapbook: {
-    greenFire: 0,
-    challenge: 0,
-    feed: 0,
-    friends: 0,
+    greenFireCount: 0,
+    challengeCount: 0,
+    feedCount: 0,
+    friendCount: 0,
   },
   stats: {
     achievements: 0,

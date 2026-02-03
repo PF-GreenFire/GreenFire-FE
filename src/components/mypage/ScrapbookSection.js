@@ -31,7 +31,7 @@ const ScrapbookSection = ({ scrapbook }) => {
           onClick={() => handleCategoryClick("greenFire")}
         >
           <span className="text-lg font-semibold text-gray-800">
-            {scrapbook.greenFire}
+            {scrapbook.greenFireCount}
           </span>
           <span className="text-sm text-gray-600">초록불</span>
         </div>
@@ -41,7 +41,7 @@ const ScrapbookSection = ({ scrapbook }) => {
           onClick={() => handleCategoryClick("challenge")}
         >
           <span className="text-lg font-semibold text-gray-800">
-            {scrapbook.challenge}
+            {scrapbook.challengeCount}
           </span>
           <span className="text-sm text-gray-600">챌린지</span>
         </div>
@@ -51,7 +51,7 @@ const ScrapbookSection = ({ scrapbook }) => {
           onClick={() => handleCategoryClick("feed")}
         >
           <span className="text-lg font-semibold text-gray-800">
-            {scrapbook.feed}
+            {scrapbook.feedCount}
           </span>
           <span className="text-sm text-gray-600">피드</span>
         </div>
@@ -61,7 +61,7 @@ const ScrapbookSection = ({ scrapbook }) => {
           onClick={() => handleCategoryClick("friend")}
         >
           <span className="text-lg font-semibold text-gray-800">
-            {scrapbook.friends}
+            {scrapbook.friendCount}
           </span>
           <span className="text-sm text-gray-600">친구</span>
         </div>
