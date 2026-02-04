@@ -32,8 +32,8 @@ function NavBar() {
         handleClose();
     };
 
-    const handleLogout = () => {
-        onLogout();
+    const handleLogout = async () => {
+        await onLogout();
         handleClose();
     };
 
