@@ -10,17 +10,33 @@ import CustomLayout from './layouts/common/CustomLayout';
 import RegistChallenge from './pages/challenge/RegistChallenge';
 import ChallengeDetail from './pages/challenge/ChallengeDetail';
 import SignupPage from './pages/auth/SignupPage';
+import DeleteAccountPage from './pages/auth/DeleteAccountPage';
 import NoticeList from './pages/notice/NoticeList'
 import NoticeDetail from './pages/notice/NoticeDetail'
 import NoticeForm from './pages/notice/NoticeForm';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import SessionExpiredModal from './components/common/SessionExpiredModal';
+import { useAuth } from './hooks/useAuth';
 
 const App = () => {
+  const { isSessionExpired, onLoginSuccess, clearSessionExpired } = useAuth();
+
   return (
     <>
+      <SessionExpiredModal
+        show={isSessionExpired}
+        onLoginSuccess={onLoginSuccess}
+        onClose={clearSessionExpired}
+      />
+
       <Routes>
          {/* auth pages */}
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/account/delete" element={
+          <ProtectedRoute>
+            <DeleteAccountPage />
+          </ProtectedRoute>
+        } />
 
         {/* notice pages */}
         <Route path="/notices" element={<NoticeList />} />
