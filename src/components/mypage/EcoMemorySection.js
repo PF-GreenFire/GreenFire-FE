@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { Image } from "react-bootstrap";
 
-const EcoMemorySection = ({ nickname, count, memories = [] }) => {
+const EcoMemorySection = ({ nickname, count, echoMemories = [] }) => {
   const navigate = useNavigate();
 
-  const displayMemories = memories.slice(0, 5);
-  const hasMore = memories.length > 5;
+  const displayMemories = echoMemories.slice(0, 5);
+  const hasMore = echoMemories.length > 5;
 
   return (
     <section className="mb-6">
@@ -21,7 +21,7 @@ const EcoMemorySection = ({ nickname, count, memories = [] }) => {
           더보기
         </button>
       </div>
-      {memories.length > 0 ? (
+      {echoMemories.length > 0 ? (
         <div className="grid grid-cols-3 gap-3">
           {displayMemories.map((memory) => (
             <div
@@ -47,7 +47,9 @@ const EcoMemorySection = ({ nickname, count, memories = [] }) => {
         </div>
       ) : (
         <div className="bg-gray-100 rounded-xl py-10 px-5 flex items-center justify-center">
-          <p className="text-gray-500 text-sm m-0">에코메모리를 시작해보세요!</p>
+          <p className="text-gray-500 text-sm m-0">
+            에코메모리를 시작해보세요!
+          </p>
         </div>
       )}
     </section>

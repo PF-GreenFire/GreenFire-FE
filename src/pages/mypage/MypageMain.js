@@ -14,10 +14,9 @@ const MypageMain = () => {
   const {
     user,
     scrapbook,
-    stats,
-    achievements,
-    challenges,
-    memories,
+    achievementSummary,
+    challengeSummary,
+    echoMemorySummary,
     loading,
     error,
   } = useSelector((state) => state.mypageReducer);
@@ -46,18 +45,18 @@ const MypageMain = () => {
       <Container style={{ marginBottom: "120px", padding: "0 15px" }}>
         <ScrapbookSection scrapbook={scrapbook} />
         <AchievementSection
-          count={stats.achievements}
-          achievements={achievements}
+          count={achievementSummary.totalCount}
+          achievements={achievementSummary.achievements}
         />
         <MypageChallengeSection
           nickname={user.nickname}
-          count={stats.challenges}
-          challenges={challenges}
+          count={challengeSummary.totalCount}
+          challenges={challengeSummary.challenges}
         />
         <EcoMemorySection
           nickname={user.nickname}
-          count={stats.ecoMemories}
-          memories={memories}
+          count={echoMemorySummary.totalCount}
+          echoMemories={echoMemorySummary.echoMemories}
         />
       </Container>
     </>

@@ -1,63 +1,115 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Container } from "react-bootstrap";
 import { BsCalendar, BsCamera } from "react-icons/bs";
 import PageHeader from "../../components/mypage/PageHeader";
 import ProfileImageModal from "../../components/mypage/ProfileImageModal";
 import PasswordChangeModal from "../../components/mypage/PasswordChangeModal";
+import Loading from "../../components/common/Loading";
+import useUserInfoForm from "../../hooks/useUserInfoForm";
+import {
+  getUserInfoAPI,
+  updateUserInfoAPI,
+  changePasswordAPI,
+} from "../../apis/mypageAPI";
 
 const MyPageInfo = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const dateInputRef = useRef(null);
+
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const [userInfo, setUserInfo] = useState({
-    nickname: "메밀면",
-    userId: "saladybest12",
-    name: "고등어",
-    email: "saladybest12@naver.com",
-    password: "******************",
-    birthDate: "1998.11.06",
-    phone: "010-1234-1234",
-    profileImage: null,
-  });
+  // Redux 상태
+  const {
+    userInfo: reduxUserInfo,
+    loading,
+    error,
+  } = useSelector((state) => state.mypageReducer);
 
-  const maxNicknameLength = 10;
+  // 초기 로딩 여부 (데이터가 없고 로딩 중일 때)
+  const isInitialLoading = loading && !reduxUserInfo?.userId;
 
-  const handleInputChange = (field, value) => {
-    setUserInfo((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  // Custom Hook - Redux 상태를 초기값으로 사용
+  const {
+    userInfo,
+    maxNicknameLength,
+    isDirty,
+    handleInputChange,
+    handleNicknameChange,
+    handleProfileImageChange,
+    handleBirthDateChange,
+    getSaveData,
+  } = useUserInfoForm(reduxUserInfo);
 
-  const handleNicknameChange = (e) => {
-    const value = e.target.value;
-    if (value.length <= maxNicknameLength) {
-      handleInputChange("nickname", value);
+  // 컴포넌트 마운트 시 사용자 정보 조회
+  useEffect(() => {
+    dispatch(getUserInfoAPI());
+  }, [dispatch]);
+
+  // 정보 저장 (텍스트 데이터 + 이미지 분리 전송)
+  const handleSave = async () => {
+    setIsSaving(true);
+    const { textData, profileImage } = getSaveData();
+    const result = await dispatch(updateUserInfoAPI(textData, profileImage));
+
+    setIsSaving(false);
+    if (result?.success) {
+      alert("정보가 저장되었습니다.");
+    } else {
+      alert(result?.error || "정보 저장에 실패했습니다.");
     }
   };
 
-  const handleSave = () => {
-    console.log("저장할 정보:", userInfo);
-  };
-
+  // 회원탈퇴 페이지 이동
   const handleWithdraw = () => {
     navigate("/mypage/withdrawal");
   };
 
+  // 프로필 이미지 선택 (로컬 상태만 변경, 저장 버튼 클릭 시 서버 전송)
   const handleProfileImageSave = (image) => {
-    handleInputChange("profileImage", image);
+    handleProfileImageChange(image);
   };
 
-  const handlePasswordChange = (passwordData) => {
-    console.log("비밀번호 변경:", passwordData);
-    // TODO: API 호출하여 비밀번호 변경 처리
+  // 비밀번호 변경
+  const handlePasswordChange = async (passwordData) => {
+    const result = await dispatch(changePasswordAPI(passwordData));
+
+    if (result?.success) {
+      alert("비밀번호가 변경되었습니다.");
+      setShowPasswordModal(false);
+    } else {
+      alert(result?.error || "비밀번호 변경에 실패했습니다.");
+    }
   };
+
+  // 초기 로딩 중
+  if (isInitialLoading) {
+    return <Loading message="사용자 정보 로딩 중..." />;
+  }
+
+  // 에러 발생 시
+  if (error && !reduxUserInfo?.userId) {
+    return (
+      <Container className="text-center py-5">
+        <p className="text-danger">데이터를 불러오는 중 오류가 발생했습니다.</p>
+        <p className="text-secondary">{error}</p>
+        <button
+          className="mt-3 px-4 py-2 bg-green-primary text-white rounded-lg"
+          onClick={() => dispatch(getUserInfoAPI())}
+        >
+          다시 시도
+        </button>
+      </Container>
+    );
+  }
 
   return (
     <>
-      <PageHeader title={`${userInfo.nickname}님의 정보`} />
+      <PageHeader title={`${userInfo.nickname || "회원"}님의 정보`} />
 
       <div className="px-4 mb-[120px]">
         {/* 프로필 이미지 */}
@@ -93,7 +145,7 @@ const MyPageInfo = () => {
               <input
                 type="text"
                 value={userInfo.nickname}
-                onChange={handleNicknameChange}
+                onChange={(e) => handleNicknameChange(e.target.value)}
                 className="text-xl font-semibold text-gray-800 bg-transparent py-1 w-auto min-w-[80px] max-w-[200px] focus:outline-none"
               />
               <span className="text-sm text-gray-400">
@@ -165,17 +217,14 @@ const MyPageInfo = () => {
               onClick={() => dateInputRef.current?.showPicker()}
             >
               <span className="flex-1 text-sm text-gray-800">
-                {userInfo.birthDate}
+                {userInfo.birth}
               </span>
               <BsCalendar className="text-lg text-gray-800" />
               <input
                 ref={dateInputRef}
                 type="date"
-                value={userInfo.birthDate.replace(/\./g, "-")}
-                onChange={(e) => {
-                  const formatted = e.target.value.replace(/-/g, ".");
-                  handleInputChange("birthDate", formatted);
-                }}
+                value={userInfo.birth?.replace(/\./g, "-") || ""}
+                onChange={(e) => handleBirthDateChange(e.target.value)}
                 className="absolute top-0 left-0 w-full h-full opacity-0 pointer-events-none"
               />
             </div>
@@ -197,10 +246,15 @@ const MyPageInfo = () => {
         {/* 버튼 영역 */}
         <div className="flex flex-col gap-3">
           <button
-            className="w-full py-3.5 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray-600 cursor-pointer transition-all duration-300 hover:!bg-green-badge hover:!text-green-dark hover:!border-transparent focus:outline-none"
+            className={`w-full py-3.5 border border-gray-300 rounded-lg text-sm font-medium cursor-pointer transition-all duration-300 focus:outline-none ${
+              isDirty
+                ? "bg-green-primary text-white border-transparent hover:!bg-green-dark"
+                : "bg-white text-gray-600 hover:!bg-green-badge hover:!text-green-dark hover:!border-transparent"
+            }`}
             onClick={handleSave}
+            disabled={isSaving}
           >
-            변경정보 저장
+            {isSaving ? "저장 중..." : "변경정보 저장"}
           </button>
           <button
             className="w-full py-3.5 border border-gray-300 rounded-lg bg-white text-[15px] font-medium text-gray-400 cursor-pointer transition-all duration-300 hover:!bg-red-100 hover:!text-red-600 hover:!border-transparent focus:outline-none"
