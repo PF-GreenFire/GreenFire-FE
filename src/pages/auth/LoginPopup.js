@@ -179,7 +179,7 @@ const LoginPopup = ({ show, onHide, initialEmail = '', onLoginSuccess }) => {
                     justifyContent: 'center'
                   }}
                 >
-                  <img src="/kakao-icon.png" alt="Kakao" style={{ width: '24px', height: '24px' }} />
+                  <img src="/kakao-icon.svg" alt="Kakao" style={{ width: '24px', height: '24px' }} />
                 </Button>
 
                 <Button
@@ -196,7 +196,7 @@ const LoginPopup = ({ show, onHide, initialEmail = '', onLoginSuccess }) => {
                     justifyContent: 'center'
                   }}
                 >
-                  <img src="/naver-icon.png" alt="Naver" style={{ width: '24px', height: '24px' }} />
+                  <img src="/naver-icon.svg" alt="Naver" style={{ width: '24px', height: '24px' }} />
                 </Button>
               </div>
             </Col>
