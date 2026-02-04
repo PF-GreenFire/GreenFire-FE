@@ -100,9 +100,6 @@ export const updateUserInfoAPI = (textData, profileImage) => {
       }
 
       const result = await api.put("/user/me", formData);
-      // const result = await api.put("/user/me", formData, {
-      //   headers: { "Content-Type": "multipart/form-data" },
-      // });
 
       console.log("updateUserInfoAPI result:", result.data);
 
