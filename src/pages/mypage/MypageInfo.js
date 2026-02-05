@@ -13,6 +13,7 @@ import {
   updateUserInfoAPI,
   changePasswordAPI,
 } from "../../apis/mypageAPI";
+import { getImageUrl } from "../../utils/imageUtils";
 
 const MyPageInfo = () => {
   const navigate = useNavigate();
@@ -120,7 +121,7 @@ const MyPageInfo = () => {
           >
             {userInfo.profileImage ? (
               <img
-                src={userInfo.profileImage}
+                src={getImageUrl(userInfo.profileImage)}
                 alt="프로필"
                 className="w-full h-full object-cover"
               />

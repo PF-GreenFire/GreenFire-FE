@@ -66,3 +66,14 @@ export const base64ToFile = (base64, filename = "image.jpg") => {
   }
   return new File([u8arr], filename, { type: mime });
 };
+
+/**
+ * 이미지 경로를 절대 URL로 변환
+ * @param {string} path - 이미지 경로 (상대 경로, base64, 또는 절대 URL)
+ * @returns {string|null} - 절대 URL 또는 null
+ */
+export const getImageUrl = (path) => {
+  if (!path) return null;
+  if (path.startsWith("data:") || path.startsWith("http")) return path;
+  return `${process.env.REACT_APP_API_URL}${path}`;
+};

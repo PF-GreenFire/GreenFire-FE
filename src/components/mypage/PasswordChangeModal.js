@@ -64,7 +64,7 @@ const PasswordChangeModal = ({ show, onHide, onSave }) => {
               type="password"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              placeholder="Placeholder"
+              placeholder="현재 비밀번호를 입력하세요."
               className="flex-1 border border-gray-300 rounded-lg py-2.5 px-4 text-sm text-gray-800 focus:border-green-primary focus:outline-none"
             />
           </div>
@@ -77,7 +77,7 @@ const PasswordChangeModal = ({ show, onHide, onSave }) => {
               type="password"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Placeholder"
+              placeholder="새 비밀번호를 입력하세요."
               className="flex-1 border border-gray-300 rounded-lg py-2.5 px-4 text-sm text-gray-800 focus:border-green-primary focus:outline-none"
             />
           </div>
@@ -90,7 +90,7 @@ const PasswordChangeModal = ({ show, onHide, onSave }) => {
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Placeholder"
+              placeholder="비밀번호를 한 번 더 입력하세요."
               className="flex-1 border border-gray-300 rounded-lg py-2.5 px-4 text-sm text-gray-800 focus:border-green-primary focus:outline-none"
             />
           </div>
