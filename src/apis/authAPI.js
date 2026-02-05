@@ -50,6 +50,26 @@ export const checkEmailAvailable = async (email) => {
   return data; // { available: true/false }
 };
 
+export const findEmail = async (email) => {
+  const { data } = await api.post("/api/v1/auth/find-email", { email });
+  return data; // { exists: true/false, maskedEmail: "k****n@naver.com" }
+};
+
+export const sendPasswordResetCode = async (email) => {
+  const { data } = await api.post("/api/v1/auth/password-reset/send-code", { email });
+  return data; // { message: "인증 코드가 발송되었습니다." }
+};
+
+export const verifyPasswordResetCode = async (email, code) => {
+  const { data } = await api.post("/api/v1/auth/password-reset/verify-code", { email, code });
+  return data; // { verified: true }
+};
+
+export const resetPassword = async (email, code, newPassword) => {
+  const { data } = await api.post("/api/v1/auth/password-reset/reset", { email, code, newPassword });
+  return data;
+};
+
 export const deleteAccount = async (password, reason) => {
   const { data } = await api.delete("/api/v1/auth/account", {
     data: { password, reason },

@@ -42,9 +42,22 @@ const LoginPopup = ({ show, onHide, initialEmail = '', onLoginSuccess }) => {
       // ✅ 여기서 부모에게 로그인 성공 알려서 네비 변경
       if (onLoginSuccess) await onLoginSuccess();
       // window.location.reload(); // ❌ 필요 없게 됨
-    } catch (error) {
-      console.error('Login error:', error);
-      setError(error?.message || '로그인에 실패했습니다.');
+    } catch (err) {
+      console.error('Login error:', err);
+      const status = err?.response?.status;
+      const serverMessage = err?.response?.data?.message;
+
+      if (status === 401) {
+        setError(serverMessage || '이메일 또는 비밀번호가 올바르지 않습니다.');
+      } else if (status === 403) {
+        setError(serverMessage || '접근이 제한된 계정입니다.');
+      } else if (status >= 500) {
+        setError('서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      } else if (!err?.response) {
+        setError('네트워크 연결을 확인해주세요.');
+      } else {
+        setError(serverMessage || '로그인에 실패했습니다.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -147,9 +160,25 @@ const LoginPopup = ({ show, onHide, initialEmail = '', onLoginSuccess }) => {
                     회원가입
                   </span>
                   <span style={{ color: '#dee2e6' }}>|</span>
-                  <span style={{ cursor: 'pointer' }}>아이디 찾기</span>
+                  <span
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      onHide();
+                      navigate('/find-email');
+                    }}
+                  >
+                    아이디 찾기
+                  </span>
                   <span style={{ color: '#dee2e6' }}>|</span>
-                  <span style={{ cursor: 'pointer' }}>비밀번호 찾기</span>
+                  <span
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      onHide();
+                      navigate('/reset-password');
+                    }}
+                  >
+                    비밀번호 찾기
+                  </span>
                 </div>
               </Form>
 
