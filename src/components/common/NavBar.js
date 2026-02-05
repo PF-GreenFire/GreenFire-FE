@@ -17,7 +17,7 @@ function NavBar() {
     const [showNoticePreview, setShowNoticePreview] = useState(false);
     const [previewNoticeCode, setPreviewNoticeCode] = useState(null);
     const navigate = useNavigate();
-    const { isLoggedIn, isLoading: checking, onLoginSuccess, onLogout } = useAuth();
+    const { isLoggedIn, isLoading: checking, role, onLoginSuccess, onLogout } = useAuth();
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
@@ -121,6 +121,15 @@ function NavBar() {
                                 >
                                     로그아웃
                                 </Nav.Link>
+                                {role === 'ADMIN' && (
+                                    <Nav.Link
+                                        onClick={() => handleNavigation('/admin')}
+                                        className="text-primary fw-bold py-2 px-3 border-bottom"
+                                        style={{ cursor: "pointer" }}
+                                    >
+                                        관리자 페이지
+                                    </Nav.Link>
+                                )}
                             </>
                         )}
                         <Nav.Link

@@ -19,7 +19,7 @@ const NoticeList = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasMore, setHasMore] = useState(true);
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const userCode = user?.userId || null;
 
   const ITEMS_PER_PAGE = 20;
@@ -143,15 +143,17 @@ const NoticeList = () => {
               <FaSearch />
             </Button>
 
-            <Button
-              variant="link"
-              className="p-0"
-              style={{ color: '#1E9E57', textDecoration: 'none' }}
-              onClick={() => navigate('/notices/new')}
-              title="공지 등록"
-            >
-              <FaPlus />
-            </Button>
+            {role === 'ADMIN' && (
+              <Button
+                variant="link"
+                className="p-0"
+                style={{ color: '#1E9E57', textDecoration: 'none' }}
+                onClick={() => navigate('/notices/new')}
+                title="공지 등록"
+              >
+                <FaPlus />
+              </Button>
+            )}
           </div>
         </div>
 
@@ -207,32 +209,34 @@ const NoticeList = () => {
                 </div>
               </div>
 
-              {/* ✅ 관리 버튼 */}
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <Button
-                  variant="outline-success"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/notices/${notice.noticeCode}/edit`);
-                  }}
-                  title="수정"
-                >
-                  <FaEdit />
-                </Button>
+              {/* ✅ 관리 버튼 (ADMIN 전용) */}
+              {role === 'ADMIN' && (
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <Button
+                    variant="outline-success"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/notices/${notice.noticeCode}/edit`);
+                    }}
+                    title="수정"
+                  >
+                    <FaEdit />
+                  </Button>
 
-                <Button
-                  variant="outline-danger"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(notice.noticeCode);
-                  }}
-                  title="삭제"
-                >
-                  <FaTrash />
-                </Button>
-              </div>
+                  <Button
+                    variant="outline-danger"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(notice.noticeCode);
+                    }}
+                    title="삭제"
+                  >
+                    <FaTrash />
+                  </Button>
+                </div>
+              )}
             </div>
           ))}
 

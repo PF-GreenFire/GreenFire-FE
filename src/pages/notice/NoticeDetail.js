@@ -3,7 +3,7 @@ import { Container, Badge, Button, Spinner, Alert, Card, Collapse } from 'react-
 import { FaEye, FaCalendar, FaUser, FaDownload, FaShare, FaChevronLeft, FaChevronDown, FaChevronUp, FaEdit, FaTrash } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getNoticeDetail, getRelatedNotices, incrementNoticeView, getAttachmentDownloadUrl, deleteNotice } from '../../apis/noticeAPI';
-import { checkSession } from '../../apis/authAPI';
+import { useAuth } from '../../hooks/useAuth';
 import AppBar from '../../components/common/AppBar';
 
 
@@ -11,27 +11,14 @@ const NoticeDetail = () => {
     const { noticeCode } = useParams();
     const navigate = useNavigate();
 
+    const { user, role } = useAuth();
+    const userCode = user?.userId || null;
+
     const [notice, setNotice] = useState(null);
     const [relatedNotices, setRelatedNotices] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [userCode, setUserCode] = useState(null);
     const [showRelated, setShowRelated] = useState(false);
-
-    // 사용자 정보 가져오기
-    useEffect(() => {
-        const fetchUserInfo = async () => {
-            try {
-                const session = await checkSession();
-                if (session?.ok) {
-                    setUserCode(session.userId);
-                }
-            } catch (err) {
-                console.error('세션 확인 실패:', err);
-            }
-        };
-        fetchUserInfo();
-    }, []);
 
     // 공지사항 상세 조회
     useEffect(() => {
@@ -180,39 +167,41 @@ const NoticeDetail = () => {
 
                 <div style={{ fontWeight: 700, fontSize: '16px' }}>공지사항</div>
 
-                {/* ✅ 수정/삭제 */}
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                {/* ✅ 수정/삭제 (ADMIN 전용) */}
+                {role === 'ADMIN' && (
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                     <Button
-                    variant="link"
-                    className="p-0"
-                    style={{ color: '#1E9E57', textDecoration: 'none' }}
-                    onClick={() => navigate(`/notices/${noticeCode}/edit`)}
-                    title="수정"
+                      variant="link"
+                      className="p-0"
+                      style={{ color: '#1E9E57', textDecoration: 'none' }}
+                      onClick={() => navigate(`/notices/${noticeCode}/edit`)}
+                      title="수정"
                     >
-                    <FaEdit />
+                      <FaEdit />
                     </Button>
 
                     <Button
-                    variant="link"
-                    className="p-0"
-                    style={{ color: '#DC3545', textDecoration: 'none' }}
-                    onClick={async () => {
+                      variant="link"
+                      className="p-0"
+                      style={{ color: '#DC3545', textDecoration: 'none' }}
+                      onClick={async () => {
                         const ok = window.confirm('정말 삭제할까요? 삭제 후 복구할 수 없습니다.');
                         if (!ok) return;
                         try {
-                        await deleteNotice(noticeCode);
-                        alert('삭제되었습니다.');
-                        navigate('/notices');
+                          await deleteNotice(noticeCode);
+                          alert('삭제되었습니다.');
+                          navigate('/notices');
                         } catch (e) {
-                        console.error(e);
-                        alert('삭제에 실패했습니다.');
+                          console.error(e);
+                          alert('삭제에 실패했습니다.');
                         }
-                    }}
-                    title="삭제"
+                      }}
+                      title="삭제"
                     >
-                    <FaTrash />
+                      <FaTrash />
                     </Button>
-                </div>
+                  </div>
+                )}
             </div>
 
             {/* 본문 카드 */}

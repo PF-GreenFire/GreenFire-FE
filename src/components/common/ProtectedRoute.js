@@ -31,6 +31,7 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   }
 
   if (requiredRole && role !== requiredRole) {
+    alert('접근 권한이 없습니다.');
     return <Navigate to="/" replace />;
   }
 
