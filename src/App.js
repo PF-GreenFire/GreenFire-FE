@@ -20,6 +20,7 @@ import AdminPageLayout from './layouts/AdminPageLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminNoticeList from './pages/admin/AdminNoticeList';
 import AdminMemberList from './pages/admin/AdminMemberList';
+import AdminReportList from './pages/admin/AdminReportList';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import SessionExpiredModal from './components/common/SessionExpiredModal';
 import { useAuth } from './hooks/useAuth';
@@ -70,6 +71,7 @@ const App = () => {
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="notices" element={<AdminNoticeList />} />
           <Route path="members" element={<AdminMemberList />} />
+          <Route path="reports" element={<AdminReportList />} />
         </Route>
 
         <Route path="/" element={<CustomLayout />}>

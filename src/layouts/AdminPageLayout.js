@@ -8,6 +8,7 @@ const defaultTabs = [
   { pageName: '대시보드', pageUrl: '/admin/dashboard' },
   { pageName: '공지사항 관리', pageUrl: '/admin/notices' },
   { pageName: '회원 관리', pageUrl: '/admin/members' },
+  { pageName: '신고 관리', pageUrl: '/admin/reports' },
 ];
 
 function AdminPageLayout() {
