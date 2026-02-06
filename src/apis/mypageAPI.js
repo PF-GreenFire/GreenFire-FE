@@ -72,18 +72,23 @@ export const getUserInfoAPI = () => {
  * 사용자 정보 수정 (FormData - multipart/form-data)
  * @param {Object} textData - 텍스트 데이터 (JSON)
  * @param {string|null} profileImage - 프로필 이미지 (base64 또는 URL)
+ * @param {boolean} isImageDeleted - 프로필 이미지 삭제 여부
  */
-export const updateUserInfoAPI = (textData, profileImage) => {
+export const updateUserInfoAPI = (textData, profileImage, isImageDeleted = false) => {
   return async (dispatch) => {
     dispatch(updateUserInfoRequest());
 
     try {
       const formData = new FormData();
 
-      // JSON 데이터를 Blob으로 변환해서 추가
+      // JSON 데이터를 Blob으로 변환해서 추가 (이미지 삭제 플래그 포함)
+      const dataToSend = isImageDeleted
+        ? { ...textData, deleteProfileImage: true }
+        : textData;
+
       formData.append(
         "data",
-        new Blob([JSON.stringify(textData)], { type: "application/json" }),
+        new Blob([JSON.stringify(dataToSend)], { type: "application/json" }),
       );
 
       // 이미지 처리
@@ -93,10 +98,6 @@ export const updateUserInfoAPI = (textData, profileImage) => {
           const file = base64ToFile(profileImage, "profile.jpg");
           formData.append("image", file);
         }
-        // else {
-        //   // URL인 경우 (기본 프로필 이미지 등)
-        //   formData.append("imageUrl", profileImage);
-        // }
       }
 
       const result = await api.put("/user/me", formData);
@@ -148,13 +149,16 @@ export const changePasswordAPI = (passwordData) => {
 
 /**
  * 회원 탈퇴
+ * @param {string} reason - 탈퇴 사유
  */
-export const withdrawUserAPI = () => {
+export const withdrawUserAPI = (reason) => {
   return async (dispatch) => {
     dispatch(withdrawUserRequest());
 
     try {
-      const result = await api.delete("/user/me");
+      const result = await api.delete("/user/me", {
+        data: { reason },
+      });
 
       console.log("withdrawUserAPI result:", result.data);
 

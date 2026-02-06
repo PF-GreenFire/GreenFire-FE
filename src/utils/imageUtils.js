@@ -5,7 +5,11 @@
  * @param {number} quality - JPEG 품질 (0-1, 기본값 0.9)
  * @returns {Promise<string>} - 크롭된 이미지의 base64 문자열
  */
-export const createCroppedImage = async (imageSrc, pixelCrop, quality = 0.9) => {
+export const createCroppedImage = async (
+  imageSrc,
+  pixelCrop,
+  quality = 0.9,
+) => {
   const image = new Image();
   image.src = imageSrc;
 
@@ -29,7 +33,7 @@ export const createCroppedImage = async (imageSrc, pixelCrop, quality = 0.9) => 
     0,
     0,
     pixelCrop.width,
-    pixelCrop.height
+    pixelCrop.height,
   );
 
   return canvas.toDataURL("image/jpeg", quality);
@@ -75,5 +79,5 @@ export const base64ToFile = (base64, filename = "image.jpg") => {
 export const getImageUrl = (path) => {
   if (!path) return null;
   if (path.startsWith("data:") || path.startsWith("http")) return path;
-  return `${process.env.REACT_APP_API_URL}${path}`;
+  return `${process.env.REACT_APP_API_URL}/${path}`;
 };

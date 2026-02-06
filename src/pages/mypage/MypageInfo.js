@@ -54,8 +54,8 @@ const MyPageInfo = () => {
   // 정보 저장 (텍스트 데이터 + 이미지 분리 전송)
   const handleSave = async () => {
     setIsSaving(true);
-    const { textData, profileImage } = getSaveData();
-    const result = await dispatch(updateUserInfoAPI(textData, profileImage));
+    const { textData, profileImage, isImageDeleted } = getSaveData();
+    const result = await dispatch(updateUserInfoAPI(textData, profileImage, isImageDeleted));
 
     setIsSaving(false);
     if (result?.success) {

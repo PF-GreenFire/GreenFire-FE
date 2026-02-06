@@ -18,6 +18,7 @@ const useUserInfoForm = (initialData = null) => {
 
   const [userInfo, setUserInfo] = useState(initialData || defaultUserInfo);
   const [isDirty, setIsDirty] = useState(false);
+  const [isImageChanged, setIsImageChanged] = useState(false);
 
   const maxNicknameLength = 10;
 
@@ -30,6 +31,7 @@ const useUserInfoForm = (initialData = null) => {
         password: "",
       });
       setIsDirty(false);
+      setIsImageChanged(false);
     }
   }, [initialData]);
 
@@ -65,6 +67,7 @@ const useUserInfoForm = (initialData = null) => {
       ...prev,
       profileImage: image,
     }));
+    setIsImageChanged(true);
     setIsDirty(true);
   }, []);
 
@@ -88,9 +91,10 @@ const useUserInfoForm = (initialData = null) => {
     const { password, profileImage, ...textData } = userInfo;
     return {
       textData,      // JSON으로 보낼 텍스트 데이터
-      profileImage,  // 이미지 (base64 또는 URL)
+      profileImage: isImageChanged ? profileImage : null,  // 변경된 경우에만 이미지 전송
+      isImageDeleted: isImageChanged && !profileImage,     // 이미지 삭제 여부
     };
-  }, [userInfo]);
+  }, [userInfo, isImageChanged]);
 
   /**
    * 폼 초기화 (Redux 상태로 리셋)
@@ -104,6 +108,7 @@ const useUserInfoForm = (initialData = null) => {
       });
     }
     setIsDirty(false);
+    setIsImageChanged(false);
   }, [initialData]);
 
   return {

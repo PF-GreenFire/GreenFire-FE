@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { BsHouseDoor, BsAward } from "react-icons/bs";
 import { IoRestaurantOutline } from "react-icons/io5";
 import PageHeader from "../../components/mypage/PageHeader";
+import { withdrawUserAPI } from "../../apis/mypageAPI";
 
 const WITHDRAWAL_REASONS = [
   { id: "no_restaurant", label: "원하는 식당이 없어요" },
@@ -14,6 +16,7 @@ const WITHDRAWAL_REASONS = [
 
 const MypageWithdrawal = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [selectedReason, setSelectedReason] = useState("");
   const [customReason, setCustomReason] = useState("");
 
@@ -46,7 +49,7 @@ const MypageWithdrawal = () => {
     }
   };
 
-  const handleWithdraw = () => {
+  const handleWithdraw = async () => {
     if (!selectedReason) {
       alert("탈퇴 사유를 선택해주세요.");
       return;
@@ -67,10 +70,14 @@ const MypageWithdrawal = () => {
         "정말로 탈퇴하시겠습니까?\n탈퇴 후에는 복구할 수 없습니다.",
       )
     ) {
-      console.log("회원탈퇴 처리:", { reason });
-      // TODO: API 호출하여 회원탈퇴 처리
-      // 탈퇴 완료 후 메인 페이지로 이동
-      navigate("/");
+      const result = await dispatch(withdrawUserAPI(reason));
+
+      if (result?.success) {
+        alert("회원 탈퇴가 완료되었습니다.");
+        navigate("/");
+      } else {
+        alert(result?.error || "회원 탈퇴에 실패했습니다.");
+      }
     }
   };
 
@@ -180,7 +187,7 @@ const MypageWithdrawal = () => {
 
         {/* 탈퇴하기 버튼 */}
         <button
-          className="w-full py-4 rounded-full bg-green-primary border-none text-base font-semibold text-white cursor-pointer transition-all hover:!bg-green-dark focus:outline-none"
+          className="w-full py-3.5 border border-gray-300 rounded-lg bg-white text-[15px] font-medium text-gray-400 cursor-pointer transition-all duration-300 hover:!bg-red-100 hover:!text-red-600 hover:!border-transparent focus:outline-none"
           onClick={handleWithdraw}
         >
           탈퇴하기

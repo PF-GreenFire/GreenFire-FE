@@ -1,9 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Modal } from "react-bootstrap";
 import { IoClose } from "react-icons/io5";
 import { BsCamera } from "react-icons/bs";
 import Cropper from "react-easy-crop";
 import useProfileImageCrop from "../../hooks/useProfileImageCrop";
+import { getImageUrl } from "../../utils/imageUtils";
 
 // 기본 제공 프로필 이미지 목록
 const DEFAULT_IMAGES = [
@@ -31,6 +32,20 @@ const ProfileImageModal = ({
   const [selectedImage, setSelectedImage] = useState(currentImage);
   const [currentPage, setCurrentPage] = useState(0);
   const fileInputRef = useRef(null);
+
+  // 모달이 열릴 때 서버 이미지로 동기화
+  useEffect(() => {
+    if (show) {
+      setSelectedImage(currentImage);
+    }
+  }, [show, currentImage]);
+
+  // 이미지 미리보기 URL 변환 (서버 경로, 로컬 경로, base64 모두 지원)
+  const getPreviewSrc = (image) => {
+    if (!image) return "/default_profile.png";
+    if (image.startsWith("/")) return image;
+    return getImageUrl(image);
+  };
 
   // Custom Hook 사용
   const {
@@ -200,19 +215,11 @@ const ProfileImageModal = ({
 
         <div className="flex justify-center mb-6">
           <div className="w-[140px] h-[140px] rounded-full border-[3px] border-gray-200 overflow-hidden flex items-center justify-center bg-gray-50">
-            {selectedImage ? (
-              <img
-                src={selectedImage}
-                alt="미리보기"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <img
-                src="/default_profile.png"
-                alt="기본 프로필"
-                className="w-full h-full object-cover"
-              />
-            )}
+            <img
+              src={getPreviewSrc(selectedImage)}
+              alt="프로필 미리보기"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
 
