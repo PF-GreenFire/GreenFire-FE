@@ -9,15 +9,19 @@ import {
   Modal,
 } from 'react-bootstrap';
 import { FaCheck, FaEye } from 'react-icons/fa';
+import { useSearchParams } from 'react-router-dom';
 import { getReports, handleReport } from '../../apis/reportAPI';
 
 const AdminReportList = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialStatus = searchParams.get('status') || '';
+
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [statusFilter, setStatusFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState(initialStatus);
 
   // 처리 모달 상태
   const [showHandleModal, setShowHandleModal] = useState(false);
@@ -58,9 +62,16 @@ const AdminReportList = () => {
   };
 
   const handleStatusFilterChange = (e) => {
-    setStatusFilter(e.target.value);
+    const newStatus = e.target.value;
+    setStatusFilter(newStatus);
     setPage(1);
     setReports([]);
+    // URL 쿼리 파라미터 업데이트
+    if (newStatus) {
+      setSearchParams({ status: newStatus });
+    } else {
+      setSearchParams({});
+    }
   };
 
   const openHandleModal = (report) => {
