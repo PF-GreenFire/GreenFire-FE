@@ -20,6 +20,9 @@ const initialState = {
     challengeCount: 0,
     feedCount: 0,
     friendCount: 0,
+    greenfires: [],
+    challenges: [],
+    feeds: [],
   },
   achievementSummary: {
     achivements: [],
@@ -193,6 +196,11 @@ const mypageReducer = handleActions(
     [UPDATE_USER_INFO_SUCCESS]: (state, { payload }) => ({
       ...state,
       userInfo: payload.data,
+      user: {
+        ...state.user,
+        profileImage: payload.data.profileImage,
+        nickname: payload.data.nickname,
+      },
       loading: false,
       error: null,
     }),

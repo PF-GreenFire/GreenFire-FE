@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Container } from "react-bootstrap";
@@ -26,6 +26,7 @@ const MyPageInfo = () => {
 
   // Redux 상태
   const {
+    user,
     userInfo: reduxUserInfo,
     loading,
     error,
@@ -34,7 +35,14 @@ const MyPageInfo = () => {
   // 초기 로딩 여부 (데이터가 없고 로딩 중일 때)
   const isInitialLoading = loading && !reduxUserInfo?.userId;
 
-  // Custom Hook - Redux 상태를 초기값으로 사용
+  // Custom Hook - Redux 상태를 초기값으로 사용 (user.profileImage 우선)
+  const mergedUserInfo = useMemo(
+    () => ({
+      ...reduxUserInfo,
+      profileImage: reduxUserInfo?.profileImage || user?.profileImage,
+    }),
+    [reduxUserInfo, user?.profileImage],
+  );
   const {
     userInfo,
     maxNicknameLength,
@@ -44,7 +52,7 @@ const MyPageInfo = () => {
     handleProfileImageChange,
     handleBirthDateChange,
     getSaveData,
-  } = useUserInfoForm(reduxUserInfo);
+  } = useUserInfoForm(mergedUserInfo);
 
   // 컴포넌트 마운트 시 사용자 정보 조회
   useEffect(() => {
@@ -55,7 +63,9 @@ const MyPageInfo = () => {
   const handleSave = async () => {
     setIsSaving(true);
     const { textData, profileImage, isImageDeleted } = getSaveData();
-    const result = await dispatch(updateUserInfoAPI(textData, profileImage, isImageDeleted));
+    const result = await dispatch(
+      updateUserInfoAPI(textData, profileImage, isImageDeleted),
+    );
 
     setIsSaving(false);
     if (result?.success) {
@@ -130,6 +140,10 @@ const MyPageInfo = () => {
                 src="/default_profile.png"
                 alt="기본 프로필"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.style.display = "none";
+                  e.target.parentElement.innerHTML = "<span>🐱</span>";
+                }}
               />
             )}
             {/* Hover 오버레이 */}

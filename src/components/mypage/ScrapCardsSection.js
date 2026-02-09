@@ -28,7 +28,7 @@ const ScrapCardsSection = ({ onCardClick }) => {
       {cards.map((card) => (
         <div
           key={card.type}
-          className="relative min-w-[120px] h-[80px] rounded-xl overflow-hidden cursor-pointer flex-shrink-0 transition-transform hover:scale-[1.02]"
+          className="relative flex-1 min-w-[120px] h-[80px] rounded-xl overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
           onClick={() => onCardClick(card.type)}
         >
           <img

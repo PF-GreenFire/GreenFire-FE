@@ -1,8 +1,11 @@
 import { Container } from "react-bootstrap";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setActiveTab } from "../../modules/ScrapbookReducer";
+import { setFollowFilter } from "../../modules/FollowReducer";
+import { getFollowersAPI, getFollowingAPI } from "../../apis/followAPI";
+import { getScrapsAPI } from "../../apis/scrapbookAPI";
 import PageHeader from "../../components/mypage/PageHeader";
 import TabButtons from "../../components/common/TabButtons";
 import ScrapbookSearchFilter from "../../components/mypage/ScrapbookSearchFilter";
@@ -89,6 +92,7 @@ const MOCK_DATA = {
     {
       id: 1,
       title: "HEJ, PLOGGING",
+      host: "가연핑",
       image: "https://picsum.photos/300/300?random=10",
       status: "진행중",
       participants: 120,
@@ -97,6 +101,7 @@ const MOCK_DATA = {
     {
       id: 2,
       title: "플라스틱 없는 삶",
+      host: "시온핑",
       image: "https://picsum.photos/300/300?random=11",
       status: "모집중",
       participants: 85,
@@ -105,6 +110,7 @@ const MOCK_DATA = {
     {
       id: 3,
       title: "우리의 힘",
+      host: "예원핑",
       image: "https://picsum.photos/300/300?random=12",
       status: "진행중",
       participants: 200,
@@ -113,6 +119,7 @@ const MOCK_DATA = {
     {
       id: 4,
       title: "제로웨이스트 도전",
+      host: "다솔핑",
       image: "https://picsum.photos/300/300?random=13",
       status: "모집중",
       participants: 50,
@@ -121,6 +128,7 @@ const MOCK_DATA = {
     {
       id: 5,
       title: "텀블러 사용하기",
+      host: "가연핑",
       image: "https://picsum.photos/300/300?random=14",
       status: "진행중",
       participants: 300,
@@ -129,6 +137,7 @@ const MOCK_DATA = {
     {
       id: 6,
       title: "대중교통 이용",
+      host: "유진핑",
       image: "https://picsum.photos/300/300?random=15",
       status: "종료",
       participants: 150,
@@ -137,6 +146,7 @@ const MOCK_DATA = {
     {
       id: 7,
       title: "에코백 챌린지",
+      host: "시온핑",
       image: "https://picsum.photos/300/300?random=16",
       status: "진행중",
       participants: 180,
@@ -145,6 +155,7 @@ const MOCK_DATA = {
     {
       id: 8,
       title: "분리수거 마스터",
+      host: "예원핑",
       image: "https://picsum.photos/300/300?random=17",
       status: "모집중",
       participants: 90,
@@ -153,6 +164,7 @@ const MOCK_DATA = {
     {
       id: 9,
       title: "채식 일주일",
+      host: "다솔핑",
       image: "https://picsum.photos/300/300?random=18",
       status: "진행중",
       participants: 75,
@@ -224,14 +236,15 @@ const MOCK_DATA = {
       liked: true,
     },
   ],
-  friend: [
+  // 팔로워 목록 (나를 팔로우하는 사람들)
+  followers: [
     {
       id: 1,
       nickname: "가연핑",
       userId: "ggggggggggg",
       bio: "저는 가연핑입니다",
       profileImage: "https://picsum.photos/100/100?random=30",
-      liked: true,
+      isFollowing: true,
     },
     {
       id: 2,
@@ -239,7 +252,7 @@ const MOCK_DATA = {
       userId: "ddddddddddd",
       bio: "저는 다솔핑입니다",
       profileImage: "https://picsum.photos/100/100?random=31",
-      liked: true,
+      isFollowing: false,
     },
     {
       id: 3,
@@ -247,7 +260,7 @@ const MOCK_DATA = {
       userId: "yyyyyyyyyyy",
       bio: "저는 예원핑입니다",
       profileImage: "https://picsum.photos/100/100?random=32",
-      liked: true,
+      isFollowing: true,
     },
     {
       id: 4,
@@ -255,7 +268,7 @@ const MOCK_DATA = {
       userId: "sssssssssss",
       bio: "저는 시온핑입니다",
       profileImage: "https://picsum.photos/100/100?random=33",
-      liked: true,
+      isFollowing: false,
     },
     {
       id: 5,
@@ -263,7 +276,31 @@ const MOCK_DATA = {
       userId: "yyyyyyyyyyyy",
       bio: "저는 유진님핑입니다",
       profileImage: "https://picsum.photos/100/100?random=34",
-      liked: true,
+      isFollowing: true,
+    },
+  ],
+  // 팔로잉 목록 (내가 팔로우하는 사람들)
+  following: [
+    {
+      id: 1,
+      nickname: "가연핑",
+      userId: "ggggggggggg",
+      bio: "저는 가연핑입니다",
+      profileImage: "https://picsum.photos/100/100?random=30",
+    },
+    {
+      id: 3,
+      nickname: "예원핑",
+      userId: "yyyyyyyyyyy",
+      bio: "저는 예원핑입니다",
+      profileImage: "https://picsum.photos/100/100?random=32",
+    },
+    {
+      id: 5,
+      nickname: "유진님핑",
+      userId: "yyyyyyyyyyyy",
+      bio: "저는 유진님핑입니다",
+      profileImage: "https://picsum.photos/100/100?random=34",
     },
     {
       id: 6,
@@ -271,7 +308,6 @@ const MOCK_DATA = {
       userId: "mmmmmmmmmmm",
       bio: "저는 민수핑입니다",
       profileImage: "https://picsum.photos/100/100?random=35",
-      liked: true,
     },
     {
       id: 7,
@@ -279,9 +315,33 @@ const MOCK_DATA = {
       userId: "jjjjjjjjjjj",
       bio: "저는 지현핑입니다",
       profileImage: "https://picsum.photos/100/100?random=36",
-      liked: true,
     },
   ],
+};
+
+const greenFireFilterOptions = ["전체", "지역명"];
+const challengeFilterOptions = ["전체", "주최자"];
+const feedFilterOptions = ["전체", "아이디"];
+const followFilterOptions = ["팔로워", "팔로잉"];
+
+const sortScraps = (data, sortBy) => {
+  const sorted = [...data];
+  switch (sortBy) {
+    case "최신 등록순":
+      return sorted.sort(
+        (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0),
+      );
+    case "오래된 순":
+      return sorted.sort(
+        (a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0),
+      );
+    case "이름순":
+      return sorted.sort((a, b) =>
+        (a.title || a.name || "").localeCompare(b.title || b.name || "", "ko"),
+      );
+    default:
+      return sorted;
+  }
 };
 
 const ScrapbookMain = () => {
@@ -289,17 +349,119 @@ const ScrapbookMain = () => {
   const dispatch = useDispatch();
 
   // Redux 상태
-  const { activeTab } = useSelector((state) => state.scrapbookReducer);
+  const {
+    activeTab,
+    scraps: scrapbookScraps,
+    loading: scrapbookLoading,
+  } = useSelector((state) => state.scrapbookReducer);
+  const {
+    followers,
+    following,
+    activeFilter,
+    loading: followLoading,
+  } = useSelector((state) => state.followReducer);
 
-  // 임시 데이터 사용 (테스트용)
-  const scraps = MOCK_DATA[activeTab] || [];
-  const loading = false;
-  const error = null;
+  // 탭 변경 시 API 호출
+  useEffect(() => {
+    switch (activeTab) {
+      case "greenFire":
+        dispatch(getScrapsAPI("greenfire"));
+        break;
+      case "challenge":
+        dispatch(getScrapsAPI("challenge"));
+        break;
+      case "feed":
+        dispatch(getScrapsAPI("feed"));
+        break;
+      case "friend":
+        dispatch(getFollowersAPI());
+        dispatch(getFollowingAPI());
+        break;
+      default:
+        break;
+    }
+  }, [activeTab, dispatch]);
+
+  // 데이터 소스 결정 (API 데이터 우선, 없으면 MOCK_DATA 폴백)
+  const getScrapsData = () => {
+    switch (activeTab) {
+      case "greenFire":
+        return scrapbookScraps.length > 0
+          ? scrapbookScraps
+          : MOCK_DATA.greenFire;
+      case "challenge":
+        return scrapbookScraps.length > 0
+          ? scrapbookScraps
+          : MOCK_DATA.challenge;
+      case "feed":
+        return scrapbookScraps.length > 0 ? scrapbookScraps : MOCK_DATA.feed;
+      case "friend": {
+        const apiData = activeFilter === "팔로워" ? followers : following;
+        return apiData.length > 0
+          ? apiData
+          : activeFilter === "팔로워"
+            ? MOCK_DATA.followers
+            : MOCK_DATA.following;
+      }
+      default:
+        return [];
+    }
+  };
 
   // 로컬 상태 (필터링용)
-  const [selectedRegion, setSelectedRegion] = useState("지역명");
+  const [greenFireFilter, setGreenFireFilter] = useState("전체");
+  const [challengeFilter, setChallengeFilter] = useState("전체");
+  const [feedFilter, setFeedFilter] = useState("전체");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("최신 등록순");
+
+  // 프론트엔드 필터링
+  const filterScraps = (data) => {
+    if (!searchQuery) return data;
+    const query = searchQuery.toLowerCase();
+
+    switch (activeTab) {
+      case "greenFire":
+        if (greenFireFilter === "지역명") {
+          return data.filter((item) =>
+            item.location?.toLowerCase().includes(query),
+          );
+        }
+        return data.filter(
+          (item) =>
+            item.name?.toLowerCase().includes(query) ||
+            item.location?.toLowerCase().includes(query),
+        );
+      case "challenge":
+        if (challengeFilter === "주최자") {
+          return data.filter((item) =>
+            item.host?.toLowerCase().includes(query),
+          );
+        }
+        return data.filter(
+          (item) =>
+            item.title?.toLowerCase().includes(query) ||
+            item.host?.toLowerCase().includes(query),
+        );
+      case "feed":
+        if (feedFilter === "아이디") {
+          return data.filter((item) =>
+            item.author?.toLowerCase().includes(query),
+          );
+        }
+        return data.filter(
+          (item) =>
+            item.author?.toLowerCase().includes(query) ||
+            item.content?.toLowerCase().includes(query),
+        );
+      default:
+        return data;
+    }
+  };
+
+  const scraps = sortScraps(filterScraps(getScrapsData()), sortBy);
+  const loading = activeTab === "friend" ? followLoading : scrapbookLoading;
+  const error = null;
 
   // 탭 옵션
   const tabs = [
@@ -308,32 +470,29 @@ const ScrapbookMain = () => {
     { id: "feed", label: "피드" },
     { id: "friend", label: "친구" },
   ];
-  const regions = [
-    "지역명",
-    "서울시 강남구",
-    "서울시 노원구",
-    "서울시 종로구",
-    "서울시 관악구",
-  ];
   const sortOptions = ["최신 등록순", "오래된 순", "이름순"];
 
-  // 카테고리 변경 시 데이터 로드 (임시 데이터 사용으로 비활성화)
-  // useEffect(() => {
-  //   const filters = {
-  //     region: selectedRegion,
-  //     search: searchQuery,
-  //     sort: sortBy,
-  //   };
-  //   dispatch(getScrapsAPI(currentCategory, filters));
-  // }, [currentCategory, selectedRegion, searchQuery, sortBy, dispatch]);
+  // 챌린지 필터 변경 핸들러 (프론트엔드 필터링만)
+  const handleChallengeFilterChange = (filter) => {
+    setChallengeFilter(filter);
+    setSortBy("최신 등록순");
+  };
+
+  // 팔로우 필터 변경 핸들러 (프론트엔드 전환만)
+  const handleFollowFilterChange = (filter) => {
+    dispatch(setFollowFilter(filter));
+  };
 
   // 카테고리 변경 핸들러
   const handleTabClick = (tab) => {
     dispatch(setActiveTab(tab));
     // 필터 초기화
-    setSelectedRegion("지역명");
     setSearchQuery("");
     setSortBy("최신 등록순");
+    if (tab === "greenFire") setGreenFireFilter("전체");
+    if (tab === "challenge") setChallengeFilter("전체");
+    if (tab === "feed") setFeedFilter("전체");
+    if (tab === "friend") dispatch(setFollowFilter("팔로워"));
   };
 
   // 뒤로가기 핸들러
@@ -351,10 +510,34 @@ const ScrapbookMain = () => {
         onTabChange={handleTabClick}
       />
       <ScrapbookSearchFilter
-        regions={regions}
-        selectedRegion={selectedRegion}
+        regions={
+          activeTab === "greenFire"
+            ? greenFireFilterOptions
+            : activeTab === "challenge"
+              ? challengeFilterOptions
+              : activeTab === "feed"
+                ? feedFilterOptions
+                : followFilterOptions
+        }
+        selectedRegion={
+          activeTab === "greenFire"
+            ? greenFireFilter
+            : activeTab === "challenge"
+              ? challengeFilter
+              : activeTab === "feed"
+                ? feedFilter
+                : activeFilter
+        }
         searchQuery={searchQuery}
-        onRegionChange={setSelectedRegion}
+        onRegionChange={
+          activeTab === "greenFire"
+            ? setGreenFireFilter
+            : activeTab === "challenge"
+              ? handleChallengeFilterChange
+              : activeTab === "feed"
+                ? setFeedFilter
+                : handleFollowFilterChange
+        }
         onSearchChange={setSearchQuery}
       />
       <FilterControls
@@ -367,6 +550,7 @@ const ScrapbookMain = () => {
         <ScrapGrid
           scraps={scraps}
           activeTab={activeTab}
+          followFilter={activeFilter}
           loading={loading}
           error={error}
         />

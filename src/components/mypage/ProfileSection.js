@@ -1,5 +1,5 @@
-import { Image } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { getImageUrl } from "../../utils/imageUtils";
 
 const ProfileSection = ({ user }) => {
   const navigate = useNavigate();
@@ -8,7 +8,7 @@ const ProfileSection = ({ user }) => {
     <div className="w-full w-[calc(100%+30px)]">
       {/* 배너 이미지 */}
       <div className="w-full h-[120px] overflow-hidden bg-gradient-to-br from-green-primary to-[#6B9B7A]">
-        <Image
+        <img
           src={"/images/mypage-banner.png"}
           alt="배너"
           className="w-full h-full object-cover"
@@ -24,15 +24,15 @@ const ProfileSection = ({ user }) => {
       <div className="flex flex-col items-center -mt-[60px] relative z-[1] px-4">
         <div className="w-[120px] h-[120px] rounded-full bg-white border-4 border-white shadow-md overflow-hidden flex items-center justify-center">
           {user.profileImage ? (
-            <Image
-              src={user.profileImage}
+            <img
+              src={getImageUrl(user.profileImage)}
               alt="프로필"
               className="w-full h-full object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-100 text-5xl">
-              <Image
-                src="/images/default-profile.png"
+              <img
+                src="/default_profile.png"
                 alt="기본 프로필"
                 className="w-full h-full object-cover"
                 onError={(e) => {

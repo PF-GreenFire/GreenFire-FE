@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import EchoMemoryHeader from "../../components/mypage/EchoMemoryHeader";
 import ProfileBanner from "../../components/mypage/ProfileBanner";
 import ProfileInfoSection from "../../components/mypage/ProfileInfoSection";
@@ -15,11 +16,14 @@ const EchoMemoryMain = () => {
   const [showCoverModal, setShowCoverModal] = useState(false);
   const [coverImage, setCoverImage] = useState(null);
 
-  // 임시 사용자 데이터
+  // Redux에서 사용자 데이터 조회
+  const { user: reduxUser } = useSelector((state) => state.mypageReducer);
+
+  // 사용자 데이터 (Redux 데이터 우선, 폴백으로 기본값)
   const user = {
-    nickname: "김초록",
+    nickname: reduxUser.nickname || "김초록",
     username: "saladybest12",
-    profileImage: null,
+    profileImage: reduxUser.profileImage || null,
     level: 8,
     bio: "자기소개 영역 안녕하세요 김초록입니다 같이 환경 보호 해요~ 봉사활동 많이 다녀요 관심있으시면 우체통 보내주세요",
     tags: ["관심주제태그나염", "비건식", "봉사활동"],

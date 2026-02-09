@@ -1,6 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { Image } from "react-bootstrap";
-
 const MypageChallengeSection = ({ nickname, count, challenges = [] }) => {
   const navigate = useNavigate();
 
@@ -28,7 +26,7 @@ const MypageChallengeSection = ({ nickname, count, challenges = [] }) => {
               className="flex-1 aspect-square rounded-xl overflow-hidden cursor-pointer"
               onClick={() => navigate(`/challenges/${challenge.id}`)}
             >
-              <Image
+              <img
                 src={challenge.image}
                 alt={challenge.title}
                 className="w-full h-full object-cover"

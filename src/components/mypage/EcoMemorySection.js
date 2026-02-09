@@ -1,6 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import { Image } from "react-bootstrap";
-
 const EcoMemorySection = ({ nickname, count, echoMemories = [] }) => {
   const navigate = useNavigate();
 
@@ -29,7 +27,7 @@ const EcoMemorySection = ({ nickname, count, echoMemories = [] }) => {
               className="aspect-square rounded-xl overflow-hidden cursor-pointer"
               onClick={() => navigate(`/feed/${memory.id}`)}
             >
-              <Image
+              <img
                 src={memory.image}
                 alt={memory.title || "에코메모리"}
                 className="w-full h-full object-cover"

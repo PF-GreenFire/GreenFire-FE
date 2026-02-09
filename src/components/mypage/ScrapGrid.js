@@ -3,7 +3,7 @@ import ScrapStoreCard from "./ScrapStoreCard";
 import ScrapImageCard from "./ScrapImageCard";
 import ScrapFriendCard from "./ScrapFriendCard";
 
-const ScrapGrid = ({ scraps, activeTab, loading, error }) => {
+const ScrapGrid = ({ scraps, activeTab, followFilter, loading, error }) => {
   const renderCard = (item) => {
     switch (activeTab) {
       case "greenFire":
@@ -13,7 +13,13 @@ const ScrapGrid = ({ scraps, activeTab, loading, error }) => {
       case "feed":
         return <ScrapImageCard key={item.id} item={item} type="feed" />;
       case "friend":
-        return <ScrapFriendCard key={item.id} item={item} />;
+        return (
+          <ScrapFriendCard
+            key={item.id}
+            item={item}
+            followFilter={followFilter}
+          />
+        );
       default:
         return <ScrapStoreCard key={item.id} item={item} />;
     }
