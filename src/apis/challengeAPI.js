@@ -1,69 +1,29 @@
 import api from "./axios";
-import { getAllChallenges, getParticipatingChallenges, getMyCreatedChallenges } from "../modules/ChallengeReducer";
+import { getChallenges } from "../modules/ChallengeReducer";
 
-// 전체 챌린지 가져오기
-export const getAllChallengesAPI = (params = {}) => {
-  return async (dispatch, getState) => {
-    try {
-      const queryParams = new URLSearchParams();
-
-      if (params.search) queryParams.append('search', params.search);
-      if (params.sortBy) queryParams.append('sortBy', params.sortBy);
-      if (params.filter) queryParams.append('filter', params.filter);
-
-      const result = await api.get(`/v1/challenges?${queryParams.toString()}`);
-
-      console.log("getAllChallengesAPI result : ", result.data);
-
-      if (result.status === 200) {
-        dispatch(getAllChallenges(result));
-      }
-    } catch (error) {
-      console.error("전체 챌린지 조회 중 에러가 발생했습니다.", error);
-    }
-  };
+const ENDPOINTS = {
+  all: "/v1/challenges",
+  participating: "/v1/challenges/participating",
+  created: "/v1/challenges/created",
 };
 
-// 참여중인 챌린지 가져오기
-export const getParticipatingChallengesAPI = (params = {}) => {
+export const getChallengesAPI = (type = "all", params = {}) => {
   return async (dispatch, getState) => {
     try {
       const queryParams = new URLSearchParams();
 
-      if (params.search) queryParams.append('search', params.search);
-      if (params.sortBy) queryParams.append('sortBy', params.sortBy);
+      if (params.search) queryParams.append("search", params.search);
+      if (params.sortBy) queryParams.append("sortBy", params.sortBy);
+      if (params.filter) queryParams.append("filter", params.filter);
 
-      const result = await api.get(`/v1/challenges/participating?${queryParams.toString()}`);
-
-      console.log("getParticipatingChallengesAPI result : ", result.data);
-
-      if (result.status === 200) {
-        dispatch(getParticipatingChallenges(result));
-      }
-    } catch (error) {
-      console.error("참여중인 챌린지 조회 중 에러가 발생했습니다.", error);
-    }
-  };
-};
-
-// 내가 만든 챌린지 가져오기
-export const getMyCreatedChallengesAPI = (params = {}) => {
-  return async (dispatch, getState) => {
-    try {
-      const queryParams = new URLSearchParams();
-
-      if (params.search) queryParams.append('search', params.search);
-      if (params.sortBy) queryParams.append('sortBy', params.sortBy);
-
-      const result = await api.get(`/v1/challenges/created?${queryParams.toString()}`);
-
-      console.log("getMyCreatedChallengesAPI result : ", result.data);
+      const endpoint = ENDPOINTS[type] || ENDPOINTS.all;
+      const result = await api.get(`${endpoint}?${queryParams.toString()}`);
 
       if (result.status === 200) {
-        dispatch(getMyCreatedChallenges(result));
+        dispatch(getChallenges(result));
       }
     } catch (error) {
-      console.error("내가 만든 챌린지 조회 중 에러가 발생했습니다.", error);
+      console.error("챌린지 조회 중 에러가 발생했습니다.", error);
     }
   };
 };

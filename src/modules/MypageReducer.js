@@ -25,7 +25,7 @@ const initialState = {
     feeds: [],
   },
   achievementSummary: {
-    achivements: [],
+    achievements: [],
     totalCount: 0,
   },
   challengeSummary: {
@@ -56,11 +56,6 @@ const UPDATE_USER_INFO_REQUEST = "mypage/UPDATE_USER_INFO_REQUEST";
 const UPDATE_USER_INFO_SUCCESS = "mypage/UPDATE_USER_INFO_SUCCESS";
 const UPDATE_USER_INFO_FAILURE = "mypage/UPDATE_USER_INFO_FAILURE";
 
-// 프로필 이미지 변경
-const UPDATE_PROFILE_IMAGE_REQUEST = "mypage/UPDATE_PROFILE_IMAGE_REQUEST";
-const UPDATE_PROFILE_IMAGE_SUCCESS = "mypage/UPDATE_PROFILE_IMAGE_SUCCESS";
-const UPDATE_PROFILE_IMAGE_FAILURE = "mypage/UPDATE_PROFILE_IMAGE_FAILURE";
-
 // 비밀번호 변경
 const CHANGE_PASSWORD_REQUEST = "mypage/CHANGE_PASSWORD_REQUEST";
 const CHANGE_PASSWORD_SUCCESS = "mypage/CHANGE_PASSWORD_SUCCESS";
@@ -90,10 +85,6 @@ export const {
     updateUserInfoRequest,
     updateUserInfoSuccess,
     updateUserInfoFailure,
-    // 프로필 이미지 변경
-    updateProfileImageRequest,
-    updateProfileImageSuccess,
-    updateProfileImageFailure,
     // 비밀번호 변경
     changePasswordRequest,
     changePasswordSuccess,
@@ -121,11 +112,6 @@ export const {
   [UPDATE_USER_INFO_REQUEST]: () => ({}),
   [UPDATE_USER_INFO_SUCCESS]: (result) => ({ data: result.data }),
   [UPDATE_USER_INFO_FAILURE]: (error) => ({ error }),
-
-  // 프로필 이미지 변경
-  [UPDATE_PROFILE_IMAGE_REQUEST]: () => ({}),
-  [UPDATE_PROFILE_IMAGE_SUCCESS]: (result) => ({ data: result.data }),
-  [UPDATE_PROFILE_IMAGE_FAILURE]: (error) => ({ error }),
 
   // 비밀번호 변경
   [CHANGE_PASSWORD_REQUEST]: () => ({}),
@@ -209,29 +195,6 @@ const mypageReducer = handleActions(
       loading: false,
       error: payload.error,
     }),
-
-    // 프로필 이미지 변경 - 미사용
-    /*
-    [UPDATE_PROFILE_IMAGE_REQUEST]: (state) => ({
-      ...state,
-      loading: true,
-      error: null,
-    }),
-    [UPDATE_PROFILE_IMAGE_SUCCESS]: (state, { payload }) => ({
-      ...state,
-      userInfo: {
-        ...state.userInfo,
-        profileImage: payload.data.profileImage,
-      },
-      loading: false,
-      error: null,
-    }),
-    [UPDATE_PROFILE_IMAGE_FAILURE]: (state, { payload }) => ({
-      ...state,
-      loading: false,
-      error: payload.error,
-    }),
-    */
 
     // 비밀번호 변경
     [CHANGE_PASSWORD_REQUEST]: (state) => ({

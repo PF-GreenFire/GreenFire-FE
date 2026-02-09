@@ -1,4 +1,7 @@
 import { useNavigate } from "react-router-dom";
+import SectionHeader from "./SectionHeader";
+import EmptyState from "./EmptyState";
+
 const MypageChallengeSection = ({ nickname, count, challenges = [] }) => {
   const navigate = useNavigate();
 
@@ -7,17 +10,11 @@ const MypageChallengeSection = ({ nickname, count, challenges = [] }) => {
 
   return (
     <section className="mb-6">
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="text-base font-semibold text-gray-800 m-0">
-          {nickname}님의 챌린지 <span className="text-sm font-normal text-gray-500">+{count}</span>
-        </h3>
-        <button
-          className="bg-transparent border-none text-gray-500 text-sm cursor-pointer p-0 hover:text-green-primary"
-          onClick={() => navigate("/mypage/challenges")}
-        >
-          더보기
-        </button>
-      </div>
+      <SectionHeader
+        title={`${nickname}님의 챌린지`}
+        count={count}
+        navigateTo="/mypage/challenges"
+      />
       {challenges.length > 0 ? (
         <div className="flex gap-3">
           {displayChallenges.map((challenge) => (
@@ -43,9 +40,7 @@ const MypageChallengeSection = ({ nickname, count, challenges = [] }) => {
           )}
         </div>
       ) : (
-        <div className="bg-gray-100 rounded-xl py-10 px-5 flex items-center justify-center">
-          <p className="text-gray-500 text-sm m-0">챌린지를 시작해보세요!</p>
-        </div>
+        <EmptyState message="챌린지를 시작해보세요!" />
       )}
     </section>
   );

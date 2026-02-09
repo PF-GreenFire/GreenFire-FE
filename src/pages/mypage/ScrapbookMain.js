@@ -8,7 +8,7 @@ import { getFollowersAPI, getFollowingAPI } from "../../apis/followAPI";
 import { getScrapsAPI } from "../../apis/scrapbookAPI";
 import PageHeader from "../../components/mypage/PageHeader";
 import TabButtons from "../../components/common/TabButtons";
-import ScrapbookSearchFilter from "../../components/mypage/ScrapbookSearchFilter";
+import SearchFilter from "../../components/common/SearchFilter";
 import FilterControls from "../../components/common/FilterControls";
 import ScrapGrid from "../../components/mypage/ScrapGrid";
 
@@ -509,17 +509,16 @@ const ScrapbookMain = () => {
         activeTab={activeTab}
         onTabChange={handleTabClick}
       />
-      <ScrapbookSearchFilter
-        regions={
-          activeTab === "greenFire"
+      <SearchFilter
+        options={(activeTab === "greenFire"
             ? greenFireFilterOptions
             : activeTab === "challenge"
               ? challengeFilterOptions
               : activeTab === "feed"
                 ? feedFilterOptions
                 : followFilterOptions
-        }
-        selectedRegion={
+        ).map((opt) => ({ value: opt, label: opt }))}
+        selectedValue={
           activeTab === "greenFire"
             ? greenFireFilter
             : activeTab === "challenge"
@@ -528,8 +527,7 @@ const ScrapbookMain = () => {
                 ? feedFilter
                 : activeFilter
         }
-        searchQuery={searchQuery}
-        onRegionChange={
+        onOptionChange={
           activeTab === "greenFire"
             ? setGreenFireFilter
             : activeTab === "challenge"
@@ -538,6 +536,7 @@ const ScrapbookMain = () => {
                 ? setFeedFilter
                 : handleFollowFilterChange
         }
+        searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
       <FilterControls

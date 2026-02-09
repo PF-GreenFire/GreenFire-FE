@@ -2,14 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getAllChallengesAPI,
-  getParticipatingChallengesAPI,
-  getMyCreatedChallengesAPI,
-} from "../../apis/challengeAPI";
+import { getChallengesAPI } from "../../apis/challengeAPI";
 import PageHeader from "../../components/mypage/PageHeader";
 import TabButtons from "../../components/common/TabButtons";
-import ChallengeSearchFilter from "../../components/mypage/ChallengeSearchFilter";
+import SearchFilter from "../../components/common/SearchFilter";
 import FilterControls from "../../components/common/FilterControls";
 import ChallengeCardGrid from "../../components/mypage/ChallengeCardGrid";
 
@@ -105,13 +101,7 @@ const ChallengeMain = () => {
       filter: filterType !== "all" ? filterType : undefined,
     };
 
-    if (activeTab === "all") {
-      dispatch(getAllChallengesAPI(params));
-    } else if (activeTab === "participating") {
-      dispatch(getParticipatingChallengesAPI(params));
-    } else if (activeTab === "created") {
-      dispatch(getMyCreatedChallengesAPI(params));
-    }
+    dispatch(getChallengesAPI(activeTab, params));
   };
 
   // 탭 클릭 핸들러
@@ -185,13 +175,18 @@ const ChallengeMain = () => {
         onTabChange={handleTabClick}
       />
 
-      <ChallengeSearchFilter
-        filterType={filterType}
+      <SearchFilter
+        options={[
+          { value: "all", label: "전체" },
+          { value: "recruiting", label: "모집중" },
+          { value: "ongoing", label: "진행중" },
+          { value: "completed", label: "종료" },
+        ]}
+        selectedValue={getFilterText()}
+        onOptionChange={handleFilterChange}
         searchQuery={searchQuery}
-        onFilterChange={handleFilterChange}
         onSearchChange={setSearchQuery}
         onSearch={handleSearch}
-        getFilterText={getFilterText}
       />
 
       <FilterControls

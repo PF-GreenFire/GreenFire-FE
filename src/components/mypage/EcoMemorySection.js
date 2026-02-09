@@ -1,4 +1,7 @@
 import { useNavigate } from "react-router-dom";
+import SectionHeader from "./SectionHeader";
+import EmptyState from "./EmptyState";
+
 const EcoMemorySection = ({ nickname, count, echoMemories = [] }) => {
   const navigate = useNavigate();
 
@@ -7,18 +10,11 @@ const EcoMemorySection = ({ nickname, count, echoMemories = [] }) => {
 
   return (
     <section className="mb-6">
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="text-base font-semibold text-gray-800 m-0">
-          {nickname}님의 에코메모리{" "}
-          <span className="text-sm font-normal text-gray-500">+{count}</span>
-        </h3>
-        <button
-          className="bg-transparent border-none text-gray-500 text-sm cursor-pointer p-0 hover:text-green-primary"
-          onClick={() => navigate("/mypage/eco-memories")}
-        >
-          더보기
-        </button>
-      </div>
+      <SectionHeader
+        title={`${nickname}님의 에코메모리`}
+        count={count}
+        navigateTo="/mypage/eco-memories"
+      />
       {echoMemories.length > 0 ? (
         <div className="grid grid-cols-3 gap-3">
           {displayMemories.map((memory) => (
@@ -44,11 +40,7 @@ const EcoMemorySection = ({ nickname, count, echoMemories = [] }) => {
           )}
         </div>
       ) : (
-        <div className="bg-gray-100 rounded-xl py-10 px-5 flex items-center justify-center">
-          <p className="text-gray-500 text-sm m-0">
-            에코메모리를 시작해보세요!
-          </p>
-        </div>
+        <EmptyState message="에코메모리를 시작해보세요!" />
       )}
     </section>
   );
