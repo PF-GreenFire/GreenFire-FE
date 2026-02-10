@@ -19,18 +19,18 @@ function NavBar() {
     const navigate = useNavigate();
     const { isLoggedIn, isLoading: checking, role, onLoginSuccess, onLogout } = useAuth();
 
-    const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
 
-    const handleNavigation = (path) => {
-        navigate(path);
-        handleClose();
-    };
+  const handleNavigation = (path) => {
+    navigate(path);
+    handleClose();
+  };
 
-    const handleLogin = () => {
-        setShowLoginPopup(true);
-        handleClose();
-    };
+  const handleLogin = () => {
+    setShowLoginPopup(true);
+    handleClose();
+  };
 
     const handleLogout = async () => {
         await onLogout();
@@ -84,6 +84,23 @@ function NavBar() {
                     </div>
                 </Container>
             </div>
+          </div>
+
+          {/* Search Bar */}
+          <div className="pt-1 pb-2">
+            <InputGroup>
+              <Form.Control
+                placeholder="[공지사항] 10월 30일 환경 플로깅 우수자 선 발표"
+                aria-label="Search"
+                style={{ height: "41px" }}
+              />
+              <Button variant="success" style={{ height: "41px" }}>
+                확인하기
+              </Button>
+            </InputGroup>
+          </div>
+        </Container>
+      </div>
 
             {/* Offcanvas Sidebar */}
             <Offcanvas show={show} onHide={handleClose} placement="end" className="bg-light">
