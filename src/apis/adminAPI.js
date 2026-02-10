@@ -32,6 +32,35 @@ export const changeUserRole = async (userId, role) => {
 };
 
 /**
+ * 회원 상세 정보 조회
+ * @param {number} userId
+ */
+export const getMemberDetail = async (userId) => {
+  const { data } = await api.get(`/api/v1/admin/members/${userId}`);
+  return data;
+};
+
+/**
+ * 회원 정지
+ * @param {number} userId
+ * @param {string} reason - 정지 사유
+ * @param {string|null} until - 정지 해제일 (ISO string, null이면 영구)
+ */
+export const suspendMember = async (userId, reason, until) => {
+  const { data } = await api.post(`/api/v1/admin/members/${userId}/suspend`, { reason, until });
+  return data;
+};
+
+/**
+ * 회원 정지 해제
+ * @param {number} userId
+ */
+export const unsuspendMember = async (userId) => {
+  const { data } = await api.post(`/api/v1/admin/members/${userId}/unsuspend`);
+  return data;
+};
+
+/**
  * 현재 사용자 역할 기반 접근 가능 페이지 목록
  */
 export const getAccessiblePages = async () => {
