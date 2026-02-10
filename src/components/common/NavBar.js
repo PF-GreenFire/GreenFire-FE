@@ -1,5 +1,4 @@
 import Container from 'react-bootstrap/Container';
-import Navbar from 'react-bootstrap/Navbar';
 import 'bootstrap/dist/css/bootstrap.css';
 import { useState } from 'react';
 import { IoMdMenu } from "react-icons/io";
@@ -9,12 +8,16 @@ import Nav from 'react-bootstrap/Nav';
 import { useNavigate } from 'react-router-dom';
 import { Button, Form, InputGroup } from 'react-bootstrap';
 import LoginPopup from '../../pages/auth/LoginPopup';
+import NoticePreviewModal from '../notice/NoticePreviewModal';
+import { useAuth } from '../../hooks/useAuth';
 
 function NavBar() {
     const [show, setShow] = useState(false);
     const [showLoginPopup, setShowLoginPopup] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [showNoticePreview, setShowNoticePreview] = useState(false);
+    const [previewNoticeCode, setPreviewNoticeCode] = useState(null);
     const navigate = useNavigate();
+    const { isLoggedIn, isLoading: checking, role, onLoginSuccess, onLogout } = useAuth();
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
@@ -29,9 +32,15 @@ function NavBar() {
         handleClose();
     };
 
-    const handleLogout = () => {
-        setIsLoggedIn(false);
+    const handleLogout = async () => {
+        await onLogout();
         handleClose();
+    };
+
+    // ✅ 공지사항 미리보기 (예시 noticeCode: 1)
+    const handleNoticePreviewClick = () => {
+        setPreviewNoticeCode(1); // 실제로는 API에서 최신 중요 공지사항 코드를 받아와야 함
+        setShowNoticePreview(true);
     };
 
     return (
@@ -83,13 +92,18 @@ function NavBar() {
                 </Offcanvas.Header>
                 <Offcanvas.Body>
                     <Nav className="flex-column">
-                        {!isLoggedIn ? (
-                            <Nav.Link
-                                onClick={handleLogin}
-                                className="text-success fw-bold py-2 px-3 border-bottom"
-                                style={{ cursor: "pointer" }}
-                            >
-                                로그인
+                        {/* ✅ 세션 체크 중이면 깜빡임 방지용 표시 */}
+                        {checking ? (
+                        <Nav.Link className="text-secondary fw-medium py-2 px-3 border-bottom">
+                            로그인 상태 확인 중...
+                        </Nav.Link>
+                        ) : !isLoggedIn ? (
+                        <Nav.Link
+                            onClick={handleLogin}
+                            className="text-success fw-bold py-2 px-3 border-bottom"
+                            style={{ cursor: "pointer" }}
+                        >
+                            로그인
                             </Nav.Link>
                         ) : (
                             <>
@@ -107,6 +121,15 @@ function NavBar() {
                                 >
                                     로그아웃
                                 </Nav.Link>
+                                {role === 'ADMIN' && (
+                                    <Nav.Link
+                                        onClick={() => handleNavigation('/admin')}
+                                        className="text-primary fw-bold py-2 px-3 border-bottom"
+                                        style={{ cursor: "pointer" }}
+                                    >
+                                        관리자 페이지
+                                    </Nav.Link>
+                                )}
                             </>
                         )}
                         <Nav.Link
@@ -117,7 +140,7 @@ function NavBar() {
                             CS
                         </Nav.Link>
                         <Nav.Link
-                            onClick={() => handleNavigation('/main')}
+                            onClick={() => handleNavigation('/notices')}
                             className="text-dark fw-medium py-2 px-3 border-bottom"
                             style={{ cursor: "pointer" }}
                         >
@@ -142,9 +165,21 @@ function NavBar() {
             </Offcanvas>
 
             {/* Login Popup */}
-            <LoginPopup 
-                show={showLoginPopup} 
-                onHide={() => setShowLoginPopup(false)}
+            {/* ✅ 로그인 성공하면 NavBar도 즉시 세션 갱신 */}
+                <LoginPopup
+                    show={showLoginPopup}
+                    onHide={() => setShowLoginPopup(false)}
+                    onLoginSuccess={() => {
+                    setShowLoginPopup(false);
+                    onLoginSuccess();
+                }}
+            />
+
+            {/* ✅ 공지사항 미리보기 모달 */}
+            <NoticePreviewModal
+                show={showNoticePreview}
+                onHide={() => setShowNoticePreview(false)}
+                noticeCode={previewNoticeCode}
             />
         </>
     );
