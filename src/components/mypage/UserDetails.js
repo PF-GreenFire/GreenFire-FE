@@ -2,7 +2,7 @@ import React from "react";
 
 const UserDetails = ({ user }) => {
   return (
-    <div className="flex py-4 gap-3">
+    <div className="flex pt-3 pb-4 gap-3">
       {/* 레벨, 닉네임, 아이디 */}
       <div className="flex-shrink-0 min-w-[90px]">
         <span className="inline-block py-0.5 px-2 bg-green-light rounded-full text-[10px] font-semibold text-green-primary mb-1">

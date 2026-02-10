@@ -5,6 +5,7 @@ const initialState = {
   user: {
     nickname: "",
     profileImage: null,
+    coverImage: null,
   },
   userInfo: {
     nickname: "",
@@ -35,6 +36,19 @@ const initialState = {
   echoMemorySummary: {
     echoMemories: [],
     totalCount: 0,
+    postCount: 0,
+    followers: 0,
+    followings: 0,
+  },
+  echoMemoryPosts: {
+    posts: [],
+    page: 0,
+    hasMore: true,
+  },
+  echoMemoryLikedPosts: {
+    posts: [],
+    page: 0,
+    hasMore: true,
   },
   loading: false,
   error: null,
@@ -66,6 +80,12 @@ const WITHDRAW_USER_REQUEST = "mypage/WITHDRAW_USER_REQUEST";
 const WITHDRAW_USER_SUCCESS = "mypage/WITHDRAW_USER_SUCCESS";
 const WITHDRAW_USER_FAILURE = "mypage/WITHDRAW_USER_FAILURE";
 
+// 에코메모리 게시물
+const GET_ECHO_POSTS_SUCCESS = "mypage/GET_ECHO_POSTS_SUCCESS";
+
+// 에코메모리 좋아요 게시물
+const GET_ECHO_LIKED_POSTS_SUCCESS = "mypage/GET_ECHO_LIKED_POSTS_SUCCESS";
+
 // 상태 초기화
 const CLEAR_USER_INFO = "mypage/CLEAR_USER_INFO";
 const CLEAR_ERROR = "mypage/CLEAR_ERROR";
@@ -93,6 +113,10 @@ export const {
     withdrawUserRequest,
     withdrawUserSuccess,
     withdrawUserFailure,
+    // 에코메모리 게시물
+    getEchoPostsSuccess,
+    // 에코메모리 좋아요 게시물
+    getEchoLikedPostsSuccess,
     // 상태 초기화
     clearUserInfo,
     clearError,
@@ -123,6 +147,12 @@ export const {
   [WITHDRAW_USER_SUCCESS]: () => ({}),
   [WITHDRAW_USER_FAILURE]: (error) => ({ error }),
 
+  // 에코메모리 게시물
+  [GET_ECHO_POSTS_SUCCESS]: (result) => ({ data: result.data }),
+
+  // 에코메모리 좋아요 게시물
+  [GET_ECHO_LIKED_POSTS_SUCCESS]: (result) => ({ data: result.data }),
+
   // 상태 초기화
   [CLEAR_USER_INFO]: () => ({}),
   [CLEAR_ERROR]: () => ({}),
@@ -146,6 +176,13 @@ const mypageReducer = handleActions(
       challengeSummary: payload.data.challengeSummary || state.challengeSummary,
       echoMemorySummary:
         payload.data.echoMemorySummary || state.echoMemorySummary,
+      echoMemoryPosts: payload.data.echoMemoryPosts
+        ? {
+            posts: payload.data.echoMemoryPosts.content || [],
+            page: 0,
+            hasMore: !payload.data.echoMemoryPosts.last,
+          }
+        : state.echoMemoryPosts,
       loading: false,
       error: null,
     }),
@@ -229,6 +266,26 @@ const mypageReducer = handleActions(
       ...state,
       loading: false,
       error: payload.error,
+    }),
+
+    // 에코메모리 게시물 (페이징 append)
+    [GET_ECHO_POSTS_SUCCESS]: (state, { payload }) => ({
+      ...state,
+      echoMemoryPosts: {
+        posts: [...state.echoMemoryPosts.posts, ...(payload.data.content || [])],
+        page: payload.data.number,
+        hasMore: !payload.data.last,
+      },
+    }),
+
+    // 에코메모리 좋아요 게시물 (페이징 append)
+    [GET_ECHO_LIKED_POSTS_SUCCESS]: (state, { payload }) => ({
+      ...state,
+      echoMemoryLikedPosts: {
+        posts: [...state.echoMemoryLikedPosts.posts, ...(payload.data.content || [])],
+        page: payload.data.number,
+        hasMore: !payload.data.last,
+      },
     }),
 
     // 상태 초기화

@@ -31,8 +31,8 @@ const ProfileInfoSection = ({ user, onSettingsClick }) => {
 
       {/* 통계 및 버튼 */}
       <div className="flex-1 flex flex-col ml-3 pt-[52px]">
-        <div className="flex items-center justify-center gap-4 mb-2">
-          <div className="flex gap-4">
+        <div className="flex items-center justify-between mt-2 mb-2">
+          <div className="flex flex-1 justify-around">
             <div className="flex flex-col items-center">
               <span className="text-base font-bold text-gray-800">
                 {user.stats.posts}

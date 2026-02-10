@@ -3,7 +3,7 @@ import { IoIosArrowBack, IoIosSearch, IoMdMore } from "react-icons/io";
 
 const EchoMemoryHeader = ({ username, onGoBack }) => {
   return (
-    <div className="flex items-center justify-between py-3 px-4 bg-white">
+    <div className="flex items-center justify-between py-3 bg-white">
       <div className="flex items-center gap-2">
         <IoIosArrowBack
           className="text-2xl cursor-pointer text-gray-800"

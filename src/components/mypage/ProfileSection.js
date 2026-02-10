@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { getImageUrl } from "../../utils/imageUtils";
 
-const ProfileSection = ({ user }) => {
+const ProfileSection = ({ user, coverImage }) => {
   const navigate = useNavigate();
 
   return (
@@ -9,7 +9,7 @@ const ProfileSection = ({ user }) => {
       {/* 배너 이미지 */}
       <div className="w-full h-[120px] overflow-hidden bg-gradient-to-br from-green-primary to-[#6B9B7A]">
         <img
-          src={"/images/mypage-banner.png"}
+          src={coverImage || "/images/mypage-banner.png"}
           alt="배너"
           className="w-full h-full object-cover"
           onError={(e) => {

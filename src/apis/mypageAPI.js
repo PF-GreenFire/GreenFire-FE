@@ -15,6 +15,8 @@ import {
   withdrawUserRequest,
   withdrawUserSuccess,
   withdrawUserFailure,
+  getEchoPostsSuccess,
+  getEchoLikedPostsSuccess,
 } from "../modules/MypageReducer";
 import { base64ToFile } from "../utils/imageUtils";
 
@@ -74,7 +76,11 @@ export const getUserInfoAPI = () => {
  * @param {string|null} profileImage - 프로필 이미지 (base64 또는 URL)
  * @param {boolean} isImageDeleted - 프로필 이미지 삭제 여부
  */
-export const updateUserInfoAPI = (textData, profileImage, isImageDeleted = false) => {
+export const updateUserInfoAPI = (
+  textData,
+  profileImage,
+  isImageDeleted = false,
+) => {
   return async (dispatch) => {
     dispatch(updateUserInfoRequest());
 
@@ -113,6 +119,48 @@ export const updateUserInfoAPI = (textData, profileImage, isImageDeleted = false
       dispatch(
         updateUserInfoFailure(error.message || "정보 수정에 실패했습니다."),
       );
+      return { success: false, error: error.message };
+    }
+  };
+};
+
+/**
+ * 커버 이미지 변경 (FormData - multipart/form-data)
+ * @param {string|null} coverImage - 커버 이미지 (base64, 경로 문자열, 또는 null)
+ */
+export const updateCoverImageAPI = (coverImage) => {
+  return async () => {
+    try {
+      const formData = new FormData();
+
+      if (coverImage) {
+        formData.append(
+          "data",
+          new Blob([JSON.stringify({ deleteCoverImage: false })], {
+            type: "application/json",
+          }),
+        );
+
+        if (coverImage.startsWith("data:")) {
+          const file = base64ToFile(coverImage, "cover.jpg");
+          formData.append("image", file);
+        }
+      } else {
+        formData.append(
+          "data",
+          new Blob([JSON.stringify({ deleteCoverImage: true })], {
+            type: "application/json",
+          }),
+        );
+      }
+
+      const result = await api.put("/user/me/cover-image", formData);
+
+      if (result.status === 200) {
+        return { success: true, imagePath: result.data };
+      }
+    } catch (error) {
+      console.error("커버 이미지 변경 중 에러가 발생했습니다:", error);
       return { success: false, error: error.message };
     }
   };
@@ -174,6 +222,42 @@ export const withdrawUserAPI = (reason) => {
         withdrawUserFailure(error.message || "회원 탈퇴에 실패했습니다."),
       );
       return { success: false, error: error.message };
+    }
+  };
+};
+
+/**
+ * 에코메모리 게시물 추가 로드 (무한 스크롤)
+ * @param {number} page - 페이지 번호
+ */
+export const getEchoPostsAPI = (page) => {
+  return async (dispatch) => {
+    try {
+      const result = await api.get(`/user/me/posts?page=${page}`);
+
+      if (result.status === 200) {
+        dispatch(getEchoPostsSuccess(result));
+      }
+    } catch (error) {
+      console.error("게시물 조회 중 에러가 발생했습니다:", error);
+    }
+  };
+};
+
+/**
+ * 에코메모리 좋아요 게시물 로드 (무한 스크롤)
+ * @param {number} page - 페이지 번호
+ */
+export const getEchoLikedPostsAPI = (page) => {
+  return async (dispatch) => {
+    try {
+      const result = await api.get(`/user/me/liked-posts?page=${page}`);
+
+      if (result.status === 200) {
+        dispatch(getEchoLikedPostsSuccess(result));
+      }
+    } catch (error) {
+      console.error("좋아요 게시물 조회 중 에러가 발생했습니다:", error);
     }
   };
 };

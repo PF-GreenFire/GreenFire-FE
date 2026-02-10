@@ -8,6 +8,7 @@ import MypageChallengeSection from "../../components/mypage/MypageChallengeSecti
 import EcoMemorySection from "../../components/mypage/EcoMemorySection";
 import Loading from "../../components/common/Loading";
 import { getMypageAPI } from "../../apis/mypageAPI";
+import { getImageUrl } from "../../utils/imageUtils";
 
 const MypageMain = () => {
   const dispatch = useDispatch();
@@ -40,7 +41,7 @@ const MypageMain = () => {
 
   return (
     <>
-      <ProfileSection user={user} />
+      <ProfileSection user={user} coverImage={user.coverImage ? getImageUrl(user.coverImage) : null} />
 
       <Container style={{ marginBottom: "120px", padding: "0 15px" }}>
         <ScrapbookSection scrapbook={scrapbook} />
