@@ -5,7 +5,6 @@ import ExDesign from './pages/ExDesign';
 import NearbyMain from './pages/map/NearbyMain';
 import ChallengeMain from './pages/challenge/ChallengeMain';
 import FeedMain from './pages/feed/FeedMain';
-import MyPageMain from './pages/mypage/MypageMain';
 import CustomLayout from './layouts/common/CustomLayout';
 import RegistChallenge from './pages/challenge/RegistChallenge';
 import ChallengeDetail from './pages/challenge/ChallengeDetail';
@@ -23,7 +22,7 @@ import AdminMemberList from './pages/admin/AdminMemberList';
 import AdminReportList from './pages/admin/AdminReportList';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import SessionExpiredModal from './components/common/SessionExpiredModal';
-import MypageLayout from "./layouts/MypageLayout";
+import MypageLayout from "./layouts/MyPageLayout";
 import MypageMain from "./pages/mypage/MypageMain";
 import MypageScrapbookMain from "./pages/mypage/ScrapbookMain";
 import MypageAchievementMain from "./pages/mypage/AchievementMain";
@@ -93,11 +92,6 @@ const App = () => {
           <Route path="challenges" element={<ChallengeMain />} />
           <Route path="challenges/:id" element={<ChallengeDetail />} />
           <Route path="feed" element={<FeedMain />} />
-          <Route path="mypage" element={
-            <ProtectedRoute>
-              <MyPageMain />
-            </ProtectedRoute>
-          } />
 
           {/* challenge */}
           <Route path="challenge" element={
@@ -108,7 +102,11 @@ const App = () => {
         </Route>
 
         {/* Mypage 전용 Layout */}
-        <Route path="mypage" element={<MypageLayout />}>
+        <Route path="mypage" element={
+          <ProtectedRoute>
+            <MypageLayout />
+          </ProtectedRoute>
+        }>
           {/* Mypage */}
           <Route index element={<MypageMain />} />
           <Route path="scrapbook" element={<MypageScrapbookMain />} />

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { BsHouseDoor, BsAward } from "react-icons/bs";
 import { IoRestaurantOutline } from "react-icons/io5";
 import PageHeader from "../../components/mypage/PageHeader";
-import { withdrawUserAPI } from "../../apis/mypageAPI";
+import { deleteAccount } from "../../apis/authAPI";
+import { useAuth } from "../../hooks/useAuth";
 
 const WITHDRAWAL_REASONS = [
   { id: "no_restaurant", label: "원하는 식당이 없어요" },
@@ -16,14 +17,16 @@ const WITHDRAWAL_REASONS = [
 
 const MypageWithdrawal = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const { onLogout } = useAuth();
+  const { user } = useSelector((state) => state.mypageReducer);
+  const nickname = user?.nickname || "회원";
+
   const [selectedReason, setSelectedReason] = useState("");
   const [customReason, setCustomReason] = useState("");
-
-  // 임시 사용자 데이터 (추후 Redux에서 가져올 수 있음)
-  const [userInfo] = useState({
-    nickname: "메밀면",
-  });
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   // 임시 통계 데이터 (추후 API에서 가져올 수 있음)
   const [userStats, setUserStats] = useState({
@@ -49,47 +52,60 @@ const MypageWithdrawal = () => {
     }
   };
 
-  const handleWithdraw = async () => {
+  const handleWithdrawClick = () => {
+    setError("");
+
     if (!selectedReason) {
-      alert("탈퇴 사유를 선택해주세요.");
+      setError("탈퇴 사유를 선택해주세요.");
       return;
     }
 
     if (selectedReason === "custom" && !customReason.trim()) {
-      alert("탈퇴 사유를 입력해주세요.");
+      setError("탈퇴 사유를 입력해주세요.");
       return;
     }
 
+    if (!password) {
+      setError("비밀번호를 입력해주세요.");
+      return;
+    }
+
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmWithdraw = async () => {
     const reason =
       selectedReason === "custom"
         ? customReason
         : WITHDRAWAL_REASONS.find((r) => r.id === selectedReason)?.label;
 
-    if (
-      window.confirm(
-        "정말로 탈퇴하시겠습니까?\n탈퇴 후에는 복구할 수 없습니다.",
-      )
-    ) {
-      const result = await dispatch(withdrawUserAPI(reason));
-
-      if (result?.success) {
-        alert("회원 탈퇴가 완료되었습니다.");
-        navigate("/");
-      } else {
-        alert(result?.error || "회원 탈퇴에 실패했습니다.");
-      }
+    setIsLoading(true);
+    setShowConfirmModal(false);
+    try {
+      await deleteAccount(password, reason);
+      await onLogout();
+      alert("회원 탈퇴가 완료되었습니다.");
+      navigate("/", { replace: true });
+    } catch (err) {
+      setError(
+        err?.response?.data?.message ||
+        err?.message ||
+        "회원 탈퇴에 실패했습니다."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <>
-      <PageHeader title={`${userInfo.nickname}님의 정보`} />
+      <PageHeader title={`${nickname}님의 정보`} />
 
       <div className="px-4 pb-[120px]">
         {/* 제목 */}
         <div className="mb-6">
           <p className="text-xl font-semibold text-gray-800 m-0">
-            {userInfo.nickname} 님,
+            {nickname} 님,
           </p>
           <p className="text-xl font-semibold text-gray-800 m-0">
             정말 초록불을 떠나시나요?
@@ -112,7 +128,7 @@ const MypageWithdrawal = () => {
         {/* 안내 박스 2 - 사라지는 기록 */}
         <div className="border-1 border-green-primary rounded-xl p-4 mb-6 bg-gray-50">
           <p className="text-sm font-semibold text-gray-800 m-0 text-center">
-            {userInfo.nickname} 님의 소중한 기록이 모두 사라져요.
+            {nickname} 님의 소중한 기록이 모두 사라져요.
           </p>
           <p className="text-xs text-gray-400 m-0 text-center mb-4">
             탈퇴하면 복구할 수 없어요.
@@ -150,7 +166,7 @@ const MypageWithdrawal = () => {
             탈퇴 사유를 알려주시겠어요?
           </p>
           <p className="text-xs text-gray-500 m-0 mb-4">
-            {userInfo.nickname} 님의 소중한 의견을 통해 더 나은 초록불이 될게요.
+            {nickname} 님의 소중한 의견을 통해 더 나은 초록불이 될게요.
           </p>
 
           {/* 라디오 버튼 목록 */}
@@ -185,14 +201,82 @@ const MypageWithdrawal = () => {
           </div>
         </div>
 
+        {/* 비밀번호 확인 */}
+        <div className="mb-6">
+          <p className="text-base font-semibold text-gray-800 m-0 mb-1">
+            본인 확인
+          </p>
+          <p className="text-xs text-gray-500 m-0 mb-4">
+            탈퇴를 위해 현재 비밀번호를 입력해주세요.
+          </p>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="현재 비밀번호"
+            disabled={isLoading}
+            className="w-full border border-gray-300 rounded-lg py-3 px-4 text-sm text-gray-800 focus:border-green-primary focus:outline-none focus:ring-2 focus:ring-green-primary"
+          />
+        </div>
+
+        {/* 에러 메시지 */}
+        {error && (
+          <div
+            className="mb-4 py-3 px-4 rounded-lg text-sm"
+            style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626' }}
+          >
+            {error}
+          </div>
+        )}
+
         {/* 탈퇴하기 버튼 */}
         <button
           className="w-full py-3.5 border border-gray-300 rounded-lg bg-white text-[15px] font-medium text-gray-400 cursor-pointer transition-all duration-300 hover:!bg-red-100 hover:!text-red-600 hover:!border-transparent focus:outline-none"
-          onClick={handleWithdraw}
+          onClick={handleWithdrawClick}
+          disabled={isLoading}
         >
-          탈퇴하기
+          {isLoading ? "처리 중..." : "탈퇴하기"}
         </button>
       </div>
+
+      {/* 탈퇴 확인 모달 */}
+      {showConfirmModal && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setShowConfirmModal(false)}
+        >
+          <div
+            className="bg-white rounded-2xl mx-6 p-6 w-full max-w-[340px]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-lg font-bold text-gray-800 text-center m-0 mb-2">
+              정말 탈퇴하시겠습니까?
+            </p>
+            <p className="text-sm text-gray-500 text-center m-0 mb-6 leading-relaxed">
+              탈퇴 후 <span className="font-semibold text-red-500">30일간 동일 이메일로 재가입이 불가능</span>하며,
+              모든 데이터는 복구할 수 없습니다.
+            </p>
+            <div className="flex gap-3">
+              <button
+                className="flex-1 py-3 rounded-xl border border-gray-300 bg-white text-sm font-medium text-gray-600 cursor-pointer transition-colors hover:bg-gray-50"
+                onClick={() => setShowConfirmModal(false)}
+              >
+                취소
+              </button>
+              <button
+                className="flex-1 py-3 rounded-xl border-none text-sm font-medium text-white cursor-pointer transition-colors"
+                style={{ backgroundColor: '#dc2626' }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#b91c1c'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+                onClick={handleConfirmWithdraw}
+              >
+                회원탈퇴
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

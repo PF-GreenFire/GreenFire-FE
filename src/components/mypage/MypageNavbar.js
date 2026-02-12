@@ -7,11 +7,12 @@ import Nav from "react-bootstrap/Nav";
 import { useNavigate } from "react-router-dom";
 import { Button } from "react-bootstrap";
 import LoginPopup from "../../pages/auth/LoginPopup";
+import { useAuth } from "../../hooks/useAuth";
 
 function MypageNavbar() {
   const [show, setShow] = useState(false);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn, onLogout, onLoginSuccess } = useAuth();
   const navigate = useNavigate();
 
   const handleClose = () => setShow(false);
@@ -27,8 +28,9 @@ function MypageNavbar() {
     handleClose();
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
+  const handleLogout = async () => {
+    await onLogout();
+    navigate('/');
     handleClose();
   };
 
@@ -139,6 +141,7 @@ function MypageNavbar() {
       <LoginPopup
         show={showLoginPopup}
         onHide={() => setShowLoginPopup(false)}
+        onLoginSuccess={onLoginSuccess}
       />
     </>
   );

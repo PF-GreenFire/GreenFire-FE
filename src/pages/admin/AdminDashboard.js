@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Spinner, Button } from 'react-bootstrap';
-import { FaUsers, FaExclamationTriangle, FaCheckCircle, FaFire, FaChartLine } from 'react-icons/fa';
+import { FaUsers, FaExclamationTriangle, FaCheckCircle, FaTrophy, FaUserPlus } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { getDashboardStats } from '../../apis/adminAPI';
 
@@ -100,19 +100,19 @@ const AdminDashboard = () => {
       link: '/admin/reports',
     },
     {
-      title: '활성 챌린지',
-      value: stats?.activeChallenges ?? 0,
-      icon: <FaFire size={28} />,
-      color: '#F57C00',
-      bg: '#FFF3E0',
-      link: null,
-    },
-    {
-      title: '최근 활동',
-      value: stats?.recentActivities ?? 0,
-      icon: <FaChartLine size={28} />,
+      title: '오늘 가입',
+      value: stats?.todaySignups ?? 0,
+      icon: <FaUserPlus size={28} />,
       color: '#7B1FA2',
       bg: '#F3E5F5',
+      link: '/admin/members',
+    },
+    {
+      title: '챌린지 참여자',
+      value: stats?.challengeParticipants ?? 0,
+      icon: <FaTrophy size={28} />,
+      color: '#F57C00',
+      bg: '#FFF3E0',
       link: null,
     },
   ];

@@ -5,7 +5,7 @@ import api from "./axios";
  * @param {Object} params - { resourceType, resourceId, category, reason }
  */
 export const createReport = async ({ resourceType, resourceId, category, reason }) => {
-  const { data } = await api.post("/api/v1/reports", {
+  const { data } = await api.post("/api/reports", {
     resourceType,
     resourceId,
     category,
@@ -19,7 +19,7 @@ export const createReport = async ({ resourceType, resourceId, category, reason 
  * @param {Object} params - { page, size, status }
  */
 export const getReports = async (params) => {
-  const { data } = await api.get("/api/v1/admin/reports", { params });
+  const { data } = await api.get("/api/admin/reports", { params });
   return data;
 };
 
@@ -29,7 +29,7 @@ export const getReports = async (params) => {
  * @param {Object} params - { status, adminNote }
  */
 export const handleReport = async (reportId, { status, adminNote }) => {
-  const { data } = await api.patch(`/api/v1/admin/reports/${reportId}/handle`, {
+  const { data } = await api.patch(`/api/admin/reports/${reportId}/handle`, {
     status,
     adminNote,
   });
@@ -40,6 +40,6 @@ export const handleReport = async (reportId, { status, adminNote }) => {
  * 대기 중인 신고 건수 조회 (관리자)
  */
 export const getPendingReportCount = async () => {
-  const { data } = await api.get("/api/v1/admin/reports/pending-count");
+  const { data } = await api.get("/api/admin/reports/pending-count");
   return data;
 };
