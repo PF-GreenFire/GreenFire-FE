@@ -74,7 +74,7 @@ function NavBar() {
                         ) : (
                             <>
                                 <Nav.Link
-                                    onClick={() => handleNavigation('/profile')}
+                                    onClick={() => handleNavigation('/mypage/info')}
                                     className="text-dark fw-medium py-2 px-3 border-bottom"
                                     style={{ cursor: "pointer" }}
                                 >
