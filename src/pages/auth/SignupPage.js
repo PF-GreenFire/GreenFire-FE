@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useCallback, useRef, useEffect } from "react";
-import { Container } from "react-bootstrap";
 import { FaEye, FaEyeSlash, FaCheck, FaTimes, FaCamera } from "react-icons/fa";
 import { BsCalendar } from "react-icons/bs";
 import { IoIosArrowBack } from "react-icons/io";
@@ -292,14 +291,14 @@ const SignupPage = () => {
     }
     if (emailStatus === "available") {
       return (
-        <div className="text-xs mt-1 flex items-center gap-1" style={{ color: '#16a34a' }}>
+        <div className="text-xs mt-1 flex items-center gap-1 text-admin-green-dark">
           <FaCheck size={10} /> 사용 가능한 이메일입니다.
         </div>
       );
     }
     if (emailStatus === "taken") {
       return (
-        <div className="text-xs mt-1 flex items-center gap-1" style={{ color: '#dc2626' }}>
+        <div className="text-xs mt-1 flex items-center gap-1 text-red-600">
           <FaTimes size={10} /> 이미 사용 중인 이메일입니다.
         </div>
       );
@@ -309,8 +308,8 @@ const SignupPage = () => {
 
   return (
     <>
-      <div style={{ minHeight: '100vh', backgroundColor: '#fff' }}>
-        <Container style={{ maxWidth: 563, padding: '0 15px' }}>
+      <div className="min-h-screen bg-white">
+        <div className="max-w-[563px] mx-auto px-[15px]">
 
           {/* 헤더 */}
           <div className="flex items-center relative py-4">
@@ -378,10 +377,7 @@ const SignupPage = () => {
 
           <form onSubmit={handleSubmit}>
             {error && (
-              <div
-                className="mb-4 py-3 px-4 rounded-lg text-sm"
-                style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626' }}
-              >
+              <div className="mb-4 py-3 px-4 rounded-lg text-sm bg-red-50 border border-red-200 text-red-600">
                 {error}
               </div>
             )}
@@ -392,7 +388,7 @@ const SignupPage = () => {
 
               <div className="flex items-center mb-4">
                 <label className="w-[100px] flex-shrink-0 text-sm text-gray-800 font-medium">
-                  이름 <span style={{ color: '#dc2626' }}>*</span>
+                  이름 <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
@@ -408,7 +404,7 @@ const SignupPage = () => {
 
               <div className="flex items-center mb-4">
                 <label className="w-[100px] flex-shrink-0 text-sm text-gray-800 font-medium">
-                  닉네임 <span style={{ color: '#dc2626' }}>*</span>
+                  닉네임 <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
@@ -486,8 +482,8 @@ const SignupPage = () => {
 
               {/* 이메일 */}
               <div className="flex items-start mb-4">
-                <label className="w-[100px] flex-shrink-0 text-sm text-gray-800 font-medium" style={{ paddingTop: 12 }}>
-                  이메일 <span style={{ color: '#dc2626' }}>*</span>
+                <label className="w-[100px] flex-shrink-0 text-sm text-gray-800 font-medium pt-3">
+                  이메일 <span className="text-red-600">*</span>
                 </label>
                 <div className="flex-1">
                   <input
@@ -507,8 +503,8 @@ const SignupPage = () => {
 
               {/* 비밀번호 */}
               <div className="flex items-start mb-4">
-                <label className="w-[100px] flex-shrink-0 text-sm text-gray-800 font-medium" style={{ paddingTop: 12 }}>
-                  비밀번호 <span style={{ color: '#dc2626' }}>*</span>
+                <label className="w-[100px] flex-shrink-0 text-sm text-gray-800 font-medium pt-3">
+                  비밀번호 <span className="text-red-600">*</span>
                 </label>
                 <div className="flex-1">
                   <div className="flex gap-2">
@@ -536,8 +532,7 @@ const SignupPage = () => {
                       {passwordChecks.map((rule) => (
                         <div
                           key={rule.key}
-                          className="flex items-center gap-1 mb-0.5"
-                          style={{ fontSize: 12, color: rule.passed ? '#16a34a' : '#dc2626' }}
+                          className={`flex items-center gap-1 mb-0.5 text-xs ${rule.passed ? 'text-admin-green-dark' : 'text-red-600'}`}
                         >
                           {rule.passed ? <FaCheck size={10} /> : <FaTimes size={10} />}
                           {rule.label}
@@ -550,8 +545,8 @@ const SignupPage = () => {
 
               {/* 비밀번호 확인 */}
               <div className="flex items-start mb-4">
-                <label className="w-[100px] flex-shrink-0 text-sm text-gray-800 font-medium" style={{ paddingTop: 12 }}>
-                  비밀번호 확인 <span style={{ color: '#dc2626' }}>*</span>
+                <label className="w-[100px] flex-shrink-0 text-sm text-gray-800 font-medium pt-3">
+                  비밀번호 확인 <span className="text-red-600">*</span>
                 </label>
                 <div className="flex-1">
                   <div className="flex gap-2">
@@ -563,8 +558,9 @@ const SignupPage = () => {
                       placeholder="비밀번호를 한번 더 입력하세요"
                       disabled={isLoading}
                       required
-                      className="flex-1 border rounded-lg py-3 px-4 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-primary"
-                      style={{ borderColor: passwordMismatch ? '#dc2626' : '#4A7C59' }}
+                      className={`flex-1 border rounded-lg py-3 px-4 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-primary ${
+                        passwordMismatch ? 'border-red-600' : 'border-green-primary'
+                      }`}
                     />
                     <button
                       type="button"
@@ -576,7 +572,7 @@ const SignupPage = () => {
                     </button>
                   </div>
                   {passwordMismatch && (
-                    <div className="mt-1" style={{ fontSize: 12, color: '#dc2626' }}>
+                    <div className="mt-1 text-xs text-red-600">
                       비밀번호가 일치하지 않습니다.
                     </div>
                   )}
@@ -587,35 +583,29 @@ const SignupPage = () => {
             {/* 약관 동의 */}
             <div className="mb-8">
               <h2 className="text-lg font-semibold text-gray-800 mb-5">약관 동의</h2>
-              <div
-                className="rounded-xl"
-                style={{ border: '1px solid #e5e7eb', padding: 16 }}
-              >
+              <div className="rounded-xl border border-gray-200 p-4">
                 <label className="flex items-center gap-3 cursor-pointer mb-3">
                   <input
                     type="checkbox"
                     checked={agreements.service && agreements.privacy && agreements.marketing}
                     onChange={(e) => handleAllAgree(e.target.checked)}
-                    style={{ accentColor: '#4A7C59', width: 18, height: 18, cursor: 'pointer' }}
+                    className="w-[18px] h-[18px] cursor-pointer accent-green-primary"
                   />
                   <span className="text-sm font-bold text-gray-800">전체 동의합니다</span>
                 </label>
-                <hr style={{ margin: '12px 0', borderColor: '#e5e7eb' }} />
+                <hr className="my-3 border-gray-200" />
 
                 {Object.entries(TERMS).map(([key, term]) => (
-                  <div key={key} style={{ marginBottom: 8 }}>
+                  <div key={key} className="mb-2">
                     <div className="flex items-center justify-between">
                       <label className="flex items-center gap-3 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={agreements[key]}
                           onChange={(e) => handleAgreementChange(key, e.target.checked)}
-                          style={{ accentColor: '#4A7C59', width: 16, height: 16, cursor: 'pointer' }}
+                          className="w-4 h-4 cursor-pointer accent-green-primary"
                         />
-                        <span
-                          className="text-xs"
-                          style={{ color: term.required ? '#1f2937' : '#6b7280' }}
-                        >
+                        <span className={`text-xs ${term.required ? 'text-gray-800' : 'text-gray-500'}`}>
                           {term.label}
                         </span>
                       </label>
@@ -627,18 +617,7 @@ const SignupPage = () => {
                       </span>
                     </div>
                     {expandedTerm === key && (
-                      <div
-                        className="mt-2 rounded-lg whitespace-pre-wrap"
-                        style={{
-                          padding: '10px 12px',
-                          backgroundColor: '#f9fafb',
-                          fontSize: 12,
-                          color: '#4b5563',
-                          maxHeight: 160,
-                          overflowY: 'auto',
-                          lineHeight: 1.6,
-                        }}
-                      >
+                      <div className="mt-2 rounded-lg whitespace-pre-wrap py-2.5 px-3 bg-gray-50 text-xs text-gray-600 max-h-40 overflow-y-auto leading-relaxed">
                         {term.content}
                       </div>
                     )}
@@ -648,22 +627,15 @@ const SignupPage = () => {
             </div>
 
             {/* 버튼 영역 */}
-            <div className="flex flex-col gap-3" style={{ marginBottom: 60 }}>
+            <div className="flex flex-col gap-3 mb-[60px]">
               <button
                 type="submit"
                 disabled={isSubmitDisabled}
-                className="w-full py-3.5 border rounded-lg text-sm font-medium cursor-pointer transition-all duration-300 focus:outline-none"
-                style={
+                className={`w-full py-3.5 border rounded-lg text-sm font-medium cursor-pointer transition-all duration-300 focus:outline-none ${
                   isSubmitDisabled
-                    ? { backgroundColor: '#f3f4f6', color: '#9ca3af', borderColor: '#e5e7eb', cursor: 'not-allowed' }
-                    : { backgroundColor: '#4A7C59', color: '#fff', borderColor: 'transparent' }
-                }
-                onMouseEnter={(e) => {
-                  if (!isSubmitDisabled) e.currentTarget.style.backgroundColor = '#3d6b4a';
-                }}
-                onMouseLeave={(e) => {
-                  if (!isSubmitDisabled) e.currentTarget.style.backgroundColor = '#4A7C59';
-                }}
+                    ? 'bg-gray-100 text-gray-400 border-gray-200 !cursor-not-allowed'
+                    : 'bg-green-primary text-white border-transparent hover:bg-green-dark'
+                }`}
               >
                 {isLoading ? "가입 중..." : "회원가입"}
               </button>
@@ -676,7 +648,7 @@ const SignupPage = () => {
               </button>
             </div>
           </form>
-        </Container>
+        </div>
       </div>
 
       <LoginPopup

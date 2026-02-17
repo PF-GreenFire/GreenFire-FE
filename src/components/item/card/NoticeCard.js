@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card, Badge } from 'react-bootstrap';
 import { FaEye } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
@@ -7,16 +6,16 @@ const NoticeCard = ({ notice }) => {
     const navigate = useNavigate();
 
     // 카테고리별 배지 색상
-    const getBadgeVariant = (category) => {
+    const getBadgeStyle = (category) => {
         switch (category) {
             case 'NOTICE':
-                return 'success';
+                return 'bg-green-lighter text-admin-green';
             case 'EVENT':
-                return 'primary';
+                return 'bg-info-light text-info';
             case 'SYSTEM':
-                return 'secondary';
+                return 'bg-gray-100 text-gray-500';
             default:
-                return 'secondary';
+                return 'bg-gray-100 text-gray-500';
         }
     };
 
@@ -50,50 +49,44 @@ const NoticeCard = ({ notice }) => {
     };
 
     return (
-        <Card
-            className={`border-0 shadow-sm rounded-3 mb-3 ${notice.isImportant ? 'border-danger border-2' : ''}`}
-            style={{ cursor: 'pointer' }}
+        <div
+            className={`bg-white rounded-2xl shadow-card mb-3 cursor-pointer ${notice.isImportant ? 'border-2 border-danger' : ''}`}
             onClick={handleClick}
         >
-            <Card.Body className="p-3">
-                <div className="d-flex align-items-start mb-2">
+            <div className="p-3">
+                <div className="flex items-start mb-2">
                     {/* 중요 배지 */}
                     {notice.isImportant && (
-                        <Badge bg="danger" className="me-2">
+                        <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-danger text-white mr-2">
                             중요
-                        </Badge>
+                        </span>
                     )}
-                    
+
                     {/* 카테고리 배지 */}
-                    <Badge bg={getBadgeVariant(notice.noticeCategory)} className="me-2">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-semibold mr-2 ${getBadgeStyle(notice.noticeCategory)}`}>
                         {getCategoryName(notice.noticeCategory)}
-                    </Badge>
+                    </span>
 
                     {/* 읽지 않음 표시 */}
                     {!notice.isViewed && (
-                        <Badge bg="warning" text="dark" className="me-2">
+                        <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-warning-light text-warning mr-2">
                             NEW
-                        </Badge>
+                        </span>
                     )}
                 </div>
 
                 {/* 제목 */}
-                <Card.Title 
-                    className={`h6 mb-2 ${notice.isImportant ? 'fw-bold' : ''}`}
-                    style={{ 
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                    }}
+                <h6
+                    className={`text-base mb-2 overflow-hidden text-ellipsis whitespace-nowrap ${notice.isImportant ? 'font-bold' : 'font-semibold'}`}
                 >
                     {notice.noticeTitle}
-                </Card.Title>
+                </h6>
 
                 {/* 메타 정보 */}
-                <div className="d-flex justify-content-between align-items-center text-muted small">
+                <div className="flex justify-between items-center text-gray-500 text-sm">
                     <span>{formatDate(notice.createdAt)}</span>
-                    <div className="d-flex align-items-center">
-                        <FaEye className="me-1" />
+                    <div className="flex items-center">
+                        <FaEye className="mr-1" />
                         <span>{notice.viewCount}</span>
                     </div>
                 </div>
@@ -101,13 +94,13 @@ const NoticeCard = ({ notice }) => {
                 {/* 첨부파일 표시 */}
                 {notice.hasAttachments && (
                     <div className="mt-2">
-                        <Badge bg="light" text="dark" className="border">
+                        <span className="px-2 py-0.5 rounded text-xs bg-gray-100 text-gray-700 border border-gray-200">
                             📎 첨부파일
-                        </Badge>
+                        </span>
                     </div>
                 )}
-            </Card.Body>
-        </Card>
+            </div>
+        </div>
     );
 };
 

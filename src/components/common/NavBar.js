@@ -1,11 +1,7 @@
-import Container from 'react-bootstrap/Container';
-import 'bootstrap/dist/css/bootstrap.css';
 import { useState } from 'react';
 import { IoMdMenu } from "react-icons/io";
 import Offcanvas from 'react-bootstrap/Offcanvas';
-import Nav from 'react-bootstrap/Nav';
 import { useNavigate } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
 import LoginPopup from '../../pages/auth/LoginPopup';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -33,105 +29,98 @@ function NavBar() {
         handleClose();
     };
 
+    const navLinkClass = "cursor-pointer font-medium py-2 px-3 border-b border-gray-200 block";
+
     return (
         <>
             {/* 전체 배경 div */}
-            <div style={{ width: "100%" }}>
-                <Container style={{ maxWidth: "600px", borderBottom: "1px solid #e0e0e0" }}>
-                    <div className="d-flex justify-content-between align-items-center py-2">
+            <div className="w-full">
+                <div className="max-w-[600px] mx-auto border-b border-gray-200">
+                    <div className="flex justify-between items-center py-2 px-4">
                         <div>
-                            <h5 className="fw-bold text-success mb-0" style={{ cursor: 'pointer' }} onClick={() => navigate('/')}>GREEN FIRE</h5>
+                            <h5 className="font-bold text-admin-green mb-0 cursor-pointer" onClick={() => navigate('/')}>GREEN FIRE</h5>
                         </div>
-                        <div className="d-flex">
-                            <Button variant="link" className="text-success p-1" onClick={handleShow}>
+                        <div className="flex">
+                            <button className="text-admin-green p-1 bg-transparent border-none" onClick={handleShow}>
                                 <IoMdMenu size={25} />
-                            </Button>
+                            </button>
                         </div>
                     </div>
-                </Container>
+                </div>
             </div>
 
             {/* Offcanvas Sidebar */}
             <Offcanvas show={show} onHide={handleClose} placement="end" className="bg-light">
                 <Offcanvas.Header closeButton>
-                    <Offcanvas.Title className="fw-bold text-dark">메뉴</Offcanvas.Title>
+                    <Offcanvas.Title className="font-bold text-gray-900">메뉴</Offcanvas.Title>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
-                    <Nav className="flex-column">
-                        {/* ✅ 세션 체크 중이면 깜빡임 방지용 표시 */}
+                    <nav className="flex flex-col">
+                        {/* 세션 체크 중이면 깜빡임 방지용 표시 */}
                         {checking ? (
-                        <Nav.Link className="text-secondary fw-medium py-2 px-3 border-bottom">
+                        <span className={`${navLinkClass} text-gray-500`}>
                             로그인 상태 확인 중...
-                        </Nav.Link>
+                        </span>
                         ) : !isLoggedIn ? (
-                        <Nav.Link
+                        <span
                             onClick={handleLogin}
-                            className="text-success fw-bold py-2 px-3 border-bottom"
-                            style={{ cursor: "pointer" }}
+                            className={`${navLinkClass} text-admin-green font-bold`}
                         >
                             로그인
-                            </Nav.Link>
+                        </span>
                         ) : (
                             <>
-                                <Nav.Link
+                                <span
                                     onClick={() => handleNavigation('/mypage/info')}
-                                    className="text-dark fw-medium py-2 px-3 border-bottom"
-                                    style={{ cursor: "pointer" }}
+                                    className={`${navLinkClass} text-gray-900`}
                                 >
                                     나의 정보
-                                </Nav.Link>
-                                <Nav.Link
+                                </span>
+                                <span
                                     onClick={handleLogout}
-                                    className="text-danger fw-medium py-2 px-3 border-bottom"
-                                    style={{ cursor: "pointer" }}
+                                    className={`${navLinkClass} text-danger`}
                                 >
                                     로그아웃
-                                </Nav.Link>
+                                </span>
                                 {role === 'ADMIN' && (
-                                    <Nav.Link
+                                    <span
                                         onClick={() => handleNavigation('/admin')}
-                                        className="text-primary fw-bold py-2 px-3 border-bottom"
-                                        style={{ cursor: "pointer" }}
+                                        className={`${navLinkClass} text-info font-bold`}
                                     >
                                         관리자 페이지
-                                    </Nav.Link>
+                                    </span>
                                 )}
                             </>
                         )}
-                        <Nav.Link
+                        <span
                             onClick={() => handleNavigation('/cs')}
-                            className="text-dark fw-medium py-2 px-3 border-bottom"
-                            style={{ cursor: "pointer" }}
+                            className={`${navLinkClass} text-gray-900`}
                         >
                             CS
-                        </Nav.Link>
-                        <Nav.Link
+                        </span>
+                        <span
                             onClick={() => handleNavigation('/notices')}
-                            className="text-dark fw-medium py-2 px-3 border-bottom"
-                            style={{ cursor: "pointer" }}
+                            className={`${navLinkClass} text-gray-900`}
                         >
                             공지사항
-                        </Nav.Link>
-                        <Nav.Link
+                        </span>
+                        <span
                             onClick={() => handleNavigation('/about')}
-                            className="text-dark fw-medium py-2 px-3 border-bottom"
-                            style={{ cursor: "pointer" }}
+                            className={`${navLinkClass} text-gray-900`}
                         >
                             About
-                        </Nav.Link>
-                        <Nav.Link
+                        </span>
+                        <span
                             onClick={() => handleNavigation('/settings')}
-                            className="text-dark fw-medium py-2 px-3 border-bottom"
-                            style={{ cursor: "pointer" }}
+                            className={`${navLinkClass} text-gray-900`}
                         >
                             설정
-                        </Nav.Link>
-                    </Nav>
+                        </span>
+                    </nav>
                 </Offcanvas.Body>
             </Offcanvas>
 
             {/* Login Popup */}
-            {/* ✅ 로그인 성공하면 NavBar도 즉시 세션 갱신 */}
                 <LoginPopup
                     show={showLoginPopup}
                     onHide={() => setShowLoginPopup(false)}

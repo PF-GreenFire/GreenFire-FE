@@ -11,7 +11,7 @@ const ProtectedRoute = ({ children, requiredRole }) => {
 
   if (isLoading) {
     return (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: '60vh' }}>
+      <div className="flex justify-center items-center h-[60vh]">
         <Spinner animation="border" variant="success" />
       </div>
     );

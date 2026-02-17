@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Spinner, Button } from 'react-bootstrap';
+import { Spinner } from 'react-bootstrap';
 import { FaUsers, FaExclamationTriangle, FaCheckCircle, FaTrophy, FaUserPlus } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { getDashboardStats } from '../../apis/adminAPI';
@@ -45,30 +45,19 @@ const AdminDashboard = () => {
 
   if (error) {
     return (
-      <div style={{
-        textAlign: 'center',
-        padding: '60px 20px',
-        color: '#999',
-      }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>
+      <div className="text-center py-[60px] px-5 text-gray-400">
+        <div className="text-[48px] mb-4">
           <span role="img" aria-label="error">&#128546;</span>
         </div>
-        <p style={{ fontSize: '14px', color: '#888', marginBottom: '16px' }}>
+        <p className="text-sm text-gray-400 mb-4">
           통계 데이터를 불러올 수 없습니다.
         </p>
-        <Button
+        <button
           onClick={fetchStats}
-          style={{
-            background: '#1E9E57',
-            border: 'none',
-            borderRadius: '20px',
-            padding: '8px 24px',
-            fontSize: '13px',
-            fontWeight: 600,
-          }}
+          className="bg-admin-green text-white border-none rounded-full py-2 px-6 text-[13px] font-semibold hover:bg-admin-green-dark transition-all"
         >
           다시 시도
-        </Button>
+        </button>
       </div>
     );
   }
@@ -78,16 +67,16 @@ const AdminDashboard = () => {
       title: '총 회원 수',
       value: stats?.totalUsers ?? 0,
       icon: <FaUsers size={28} />,
-      color: '#1E9E57',
-      bg: '#E8F5E9',
+      color: 'text-admin-green',
+      bg: 'bg-green-lighter',
       link: '/admin/members',
     },
     {
       title: '신규 신고',
       value: stats?.pendingReports ?? 0,
       icon: <FaExclamationTriangle size={28} />,
-      color: '#D32F2F',
-      bg: '#FFEBEE',
+      color: 'text-danger',
+      bg: 'bg-danger-light',
       link: '/admin/reports?status=PENDING',
       highlight: (stats?.pendingReports ?? 0) > 0,
     },
@@ -95,24 +84,24 @@ const AdminDashboard = () => {
       title: '처리된 신고',
       value: stats?.handledReports ?? 0,
       icon: <FaCheckCircle size={28} />,
-      color: '#1976D2',
-      bg: '#E3F2FD',
+      color: 'text-info',
+      bg: 'bg-info-light',
       link: '/admin/reports',
     },
     {
       title: '오늘 가입',
       value: stats?.todaySignups ?? 0,
       icon: <FaUserPlus size={28} />,
-      color: '#7B1FA2',
-      bg: '#F3E5F5',
+      color: 'text-purple',
+      bg: 'bg-purple-light',
       link: '/admin/members',
     },
     {
       title: '챌린지 참여자',
       value: stats?.challengeParticipants ?? 0,
       icon: <FaTrophy size={28} />,
-      color: '#F57C00',
-      bg: '#FFF3E0',
+      color: 'text-warning',
+      bg: 'bg-warning-light',
       link: null,
     },
   ];
@@ -126,105 +115,48 @@ const AdminDashboard = () => {
   return (
     <div>
       {/* 환영 배너 */}
-      <div style={{
-        background: 'linear-gradient(135deg, #1E9E57, #16a34a)',
-        borderRadius: '20px',
-        padding: '28px 24px',
-        marginBottom: '24px',
-        color: '#fff',
-        boxShadow: '0 4px 20px rgba(30, 158, 87, 0.3)',
-      }}>
-        <p style={{
-          fontSize: '13px',
-          color: 'rgba(255,255,255,0.8)',
-          margin: '0 0 4px',
-        }}>
+      <div
+        className="rounded-[20px] py-7 px-6 mb-6 text-white"
+        style={{
+          background: 'linear-gradient(135deg, #1E9E57, #16a34a)',
+          boxShadow: '0 4px 20px rgba(30, 158, 87, 0.3)',
+        }}
+      >
+        <p className="text-[13px] text-white/80 mb-1">
           {today}
         </p>
-        <h4 style={{
-          fontWeight: 800,
-          margin: 0,
-          fontSize: '22px',
-          letterSpacing: '-0.3px',
-        }}>
+        <h4 className="font-extrabold text-[22px] tracking-tight m-0">
           대시보드
         </h4>
       </div>
 
-      <Row className="g-3">
+      <div className="grid grid-cols-2 gap-3">
         {cards.map((card, idx) => (
-          <Col xs={6} key={idx}>
-            <Card
-              className="border-0 h-100"
-              style={{
-                borderRadius: '16px',
-                cursor: card.link ? 'pointer' : 'default',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                boxShadow: card.highlight
-                  ? '0 4px 16px rgba(211, 47, 47, 0.15)'
-                  : '0 2px 12px rgba(0,0,0,0.06)',
-                border: card.highlight ? '2px solid #D32F2F' : '1px solid transparent',
-                background: card.highlight
-                  ? 'linear-gradient(135deg, #fff 0%, #FFF5F5 100%)'
-                  : '#fff',
-              }}
-              onClick={() => handleCardClick(card.link)}
-              onMouseEnter={(e) => {
-                if (card.link) {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (card.link) {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = card.highlight
-                    ? '0 4px 16px rgba(211, 47, 47, 0.15)'
-                    : '0 2px 12px rgba(0,0,0,0.06)';
-                }
-              }}
-            >
-              <Card.Body style={{ padding: '20px' }}>
-                <div
-                  className="d-flex align-items-center justify-content-center"
-                  style={{
-                    width: '52px',
-                    height: '52px',
-                    borderRadius: '14px',
-                    backgroundColor: card.bg,
-                    color: card.color,
-                    marginBottom: '14px',
-                  }}
-                >
-                  {card.icon}
-                </div>
-                <div style={{ fontSize: '13px', color: '#888', marginBottom: '6px' }}>
-                  {card.title}
-                  {card.highlight && (
-                    <span
-                      className="ms-1"
-                      style={{
-                        fontSize: '10px',
-                        backgroundColor: '#D32F2F',
-                        color: '#fff',
-                        padding: '2px 8px',
-                        borderRadius: '20px',
-                        fontWeight: 600,
-                        animation: 'pulse 2s infinite',
-                      }}
-                    >
-                      NEW
-                    </span>
-                  )}
-                </div>
-                <div style={{ fontSize: '28px', fontWeight: 800, color: '#222' }}>
-                  {card.value.toLocaleString()}
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
+          <div
+            key={idx}
+            className={`bg-white rounded-2xl p-5 transition-all duration-200 ${
+              card.link ? 'cursor-pointer hover:-translate-y-1 hover:shadow-card-hover' : ''
+            } ${card.highlight ? 'border-2 border-danger shadow-card-highlight' : 'shadow-card'}`}
+            style={card.highlight ? { background: 'linear-gradient(135deg, #fff 0%, #FFF5F5 100%)' } : undefined}
+            onClick={() => handleCardClick(card.link)}
+          >
+            <div className={`flex items-center justify-center w-[52px] h-[52px] rounded-[14px] mb-3.5 ${card.bg} ${card.color}`}>
+              {card.icon}
+            </div>
+            <div className="text-[13px] text-gray-400 mb-1.5">
+              {card.title}
+              {card.highlight && (
+                <span className="ml-1 text-[10px] bg-danger text-white py-0.5 px-2 rounded-full font-semibold animate-pulse">
+                  NEW
+                </span>
+              )}
+            </div>
+            <div className="text-[28px] font-extrabold text-gray-900">
+              {card.value.toLocaleString()}
+            </div>
+          </div>
         ))}
-      </Row>
+      </div>
     </div>
   );
 };

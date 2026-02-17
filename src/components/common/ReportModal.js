@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Button, Form, Alert, Spinner } from 'react-bootstrap';
+import { Modal, Spinner } from 'react-bootstrap';
 import { createReport } from '../../apis/reportAPI';
 
 /**
@@ -86,24 +86,21 @@ const ReportModal = ({ show, onHide, resourceType, resourceId, resourceTitle }) 
   return (
     <Modal show={show} onHide={handleClose} centered>
       <Modal.Header closeButton>
-        <Modal.Title style={{ fontSize: '18px', fontWeight: 600 }}>
+        <Modal.Title className="text-lg font-semibold">
           신고하기
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         {success ? (
-          <Alert variant="success" className="mb-0">
+          <div className="bg-green-lighter border border-admin-green/30 text-admin-green rounded-xl px-4 py-3 text-sm">
             신고가 접수되었습니다. 검토 후 조치하겠습니다.
-          </Alert>
+          </div>
         ) : (
-          <Form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
             {resourceTitle && (
-              <div
-                className="mb-3 p-2 bg-light rounded"
-                style={{ fontSize: '13px' }}
-              >
+              <div className="mb-3 p-2 bg-gray-50 rounded text-[13px]">
                 <strong>{resourceTypeLabels[resourceType] || '콘텐츠'}:</strong>{' '}
-                <span className="text-muted">
+                <span className="text-gray-500">
                   {resourceTitle.length > 50
                     ? resourceTitle.substring(0, 50) + '...'
                     : resourceTitle}
@@ -111,15 +108,15 @@ const ReportModal = ({ show, onHide, resourceType, resourceId, resourceTitle }) 
               </div>
             )}
 
-            <Form.Group className="mb-3">
-              <Form.Label style={{ fontSize: '14px', fontWeight: 500 }}>
+            <div className="mb-3">
+              <label className="text-sm font-medium block mb-1">
                 신고 유형 <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Select
+              </label>
+              <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 disabled={loading}
-                style={{ fontSize: '14px' }}
+                className="w-full text-sm border border-gray-300 rounded-xl py-2.5 px-3 focus:outline-none focus:ring-2 focus:ring-admin-green focus:border-admin-green"
               >
                 <option value="">선택해주세요</option>
                 {categories.map((cat) => (
@@ -127,59 +124,57 @@ const ReportModal = ({ show, onHide, resourceType, resourceId, resourceTitle }) 
                     {cat.label}
                   </option>
                 ))}
-              </Form.Select>
-            </Form.Group>
+              </select>
+            </div>
 
-            <Form.Group className="mb-3">
-              <Form.Label style={{ fontSize: '14px', fontWeight: 500 }}>
+            <div className="mb-3">
+              <label className="text-sm font-medium block mb-1">
                 신고 사유 <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Control
-                as="textarea"
+              </label>
+              <textarea
                 rows={4}
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="신고 사유를 상세히 작성해주세요. (10~500자)"
                 disabled={loading}
-                style={{ fontSize: '14px', resize: 'none' }}
+                className="w-full text-sm border border-gray-300 rounded-xl py-2.5 px-3 resize-none focus:outline-none focus:ring-2 focus:ring-admin-green focus:border-admin-green"
               />
-              <Form.Text className="text-muted">
+              <span className="text-xs text-gray-500">
                 {reason.length}/500자 (최소 10자)
-              </Form.Text>
-            </Form.Group>
+              </span>
+            </div>
 
             {error && (
-              <Alert variant="danger" className="py-2" style={{ fontSize: '13px' }}>
+              <div className="bg-danger-light border border-danger/30 text-danger rounded-xl px-4 py-2 text-[13px] mb-3">
                 {error}
-              </Alert>
+              </div>
             )}
 
-            <div className="d-flex gap-2 justify-content-end">
-              <Button
-                variant="outline-secondary"
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
                 onClick={handleClose}
                 disabled={loading}
-                size="sm"
+                className="px-3 py-1.5 rounded-lg text-sm border border-gray-300 text-gray-600 hover:bg-gray-100 transition-all"
               >
                 취소
-              </Button>
-              <Button
-                variant="danger"
+              </button>
+              <button
                 type="submit"
                 disabled={loading}
-                size="sm"
+                className="px-3 py-1.5 rounded-lg text-sm bg-danger text-white hover:bg-red-700 transition-all disabled:opacity-50"
               >
                 {loading ? (
-                  <>
-                    <Spinner animation="border" size="sm" className="me-1" />
+                  <span className="flex items-center">
+                    <Spinner animation="border" size="sm" className="mr-1" />
                     접수 중...
-                  </>
+                  </span>
                 ) : (
                   '신고하기'
                 )}
-              </Button>
+              </button>
             </div>
-          </Form>
+          </form>
         )}
       </Modal.Body>
     </Modal>

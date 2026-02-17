@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Button,
-  Spinner,
-  Alert,
-  Form,
-  Modal,
-} from 'react-bootstrap';
+import { Spinner, Modal } from 'react-bootstrap';
 import { FaCheck, FaEye } from 'react-icons/fa';
 import { useSearchParams } from 'react-router-dom';
 import { getReports, handleReport } from '../../apis/reportAPI';
@@ -140,16 +134,11 @@ const AdminReportList = () => {
 
   const getStatusStyle = (status) => {
     switch (status) {
-      case 'PENDING':
-        return { bg: '#FFF3E0', color: '#F57C00', label: '대기' };
-      case 'HANDLED_DELETED':
-        return { bg: '#FFEBEE', color: '#D32F2F', label: '삭제처리' };
-      case 'HANDLED_SUSPENDED':
-        return { bg: '#F3E5F5', color: '#7B1FA2', label: '정지처리' };
-      case 'DISMISSED':
-        return { bg: '#F5F5F5', color: '#888', label: '기각' };
-      default:
-        return { bg: '#F5F5F5', color: '#888', label: status };
+      case 'PENDING': return { tw: 'bg-warning-light text-warning', label: '대기' };
+      case 'HANDLED_DELETED': return { tw: 'bg-danger-light text-danger', label: '삭제처리' };
+      case 'HANDLED_SUSPENDED': return { tw: 'bg-purple-light text-purple', label: '정지처리' };
+      case 'DISMISSED': return { tw: 'bg-gray-100 text-gray-400', label: '기각' };
+      default: return { tw: 'bg-gray-100 text-gray-400', label: status };
     }
   };
 
@@ -165,105 +154,46 @@ const AdminReportList = () => {
 
   const getResourceTypeStyle = (type) => {
     switch (type) {
-      case 'POST': return { bg: '#E3F2FD', color: '#1976D2', label: '게시글' };
-      case 'COMMENT': return { bg: '#E0F7FA', color: '#00796B', label: '댓글' };
-      case 'CHALLENGE': return { bg: '#E8F5E9', color: '#1E9E57', label: '챌린지' };
-      default: return { bg: '#F5F5F5', color: '#888', label: type };
+      case 'POST': return { tw: 'bg-info-light text-info', label: '게시글' };
+      case 'COMMENT': return { tw: 'bg-[#E0F7FA] text-[#00796B]', label: '댓글' };
+      case 'CHALLENGE': return { tw: 'bg-green-lighter text-admin-green', label: '챌린지' };
+      default: return { tw: 'bg-gray-100 text-gray-400', label: type };
     }
   };
 
   const getCategoryStyle = (category) => {
     switch (category) {
-      case 'SPAM': return { bg: '#F5F5F5', color: '#888', label: '스팸' };
-      case 'INAPPROPRIATE': return { bg: '#FFF3E0', color: '#F57C00', label: '부적절' };
-      case 'HARASSMENT': return { bg: '#FFEBEE', color: '#D32F2F', label: '괴롭힘' };
-      case 'OTHER': return { bg: '#ECEFF1', color: '#546E7A', label: '기타' };
-      default: return { bg: '#F5F5F5', color: '#888', label: category };
+      case 'SPAM': return { tw: 'bg-gray-100 text-gray-400', label: '스팸' };
+      case 'INAPPROPRIATE': return { tw: 'bg-warning-light text-warning', label: '부적절' };
+      case 'HARASSMENT': return { tw: 'bg-danger-light text-danger', label: '괴롭힘' };
+      case 'OTHER': return { tw: 'bg-gray-200 text-gray-600', label: '기타' };
+      default: return { tw: 'bg-gray-100 text-gray-400', label: category };
     }
   };
 
-  const getStatusBadgeJsx = (status) => {
-    const style = getStatusStyle(status);
-    return (
-      <span style={{
-        background: style.bg,
-        color: style.color,
-        padding: '3px 12px',
-        borderRadius: '20px',
-        fontSize: '11px',
-        fontWeight: 600,
-      }}>
-        {style.label}
-      </span>
-    );
-  };
-
-  const getResourceTypeBadgeJsx = (type) => {
-    const style = getResourceTypeStyle(type);
-    return (
-      <span style={{
-        background: style.bg,
-        color: style.color,
-        padding: '3px 12px',
-        borderRadius: '20px',
-        fontSize: '11px',
-        fontWeight: 600,
-      }}>
-        {style.label}
-      </span>
-    );
-  };
-
-  const getCategoryBadgeJsx = (category) => {
-    const style = getCategoryStyle(category);
-    return (
-      <span style={{
-        background: style.bg,
-        color: style.color,
-        padding: '3px 12px',
-        borderRadius: '20px',
-        fontSize: '11px',
-        fontWeight: 600,
-      }}>
-        {style.label}
-      </span>
-    );
-  };
+  const Badge = ({ style, label }) => (
+    <span className={`${style.tw} py-0.5 px-3 rounded-full text-[11px] font-semibold`}>
+      {label || style.label}
+    </span>
+  );
 
   return (
     <div>
-      <h5 style={{ fontWeight: 800, marginBottom: '20px', fontSize: '18px', color: '#222' }}>
+      <h5 className="font-extrabold mb-5 text-lg text-gray-900">
         신고 관리
       </h5>
 
       {/* 상태 필터 - pill 버튼 그룹 */}
-      <div style={{
-        display: 'flex',
-        gap: '8px',
-        marginBottom: '20px',
-        overflowX: 'auto',
-        paddingBottom: '4px',
-        WebkitOverflowScrolling: 'touch',
-      }}>
+      <div className="flex gap-2 mb-5 overflow-x-auto pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
         {STATUS_FILTERS.map((filter) => (
           <button
             key={filter.key}
             onClick={() => handleStatusFilterChange(filter.key)}
-            style={{
-              border: 'none',
-              background: statusFilter === filter.key ? '#1E9E57' : '#fff',
-              color: statusFilter === filter.key ? '#fff' : '#666',
-              padding: '8px 18px',
-              borderRadius: '20px',
-              fontSize: '13px',
-              fontWeight: statusFilter === filter.key ? 700 : 500,
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              transition: 'all 0.2s',
-              boxShadow: statusFilter === filter.key
-                ? '0 2px 8px rgba(30, 158, 87, 0.3)'
-                : '0 1px 4px rgba(0,0,0,0.06)',
-            }}
+            className={`border-none py-2 px-[18px] rounded-full text-[13px] cursor-pointer whitespace-nowrap transition-all duration-200 ${
+              statusFilter === filter.key
+                ? 'bg-admin-green text-white font-bold shadow-[0_2px_8px_rgba(30,158,87,0.3)]'
+                : 'bg-white text-gray-500 font-medium shadow-card'
+            }`}
           >
             {filter.label}
           </button>
@@ -271,120 +201,57 @@ const AdminReportList = () => {
       </div>
 
       {error && (
-        <Alert variant="danger" dismissible onClose={() => setError(null)}>
+        <div className="bg-danger-light border border-danger/30 text-danger rounded-xl px-4 py-3 text-sm mb-4">
           {error}
-        </Alert>
+          <button onClick={() => setError(null)} className="float-right text-danger font-bold ml-2">&times;</button>
+        </div>
       )}
 
       {/* 신고 카드 리스트 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div className="flex flex-col gap-3">
         {reports.map((report) => {
-          const statusStyle = getStatusStyle(report.status);
+          const isPending = report.status === 'PENDING';
           return (
             <div
               key={report.id}
-              style={{
-                background: '#fff',
-                borderRadius: '16px',
-                padding: '18px 20px',
-                boxShadow: report.status === 'PENDING'
-                  ? '0 2px 12px rgba(245, 124, 0, 0.1)'
-                  : '0 2px 8px rgba(0,0,0,0.05)',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                borderLeft: report.status === 'PENDING'
-                  ? '4px solid #F57C00'
-                  : '4px solid transparent',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = report.status === 'PENDING'
-                  ? '0 2px 12px rgba(245, 124, 0, 0.1)'
-                  : '0 2px 8px rgba(0,0,0,0.05)';
-              }}
+              className={`bg-white rounded-2xl py-[18px] px-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover ${
+                isPending ? 'border-l-4 border-l-warning shadow-[0_2px_12px_rgba(245,124,0,0.1)]' : 'border-l-4 border-l-transparent shadow-card'
+              }`}
             >
               {/* 상단: 뱃지들 */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                marginBottom: '10px',
-                flexWrap: 'wrap',
-              }}>
-                {getResourceTypeBadgeJsx(report.resourceType)}
-                {getCategoryBadgeJsx(report.category)}
-                {getStatusBadgeJsx(report.status)}
-                <span style={{ fontSize: '11px', color: '#bbb', marginLeft: 'auto' }}>
+              <div className="flex items-center gap-1.5 mb-2.5 flex-wrap">
+                <Badge style={getResourceTypeStyle(report.resourceType)} />
+                <Badge style={getCategoryStyle(report.category)} />
+                <Badge style={getStatusStyle(report.status)} />
+                <span className="text-[11px] text-gray-300 ml-auto">
                   #{report.id}
                 </span>
               </div>
 
               {/* 사유 */}
-              <p style={{
-                fontSize: '14px',
-                color: '#444',
-                margin: '0 0 10px',
-                lineHeight: 1.5,
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-              }}>
+              <p className="text-sm text-gray-700 mb-2.5 leading-relaxed line-clamp-2">
                 {report.reason}
               </p>
 
               {/* 하단: 메타 + 액션 */}
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
-                <div style={{ fontSize: '12px', color: '#aaa' }}>
+              <div className="flex justify-between items-center">
+                <div className="text-xs text-gray-400">
                   <span>{report.reporterEmail || report.reporterId}</span>
-                  <span style={{ margin: '0 8px' }}>|</span>
+                  <span className="mx-2">|</span>
                   <span>{formatDate(report.createdAt)}</span>
                 </div>
                 <div>
-                  {report.status === 'PENDING' ? (
+                  {isPending ? (
                     <button
                       onClick={() => openHandleModal(report)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        background: '#1E9E57',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '10px',
-                        padding: '6px 14px',
-                        fontSize: '12px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                      }}
+                      className="flex items-center gap-1 bg-admin-green text-white border-none rounded-[10px] py-1.5 px-3.5 text-xs font-semibold cursor-pointer transition-all duration-200 hover:bg-admin-green-dark"
                     >
                       <FaCheck size={10} /> 처리
                     </button>
                   ) : (
                     <button
                       onClick={() => openHandleModal(report)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        background: '#f5f5f5',
-                        color: '#888',
-                        border: 'none',
-                        borderRadius: '10px',
-                        padding: '6px 14px',
-                        fontSize: '12px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                      }}
+                      className="flex items-center gap-1 bg-gray-100 text-gray-400 border-none rounded-[10px] py-1.5 px-3.5 text-xs font-semibold cursor-pointer transition-all duration-200 hover:bg-gray-200"
                     >
                       <FaEye size={10} /> 상세
                     </button>
@@ -403,106 +270,65 @@ const AdminReportList = () => {
       )}
 
       {!loading && reports.length === 0 && (
-        <div style={{
-          textAlign: 'center',
-          padding: '60px 20px',
-          color: '#999',
-        }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>
+        <div className="text-center py-[60px] px-5 text-gray-400">
+          <div className="text-[48px] mb-4">
             <span role="img" aria-label="empty">&#128203;</span>
           </div>
-          <p style={{ margin: 0, fontSize: '14px' }}>신고 내역이 없습니다.</p>
+          <p className="m-0 text-sm">신고 내역이 없습니다.</p>
         </div>
       )}
 
       {!loading && hasMore && reports.length > 0 && (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <Button
+        <div className="text-center mt-5">
+          <button
             onClick={() => setPage((prev) => prev + 1)}
-            style={{
-              background: 'transparent',
-              border: '2px solid #1E9E57',
-              color: '#1E9E57',
-              borderRadius: '24px',
-              padding: '10px 32px',
-              fontWeight: 600,
-              fontSize: '13px',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#1E9E57';
-              e.currentTarget.style.color = '#fff';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = '#1E9E57';
-            }}
+            className="bg-transparent border-2 border-admin-green text-admin-green rounded-full py-2.5 px-8 font-semibold text-[13px] transition-all duration-200 hover:bg-admin-green hover:text-white"
           >
             더보기
-          </Button>
+          </button>
         </div>
       )}
 
       {/* 처리 모달 */}
       <Modal show={showHandleModal} onHide={closeHandleModal} centered>
-        <div style={{ borderRadius: '20px', overflow: 'hidden' }}>
-          <Modal.Header
-            closeButton
-            style={{
-              border: 'none',
-              padding: '24px 24px 12px',
-            }}
-          >
-            <Modal.Title style={{ fontSize: '18px', fontWeight: 700 }}>
+        <div className="rounded-[20px] overflow-hidden">
+          <Modal.Header closeButton className="border-none pt-6 px-6 pb-3">
+            <Modal.Title className="text-lg font-bold">
               신고 {selectedReport?.status === 'PENDING' ? '처리' : '상세'}
             </Modal.Title>
           </Modal.Header>
-          <Modal.Body style={{ padding: '12px 24px 24px' }}>
+          <Modal.Body className="px-6 pb-6 pt-3">
             {selectedReport && (
               <div>
                 {/* 신고 정보 카드 */}
-                <div style={{
-                  background: '#f8f9fa',
-                  borderRadius: '14px',
-                  padding: '18px',
-                  marginBottom: '20px',
-                }}>
-                  <div style={{ display: 'flex', gap: '6px', marginBottom: '14px', flexWrap: 'wrap' }}>
-                    {getResourceTypeBadgeJsx(selectedReport.resourceType)}
-                    <span style={{ fontSize: '12px', color: '#aaa' }}>
+                <div className="bg-gray-50 rounded-[14px] p-[18px] mb-5">
+                  <div className="flex gap-1.5 mb-3.5 flex-wrap">
+                    <Badge style={getResourceTypeStyle(selectedReport.resourceType)} />
+                    <span className="text-xs text-gray-400">
                       #{selectedReport.resourceId}
                     </span>
                   </div>
-                  <div style={{ marginBottom: '10px' }}>
-                    <span style={{ fontSize: '12px', color: '#888' }}>신고 유형</span>
-                    <div style={{ marginTop: '4px' }}>
-                      {getCategoryBadgeJsx(selectedReport.category)}
+                  <div className="mb-2.5">
+                    <span className="text-xs text-gray-400">신고 유형</span>
+                    <div className="mt-1">
+                      <Badge style={getCategoryStyle(selectedReport.category)} />
                     </div>
                   </div>
-                  <div style={{ marginBottom: '10px' }}>
-                    <span style={{ fontSize: '12px', color: '#888' }}>신고자</span>
-                    <div style={{ fontSize: '14px', color: '#333', marginTop: '2px' }}>
+                  <div className="mb-2.5">
+                    <span className="text-xs text-gray-400">신고자</span>
+                    <div className="text-sm text-gray-800 mt-0.5">
                       {selectedReport.reporterEmail || selectedReport.reporterId}
                     </div>
                   </div>
-                  <div style={{ marginBottom: '10px' }}>
-                    <span style={{ fontSize: '12px', color: '#888' }}>신고 사유</span>
-                    <div style={{
-                      marginTop: '6px',
-                      padding: '12px',
-                      background: '#fff',
-                      borderRadius: '10px',
-                      fontSize: '14px',
-                      color: '#333',
-                      lineHeight: 1.6,
-                      whiteSpace: 'pre-wrap',
-                    }}>
+                  <div className="mb-2.5">
+                    <span className="text-xs text-gray-400">신고 사유</span>
+                    <div className="mt-1.5 p-3 bg-white rounded-[10px] text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
                       {selectedReport.reason}
                     </div>
                   </div>
                   <div>
-                    <span style={{ fontSize: '12px', color: '#888' }}>신고일</span>
-                    <div style={{ fontSize: '13px', color: '#555', marginTop: '2px' }}>
+                    <span className="text-xs text-gray-400">신고일</span>
+                    <div className="text-[13px] text-gray-600 mt-0.5">
                       {formatDate(selectedReport.createdAt)}
                     </div>
                   </div>
@@ -510,78 +336,62 @@ const AdminReportList = () => {
 
                 {selectedReport.status === 'PENDING' ? (
                   <>
-                    <Form.Group className="mb-3">
-                      <Form.Label style={{ fontWeight: 600, fontSize: '14px' }}>
-                        처리 결과 <span style={{ color: '#D32F2F' }}>*</span>
-                      </Form.Label>
-                      <Form.Select
+                    <div className="mb-3">
+                      <label className="font-semibold text-sm block mb-1">
+                        처리 결과 <span className="text-danger">*</span>
+                      </label>
+                      <select
                         value={handleStatus}
                         onChange={(e) => setHandleStatus(e.target.value)}
                         disabled={handleLoading}
-                        style={{ borderRadius: '12px', padding: '10px 14px' }}
+                        className="w-full border border-gray-300 rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-admin-green"
                       >
                         <option value="">선택해주세요</option>
                         <option value="HANDLED_DELETED">삭제 처리</option>
                         <option value="HANDLED_SUSPENDED">사용자 정지</option>
                         <option value="DISMISSED">기각</option>
-                      </Form.Select>
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Label style={{ fontWeight: 600, fontSize: '14px' }}>관리자 메모</Form.Label>
-                      <Form.Control
-                        as="textarea"
+                      </select>
+                    </div>
+                    <div className="mb-3">
+                      <label className="font-semibold text-sm block mb-1">관리자 메모</label>
+                      <textarea
                         rows={3}
                         value={adminNote}
                         onChange={(e) => setAdminNote(e.target.value)}
                         placeholder="처리 내용을 메모해주세요. (선택)"
                         disabled={handleLoading}
-                        style={{
-                          resize: 'none',
-                          borderRadius: '12px',
-                          padding: '12px 14px',
-                        }}
+                        className="w-full border border-gray-300 rounded-xl py-3 px-3.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-admin-green"
                       />
-                    </Form.Group>
+                    </div>
                   </>
                 ) : (
-                  <div style={{
-                    background: '#f8f9fa',
-                    borderRadius: '14px',
-                    padding: '18px',
-                  }}>
-                    <div style={{ marginBottom: '10px' }}>
-                      <span style={{ fontSize: '12px', color: '#888' }}>처리 결과</span>
-                      <div style={{ marginTop: '4px' }}>
-                        {getStatusBadgeJsx(selectedReport.status)}
+                  <div className="bg-gray-50 rounded-[14px] p-[18px]">
+                    <div className="mb-2.5">
+                      <span className="text-xs text-gray-400">처리 결과</span>
+                      <div className="mt-1">
+                        <Badge style={getStatusStyle(selectedReport.status)} />
                       </div>
                     </div>
                     {selectedReport.handledByEmail && (
-                      <div style={{ marginBottom: '10px' }}>
-                        <span style={{ fontSize: '12px', color: '#888' }}>처리자</span>
-                        <div style={{ fontSize: '14px', color: '#333', marginTop: '2px' }}>
+                      <div className="mb-2.5">
+                        <span className="text-xs text-gray-400">처리자</span>
+                        <div className="text-sm text-gray-800 mt-0.5">
                           {selectedReport.handledByEmail}
                         </div>
                       </div>
                     )}
                     {selectedReport.handledAt && (
-                      <div style={{ marginBottom: '10px' }}>
-                        <span style={{ fontSize: '12px', color: '#888' }}>처리일</span>
-                        <div style={{ fontSize: '13px', color: '#555', marginTop: '2px' }}>
+                      <div className="mb-2.5">
+                        <span className="text-xs text-gray-400">처리일</span>
+                        <div className="text-[13px] text-gray-600 mt-0.5">
                           {formatDate(selectedReport.handledAt)}
                         </div>
                       </div>
                     )}
                     {selectedReport.adminNote && (
                       <div>
-                        <span style={{ fontSize: '12px', color: '#888' }}>관리자 메모</span>
-                        <div style={{
-                          marginTop: '6px',
-                          padding: '12px',
-                          background: '#fff',
-                          borderRadius: '10px',
-                          fontSize: '14px',
-                          color: '#333',
-                        }}>
+                        <span className="text-xs text-gray-400">관리자 메모</span>
+                        <div className="mt-1.5 p-3 bg-white rounded-[10px] text-sm text-gray-800">
                           {selectedReport.adminNote}
                         </div>
                       </div>
@@ -591,44 +401,28 @@ const AdminReportList = () => {
               </div>
             )}
           </Modal.Body>
-          <Modal.Footer style={{ border: 'none', padding: '0 24px 24px' }}>
-            <Button
+          <Modal.Footer className="border-none px-6 pb-6 pt-0">
+            <button
               onClick={closeHandleModal}
-              style={{
-                background: '#f5f5f5',
-                color: '#666',
-                border: 'none',
-                borderRadius: '12px',
-                padding: '10px 20px',
-                fontWeight: 600,
-                fontSize: '13px',
-              }}
+              className="bg-gray-100 text-gray-500 border-none rounded-xl py-2.5 px-5 font-semibold text-[13px] hover:bg-gray-200 transition-all"
             >
               닫기
-            </Button>
+            </button>
             {selectedReport?.status === 'PENDING' && (
-              <Button
+              <button
                 onClick={submitHandle}
                 disabled={handleLoading}
-                style={{
-                  background: '#1E9E57',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '12px',
-                  padding: '10px 20px',
-                  fontWeight: 600,
-                  fontSize: '13px',
-                }}
+                className="bg-admin-green text-white border-none rounded-xl py-2.5 px-5 font-semibold text-[13px] hover:bg-admin-green-dark transition-all disabled:opacity-50"
               >
                 {handleLoading ? (
-                  <>
-                    <Spinner animation="border" size="sm" className="me-1" />
+                  <span className="flex items-center">
+                    <Spinner animation="border" size="sm" className="mr-1" />
                     처리 중...
-                  </>
+                  </span>
                 ) : (
                   '처리 완료'
                 )}
-              </Button>
+              </button>
             )}
           </Modal.Footer>
         </div>

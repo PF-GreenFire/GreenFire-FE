@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Badge, Spinner, Alert } from 'react-bootstrap';
+import { Modal, Spinner } from 'react-bootstrap';
 import { FaEye, FaCalendar, FaUser } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { getNoticeDetail } from '../../apis/noticeAPI';
@@ -36,12 +36,12 @@ const NoticePreviewModal = ({ show, onHide, noticeCode }) => {
     };
 
     // 카테고리별 배지 색상
-    const getBadgeVariant = (category) => {
+    const getBadgeStyle = (category) => {
         switch (category) {
-            case 'NOTICE': return 'success';
-            case 'EVENT': return 'primary';
-            case 'SYSTEM': return 'secondary';
-            default: return 'secondary';
+            case 'NOTICE': return 'bg-green-lighter text-admin-green';
+            case 'EVENT': return 'bg-info-light text-info';
+            case 'SYSTEM': return 'bg-gray-100 text-gray-500';
+            default: return 'bg-gray-100 text-gray-500';
         }
     };
 
@@ -70,19 +70,21 @@ const NoticePreviewModal = ({ show, onHide, noticeCode }) => {
     return (
         <Modal show={show} onHide={onHide} size="lg" centered>
             <Modal.Header closeButton className="border-0">
-                <Modal.Title className="fw-bold">공지사항 미리보기</Modal.Title>
+                <Modal.Title className="font-bold">공지사항 미리보기</Modal.Title>
             </Modal.Header>
 
             <Modal.Body className="p-4">
                 {loading && (
                     <div className="text-center py-5">
                         <Spinner animation="border" variant="success" />
-                        <p className="mt-3 text-muted">로딩 중...</p>
+                        <p className="mt-3 text-gray-500">로딩 중...</p>
                     </div>
                 )}
 
                 {error && (
-                    <Alert variant="danger">{error}</Alert>
+                    <div className="bg-danger-light border border-danger/30 text-danger rounded-xl px-4 py-3 text-sm">
+                        {error}
+                    </div>
                 )}
 
                 {notice && !loading && (
@@ -90,56 +92,49 @@ const NoticePreviewModal = ({ show, onHide, noticeCode }) => {
                         {/* 배지 영역 */}
                         <div className="mb-3">
                             {notice.isImportant && (
-                                <Badge bg="danger" className="me-2">중요</Badge>
+                                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-danger text-white mr-2">중요</span>
                             )}
-                            <Badge bg={getBadgeVariant(notice.noticeCategory)} className="me-2">
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-semibold mr-2 ${getBadgeStyle(notice.noticeCategory)}`}>
                                 {getCategoryName(notice.noticeCategory)}
-                            </Badge>
+                            </span>
                         </div>
 
                         {/* 제목 */}
-                        <h5 className="fw-bold mb-3">{notice.noticeTitle}</h5>
+                        <h5 className="font-bold mb-3">{notice.noticeTitle}</h5>
 
                         {/* 메타 정보 */}
-                        <div className="d-flex gap-3 text-muted small mb-3 pb-3 border-bottom">
-                            <div className="d-flex align-items-center">
-                                <FaCalendar className="me-1" />
+                        <div className="flex gap-3 text-gray-500 text-sm mb-3 pb-3 border-b border-gray-200">
+                            <div className="flex items-center">
+                                <FaCalendar className="mr-1" />
                                 <span>{formatDate(notice.createdAt)}</span>
                             </div>
-                            <div className="d-flex align-items-center">
-                                <FaEye className="me-1" />
+                            <div className="flex items-center">
+                                <FaEye className="mr-1" />
                                 <span>조회 {notice.viewCount}</span>
                             </div>
-                            {notice.authorName && ( 
-                                <div className="d-flex align-items-center">
-                                    <FaUser className="me-1" />
+                            {notice.authorName && (
+                                <div className="flex items-center">
+                                    <FaUser className="mr-1" />
                                     <span>{notice.authorName}</span>
                                 </div>
                             )}
                         </div>
 
                         {/* 본문 미리보기 (300자 제한) */}
-                        <div 
-                            className="mb-3"
-                            style={{
-                                maxHeight: '200px',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis'
-                            }}
-                        >
-                            <div 
-                                dangerouslySetInnerHTML={{ 
-                                    __html: notice.noticeContent.substring(0, 300) + '...' 
+                        <div className="mb-3 max-h-[200px] overflow-hidden text-ellipsis">
+                            <div
+                                dangerouslySetInnerHTML={{
+                                    __html: notice.noticeContent.substring(0, 300) + '...'
                                 }}
                             />
                         </div>
 
                         {/* 첨부파일 표시 */}
                         {notice.attachments && notice.attachments.length > 0 && (
-                            <div className="mt-3 p-2 bg-light rounded">
-                                <small className="text-muted">
+                            <div className="mt-3 p-2 bg-gray-50 rounded">
+                                <span className="text-sm text-gray-500">
                                     📎 첨부파일 {notice.attachments.length}개
-                                </small>
+                                </span>
                             </div>
                         )}
                     </>
@@ -147,16 +142,19 @@ const NoticePreviewModal = ({ show, onHide, noticeCode }) => {
             </Modal.Body>
 
             <Modal.Footer className="border-0">
-                <Button variant="secondary" onClick={onHide}>
+                <button
+                    onClick={onHide}
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all"
+                >
                     닫기
-                </Button>
-                <Button 
-                    variant="success" 
+                </button>
+                <button
                     onClick={handleGoToDetail}
                     disabled={loading || error}
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-admin-green text-white hover:bg-admin-green-dark transition-all disabled:opacity-50"
                 >
                     전체 내용 보기
-                </Button>
+                </button>
             </Modal.Footer>
         </Modal>
     );

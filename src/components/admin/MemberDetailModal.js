@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Spinner, Alert, Form } from 'react-bootstrap';
+import { Modal, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { getMemberDetail, suspendMember, unsuspendMember } from '../../apis/adminAPI';
 
@@ -154,93 +154,70 @@ const MemberDetailModal = ({ show, onHide, userId, onMemberUpdated }) => {
   };
 
   const getStatusInfo = () => {
-    if (!member) return { bg: '#F5F5F5', color: '#888', label: '-' };
-    if (member.deletedAt) return { bg: '#FFEBEE', color: '#D32F2F', label: '탈퇴' };
+    if (!member) return { bg: 'bg-gray-100', color: 'text-gray-400', label: '-' };
+    if (member.deletedAt) return { bg: 'bg-danger-light', color: 'text-danger', label: '탈퇴' };
     if (member.isSuspended) {
       const isPermanent = member.suspendedUntil && new Date(member.suspendedUntil) >= new Date(PERMANENT_THRESHOLD);
-      return { bg: '#FFF3E0', color: '#F57C00', label: isPermanent ? '영구 정지' : '정지' };
+      return { bg: 'bg-warning-light', color: 'text-warning', label: isPermanent ? '영구 정지' : '정지' };
     }
-    return { bg: '#E8F5E9', color: '#1E9E57', label: '활성' };
+    return { bg: 'bg-green-lighter', color: 'text-admin-green', label: '활성' };
   };
 
   const getRoleInfo = () => {
-    if (!member) return { bg: '#F5F5F5', color: '#888', label: '-' };
+    if (!member) return { bg: 'bg-gray-100', color: 'text-gray-400', label: '-' };
     switch (member.role) {
-      case 'ADMIN': return { bg: '#FFEBEE', color: '#D32F2F', label: '관리자' };
-      default: return { bg: '#F5F5F5', color: '#888', label: '일반' };
+      case 'ADMIN': return { bg: 'bg-danger-light', color: 'text-danger', label: '관리자' };
+      default: return { bg: 'bg-gray-100', color: 'text-gray-400', label: '일반' };
     }
   };
 
   return (
     <Modal show={show} onHide={onHide} size="lg" centered scrollable>
-      <div style={{ borderRadius: '20px', overflow: 'hidden' }}>
-        <Modal.Header closeButton style={{ border: 'none', padding: '24px 24px 0' }}>
-          <Modal.Title style={{ fontWeight: 800, fontSize: '20px' }}>회원 상세 정보</Modal.Title>
+      <div className="rounded-[20px] overflow-hidden">
+        <Modal.Header closeButton className="border-none pt-6 px-6 pb-0">
+          <Modal.Title className="font-extrabold text-xl">회원 상세 정보</Modal.Title>
         </Modal.Header>
 
-        <Modal.Body style={{ padding: '20px 24px 24px' }}>
+        <Modal.Body className="pt-5 px-6 pb-6">
           {loading && (
-            <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+            <div className="text-center py-[60px] px-5">
               <Spinner animation="border" variant="success" />
-              <p style={{ marginTop: '16px', color: '#888', fontSize: '14px' }}>로딩 중...</p>
+              <p className="mt-4 text-gray-400 text-sm">로딩 중...</p>
             </div>
           )}
 
-          {error && <Alert variant="danger">{error}</Alert>}
+          {error && (
+            <div className="bg-danger-light border border-danger/30 text-danger rounded-xl px-4 py-3 text-sm">
+              {error}
+            </div>
+          )}
 
           {member && !loading && (
             <>
               {/* 프로필 섹션 */}
-              <div style={{
-                background: 'linear-gradient(135deg, #1E9E57, #16a34a)',
-                borderRadius: '18px',
-                padding: '28px 24px',
-                marginBottom: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '20px',
-              }}>
+              <div
+                className="rounded-[18px] py-7 px-6 mb-5 flex items-center gap-5"
+                style={{ background: 'linear-gradient(135deg, #1E9E57, #16a34a)' }}
+              >
                 {/* 큰 이니셜 아바타 */}
-                <div style={{
-                  width: '72px',
-                  height: '72px',
-                  borderRadius: '50%',
-                  background: 'rgba(255,255,255,0.25)',
-                  backdropFilter: 'blur(4px)',
-                  color: '#fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '28px',
-                  fontWeight: 800,
-                  flexShrink: 0,
-                }}>
+                <div
+                  className="w-[72px] h-[72px] rounded-full flex items-center justify-center text-[28px] font-extrabold text-white shrink-0"
+                  style={{ background: 'rgba(255,255,255,0.25)', backdropFilter: 'blur(4px)' }}
+                >
                   {getInitial(member.email)}
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{
-                    fontSize: '16px',
-                    fontWeight: 700,
-                    color: '#fff',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    marginBottom: '8px',
-                  }}>
+                <div className="flex-1 min-w-0">
+                  <div className="text-base font-bold text-white overflow-hidden text-ellipsis whitespace-nowrap mb-2">
                     {member.email}
                   </div>
-                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                  <div className="flex gap-1.5 flex-wrap">
                     {(() => {
                       const roleInfo = getRoleInfo();
                       return (
-                        <span style={{
-                          background: 'rgba(255,255,255,0.25)',
-                          color: '#fff',
-                          padding: '3px 12px',
-                          borderRadius: '20px',
-                          fontSize: '11px',
-                          fontWeight: 600,
-                        }}>
+                        <span
+                          className="py-[3px] px-3 rounded-full text-[11px] font-semibold text-white"
+                          style={{ background: 'rgba(255,255,255,0.25)' }}
+                        >
                           {roleInfo.label}
                         </span>
                       );
@@ -248,14 +225,10 @@ const MemberDetailModal = ({ show, onHide, userId, onMemberUpdated }) => {
                     {(() => {
                       const statusInfo = getStatusInfo();
                       return (
-                        <span style={{
-                          background: 'rgba(255,255,255,0.25)',
-                          color: '#fff',
-                          padding: '3px 12px',
-                          borderRadius: '20px',
-                          fontSize: '11px',
-                          fontWeight: 600,
-                        }}>
+                        <span
+                          className="py-[3px] px-3 rounded-full text-[11px] font-semibold text-white"
+                          style={{ background: 'rgba(255,255,255,0.25)' }}
+                        >
                           {statusInfo.label}
                         </span>
                       );
@@ -266,19 +239,13 @@ const MemberDetailModal = ({ show, onHide, userId, onMemberUpdated }) => {
 
               {/* 탈퇴 정보 */}
               {member.deletedAt && (
-                <div style={{
-                  background: '#FFF5F5',
-                  borderRadius: '14px',
-                  padding: '18px',
-                  marginBottom: '16px',
-                  borderLeft: '4px solid #D32F2F',
-                }}>
-                  <div style={{ fontSize: '13px', color: '#888', marginBottom: '4px' }}>탈퇴일</div>
-                  <div style={{ fontSize: '14px', color: '#333' }}>{formatDateTime(member.deletedAt)}</div>
+                <div className="bg-[#FFF5F5] rounded-[14px] p-[18px] mb-4 border-l-4 border-l-danger">
+                  <div className="text-[13px] text-gray-400 mb-1">탈퇴일</div>
+                  <div className="text-sm text-gray-800">{formatDateTime(member.deletedAt)}</div>
                   {member.deleteReason && (
                     <>
-                      <div style={{ fontSize: '13px', color: '#888', marginTop: '10px', marginBottom: '4px' }}>탈퇴 사유</div>
-                      <div style={{ fontSize: '14px', color: '#333' }}>{member.deleteReason}</div>
+                      <div className="text-[13px] text-gray-400 mt-2.5 mb-1">탈퇴 사유</div>
+                      <div className="text-sm text-gray-800">{member.deleteReason}</div>
                     </>
                   )}
                 </div>
@@ -286,39 +253,21 @@ const MemberDetailModal = ({ show, onHide, userId, onMemberUpdated }) => {
 
               {/* 정지 상태 표시 */}
               {member.isSuspended && (
-                <div style={{
-                  background: '#FFF8E1',
-                  borderRadius: '14px',
-                  padding: '18px',
-                  marginBottom: '16px',
-                  borderLeft: '4px solid #F57C00',
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    marginBottom: '12px',
-                  }}>
-                    <span style={{
-                      background: '#FFF3E0',
-                      color: '#F57C00',
-                      padding: '3px 12px',
-                      borderRadius: '20px',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                    }}>
+                <div className="bg-[#FFF8E1] rounded-[14px] p-[18px] mb-4 border-l-4 border-l-warning">
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <span className="bg-warning-light text-warning py-[3px] px-3 rounded-full text-xs font-bold">
                       정지 정보
                     </span>
                   </div>
                   {member.suspendReason && (
-                    <div style={{ marginBottom: '10px' }}>
-                      <div style={{ fontSize: '12px', color: '#888', marginBottom: '2px' }}>사유</div>
-                      <div style={{ fontSize: '14px', color: '#333' }}>{member.suspendReason}</div>
+                    <div className="mb-2.5">
+                      <div className="text-xs text-gray-400 mb-0.5">사유</div>
+                      <div className="text-sm text-gray-800">{member.suspendReason}</div>
                     </div>
                   )}
-                  <div style={{ marginBottom: '14px' }}>
-                    <div style={{ fontSize: '12px', color: '#888', marginBottom: '2px' }}>해제일</div>
-                    <div style={{ fontSize: '14px', color: '#333' }}>
+                  <div className="mb-3.5">
+                    <div className="text-xs text-gray-400 mb-0.5">해제일</div>
+                    <div className="text-sm text-gray-800">
                       {member.suspendedUntil && new Date(member.suspendedUntil) >= new Date(PERMANENT_THRESHOLD)
                         ? '영구 정지'
                         : formatDateTime(member.suspendedUntil)}
@@ -327,16 +276,7 @@ const MemberDetailModal = ({ show, onHide, userId, onMemberUpdated }) => {
                   <button
                     onClick={handleUnsuspend}
                     disabled={actionLoading}
-                    style={{
-                      background: '#1E9E57',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '10px',
-                      padding: '8px 20px',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                    }}
+                    className="bg-admin-green text-white border-none rounded-[10px] py-2 px-5 text-[13px] font-semibold cursor-pointer disabled:opacity-50"
                   >
                     {actionLoading ? '처리 중...' : '정지 해제'}
                   </button>
@@ -345,137 +285,81 @@ const MemberDetailModal = ({ show, onHide, userId, onMemberUpdated }) => {
 
               {/* 정지 폼 (비정지 상태일 때만) */}
               {!member.isSuspended && !member.deletedAt && (
-                <div style={{ marginBottom: '20px' }}>
+                <div className="mb-5">
                   {!showSuspendForm ? (
                     <button
                       onClick={() => setShowSuspendForm(true)}
-                      style={{
-                        background: 'transparent',
-                        color: '#D32F2F',
-                        border: '2px solid #D32F2F',
-                        borderRadius: '12px',
-                        padding: '8px 20px',
-                        fontSize: '13px',
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                      }}
+                      className="bg-transparent text-danger border-2 border-danger rounded-xl py-2 px-5 text-[13px] font-semibold cursor-pointer transition-all duration-200 hover:bg-danger hover:text-white"
                     >
                       회원 정지
                     </button>
                   ) : (
-                    <div style={{
-                      background: '#FFF5F5',
-                      borderRadius: '14px',
-                      padding: '20px',
-                      borderLeft: '4px solid #D32F2F',
-                    }}>
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        marginBottom: '16px',
-                      }}>
-                        <span style={{
-                          background: '#FFEBEE',
-                          color: '#D32F2F',
-                          padding: '3px 12px',
-                          borderRadius: '20px',
-                          fontSize: '12px',
-                          fontWeight: 700,
-                        }}>
+                    <div className="bg-[#FFF5F5] rounded-[14px] p-5 border-l-4 border-l-danger">
+                      <div className="flex items-center gap-1.5 mb-4">
+                        <span className="bg-danger-light text-danger py-[3px] px-3 rounded-full text-xs font-bold">
                           회원 정지
                         </span>
                       </div>
 
-                      <Form.Group className="mb-3">
-                        <Form.Label style={{ fontSize: '13px', fontWeight: 600, color: '#555' }}>정지 유형</Form.Label>
-                        <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                      <div className="mb-3">
+                        <label className="text-[13px] font-semibold text-gray-500 block mb-1">정지 유형</label>
+                        <div className="flex gap-2.5 mt-1">
                           {['temporary', 'permanent'].map((type) => (
                             <button
                               key={type}
                               onClick={() => setSuspendType(type)}
-                              style={{
-                                background: suspendType === type
-                                  ? (type === 'permanent' ? '#D32F2F' : '#F57C00')
-                                  : '#fff',
-                                color: suspendType === type ? '#fff' : '#666',
-                                border: 'none',
-                                borderRadius: '10px',
-                                padding: '8px 18px',
-                                fontSize: '13px',
-                                fontWeight: 600,
-                                cursor: 'pointer',
-                                boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-                              }}
+                              className={`border-none rounded-[10px] py-2 px-[18px] text-[13px] font-semibold cursor-pointer shadow-[0_1px_4px_rgba(0,0,0,0.06)] ${
+                                suspendType === type
+                                  ? (type === 'permanent' ? 'bg-danger text-white' : 'bg-warning text-white')
+                                  : 'bg-white text-gray-500'
+                              }`}
                             >
                               {type === 'temporary' ? '임시 정지' : '영구 정지'}
                             </button>
                           ))}
                         </div>
-                      </Form.Group>
+                      </div>
 
                       {suspendType === 'temporary' && (
-                        <Form.Group className="mb-3">
-                          <Form.Label style={{ fontSize: '13px', fontWeight: 600, color: '#555' }}>정지 기간</Form.Label>
-                          <Form.Select
-                            size="sm"
+                        <div className="mb-3">
+                          <label className="text-[13px] font-semibold text-gray-500 block mb-1">정지 기간</label>
+                          <select
                             value={suspendDays}
                             onChange={(e) => setSuspendDays(Number(e.target.value))}
-                            style={{ borderRadius: '10px', padding: '8px 12px' }}
+                            className="text-sm rounded-[10px] py-2 px-3 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-admin-green"
                           >
                             <option value={1}>1일</option>
                             <option value={3}>3일</option>
                             <option value={7}>7일</option>
                             <option value={14}>14일</option>
                             <option value={30}>30일</option>
-                          </Form.Select>
-                        </Form.Group>
+                          </select>
+                        </div>
                       )}
 
-                      <Form.Group className="mb-3">
-                        <Form.Label style={{ fontSize: '13px', fontWeight: 600, color: '#555' }}>정지 사유</Form.Label>
-                        <Form.Control
-                          as="textarea"
+                      <div className="mb-3">
+                        <label className="text-[13px] font-semibold text-gray-500 block mb-1">정지 사유</label>
+                        <textarea
                           rows={2}
                           placeholder="정지 사유를 입력하세요"
                           value={suspendReason}
                           onChange={(e) => setSuspendReason(e.target.value)}
-                          style={{ fontSize: '13px', borderRadius: '10px', resize: 'none' }}
+                          className="w-full text-[13px] rounded-[10px] resize-none border border-gray-200 p-3 focus:outline-none focus:ring-2 focus:ring-admin-green"
                         />
-                      </Form.Group>
+                      </div>
 
-                      <div style={{ display: 'flex', gap: '8px' }}>
+                      <div className="flex gap-2">
                         <button
                           onClick={handleSuspend}
                           disabled={actionLoading || !suspendReason.trim()}
-                          style={{
-                            background: '#D32F2F',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: '10px',
-                            padding: '8px 20px',
-                            fontSize: '13px',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            opacity: actionLoading || !suspendReason.trim() ? 0.5 : 1,
-                          }}
+                          className="bg-danger text-white border-none rounded-[10px] py-2 px-5 text-[13px] font-semibold cursor-pointer disabled:opacity-50"
                         >
                           {actionLoading ? '처리 중...' : '정지 적용'}
                         </button>
                         <button
                           onClick={resetForm}
                           disabled={actionLoading}
-                          style={{
-                            background: '#f5f5f5',
-                            color: '#666',
-                            border: 'none',
-                            borderRadius: '10px',
-                            padding: '8px 20px',
-                            fontSize: '13px',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                          }}
+                          className="bg-gray-100 text-gray-500 border-none rounded-[10px] py-2 px-5 text-[13px] font-semibold cursor-pointer"
                         >
                           취소
                         </button>
@@ -487,90 +371,51 @@ const MemberDetailModal = ({ show, onHide, userId, onMemberUpdated }) => {
 
               {/* 활동 로그 - 타임라인 스타일 */}
               <div>
-                <h6 style={{ fontWeight: 700, fontSize: '16px', marginBottom: '16px', color: '#222' }}>
+                <h6 className="font-bold text-base mb-4 text-gray-900">
                   최근 활동 로그
                 </h6>
                 {member.recentActivities && member.recentActivities.length > 0 ? (
-                  <div style={{ maxHeight: '360px', overflowY: 'auto', paddingRight: '4px' }}>
+                  <div className="max-h-[360px] overflow-y-auto pr-1">
                     {member.recentActivities.map((log, idx) => {
                       const dotColor = ACTION_TYPE_COLORS[log.actionType] || '#888';
                       return (
                         <div
                           key={log.id}
                           onClick={() => setSelectedLog(log)}
-                          style={{
-                            display: 'flex',
-                            gap: '14px',
-                            padding: '14px 0',
-                            borderBottom: idx < member.recentActivities.length - 1 ? '1px solid #f0f0f0' : 'none',
-                            cursor: 'pointer',
-                            transition: 'background 0.2s',
-                          }}
+                          className={`flex gap-3.5 py-3.5 cursor-pointer transition-colors duration-200 ${
+                            idx < member.recentActivities.length - 1 ? 'border-b border-gray-100' : ''
+                          }`}
                         >
                           {/* 타임라인 마커 */}
-                          <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            paddingTop: '4px',
-                          }}>
-                            <div style={{
-                              width: '12px',
-                              height: '12px',
-                              borderRadius: '50%',
-                              background: dotColor,
-                              flexShrink: 0,
-                            }} />
+                          <div className="flex flex-col items-center pt-1">
+                            <div
+                              className="w-3 h-3 rounded-full shrink-0"
+                              style={{ background: dotColor }}
+                            />
                             {idx < member.recentActivities.length - 1 && (
-                              <div style={{
-                                width: '2px',
-                                flex: 1,
-                                background: '#eee',
-                                marginTop: '4px',
-                              }} />
+                              <div className="w-0.5 flex-1 bg-gray-200 mt-1" />
                             )}
                           </div>
 
                           {/* 내용 */}
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              marginBottom: '4px',
-                              flexWrap: 'wrap',
-                            }}>
-                              <span style={{
-                                background: `${dotColor}15`,
-                                color: dotColor,
-                                padding: '2px 10px',
-                                borderRadius: '20px',
-                                fontSize: '11px',
-                                fontWeight: 600,
-                              }}>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                              <span
+                                className="py-0.5 px-2.5 rounded-full text-[11px] font-semibold"
+                                style={{ background: `${dotColor}15`, color: dotColor }}
+                              >
                                 {ACTION_TYPE_LABELS[log.actionType] || log.actionType}
                               </span>
-                              <span style={{
-                                background: '#f5f5f5',
-                                color: '#888',
-                                padding: '2px 10px',
-                                borderRadius: '20px',
-                                fontSize: '11px',
-                                fontWeight: 500,
-                              }}>
+                              <span className="bg-gray-100 text-gray-400 py-0.5 px-2.5 rounded-full text-[11px] font-medium">
                                 {RESOURCE_TYPE_LABELS[log.resourceType] || log.resourceType}
                               </span>
                             </div>
-                            <div style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                            }}>
-                              <span style={{ fontSize: '12px', color: '#aaa' }}>
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs text-gray-300">
                                 {formatDateTime(log.createdAt)}
                               </span>
                               {log.ipAddress && (
-                                <span style={{ fontSize: '11px', color: '#ccc' }}>
+                                <span className="text-[11px] text-gray-200">
                                   {log.ipAddress}
                                 </span>
                               )}
@@ -581,15 +426,11 @@ const MemberDetailModal = ({ show, onHide, userId, onMemberUpdated }) => {
                     })}
                   </div>
                 ) : (
-                  <div style={{
-                    textAlign: 'center',
-                    padding: '40px 20px',
-                    color: '#999',
-                  }}>
-                    <div style={{ fontSize: '36px', marginBottom: '12px' }}>
+                  <div className="text-center py-10 px-5 text-gray-400">
+                    <div className="text-4xl mb-3">
                       <span role="img" aria-label="empty">&#128196;</span>
                     </div>
-                    <p style={{ margin: 0, fontSize: '13px' }}>활동 로그가 없습니다.</p>
+                    <p className="m-0 text-[13px]">활동 로그가 없습니다.</p>
                   </div>
                 )}
               </div>
@@ -601,69 +442,49 @@ const MemberDetailModal = ({ show, onHide, userId, onMemberUpdated }) => {
                 centered
                 size="md"
               >
-                <div style={{ borderRadius: '20px', overflow: 'hidden' }}>
-                  <Modal.Header closeButton style={{ border: 'none', padding: '24px 24px 12px' }}>
-                    <Modal.Title style={{ fontWeight: 700, fontSize: '18px' }}>활동 로그 상세</Modal.Title>
+                <div className="rounded-[20px] overflow-hidden">
+                  <Modal.Header closeButton className="border-none pt-6 px-6 pb-3">
+                    <Modal.Title className="font-bold text-lg">활동 로그 상세</Modal.Title>
                   </Modal.Header>
-                  <Modal.Body style={{ padding: '12px 24px 24px' }}>
+                  <Modal.Body className="pt-3 px-6 pb-6">
                     {selectedLog && (
-                      <div style={{
-                        background: '#f8f9fa',
-                        borderRadius: '14px',
-                        padding: '18px',
-                      }}>
-                        <div style={{ marginBottom: '12px' }}>
-                          <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>활동</div>
-                          <span style={{
-                            background: `${ACTION_TYPE_COLORS[selectedLog.actionType] || '#888'}15`,
-                            color: ACTION_TYPE_COLORS[selectedLog.actionType] || '#888',
-                            padding: '3px 12px',
-                            borderRadius: '20px',
-                            fontSize: '12px',
-                            fontWeight: 600,
-                          }}>
+                      <div className="bg-gray-50 rounded-[14px] p-[18px]">
+                        <div className="mb-3">
+                          <div className="text-xs text-gray-400 mb-1">활동</div>
+                          <span
+                            className="py-[3px] px-3 rounded-full text-xs font-semibold"
+                            style={{
+                              background: `${ACTION_TYPE_COLORS[selectedLog.actionType] || '#888'}15`,
+                              color: ACTION_TYPE_COLORS[selectedLog.actionType] || '#888',
+                            }}
+                          >
                             {ACTION_TYPE_LABELS[selectedLog.actionType] || selectedLog.actionType}
                           </span>
                         </div>
-                        <div style={{ marginBottom: '12px' }}>
-                          <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>대상 유형</div>
-                          <div style={{ fontSize: '14px', color: '#333' }}>
+                        <div className="mb-3">
+                          <div className="text-xs text-gray-400 mb-1">대상 유형</div>
+                          <div className="text-sm text-gray-800">
                             {RESOURCE_TYPE_LABELS[selectedLog.resourceType] || selectedLog.resourceType}
                           </div>
                         </div>
-                        <div style={{ marginBottom: '12px' }}>
-                          <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>대상 ID</div>
-                          <code style={{
-                            fontSize: '12px',
-                            background: '#fff',
-                            padding: '4px 10px',
-                            borderRadius: '8px',
-                          }}>
+                        <div className="mb-3">
+                          <div className="text-xs text-gray-400 mb-1">대상 ID</div>
+                          <code className="text-xs bg-white py-1 px-2.5 rounded-lg">
                             {selectedLog.resourceId || '-'}
                           </code>
                         </div>
-                        <div style={{ marginBottom: '12px' }}>
-                          <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>시간</div>
-                          <div style={{ fontSize: '14px', color: '#333' }}>{formatFullDateTime(selectedLog.createdAt)}</div>
+                        <div className="mb-3">
+                          <div className="text-xs text-gray-400 mb-1">시간</div>
+                          <div className="text-sm text-gray-800">{formatFullDateTime(selectedLog.createdAt)}</div>
                         </div>
-                        <div style={{ marginBottom: selectedLog.content ? '12px' : '0' }}>
-                          <div style={{ fontSize: '12px', color: '#888', marginBottom: '4px' }}>IP</div>
-                          <div style={{ fontSize: '14px', color: '#333' }}>{selectedLog.ipAddress || '-'}</div>
+                        <div className={selectedLog.content ? 'mb-3' : ''}>
+                          <div className="text-xs text-gray-400 mb-1">IP</div>
+                          <div className="text-sm text-gray-800">{selectedLog.ipAddress || '-'}</div>
                         </div>
                         {selectedLog.content && (
                           <div>
-                            <div style={{ fontSize: '12px', color: '#888', marginBottom: '6px' }}>내용</div>
-                            <div style={{
-                              padding: '12px',
-                              background: '#fff',
-                              borderRadius: '10px',
-                              whiteSpace: 'pre-wrap',
-                              fontSize: '13px',
-                              color: '#333',
-                              maxHeight: '200px',
-                              overflowY: 'auto',
-                              lineHeight: 1.5,
-                            }}>
+                            <div className="text-xs text-gray-400 mb-1.5">내용</div>
+                            <div className="p-3 bg-white rounded-[10px] whitespace-pre-wrap text-[13px] text-gray-800 max-h-[200px] overflow-y-auto leading-normal">
                               {selectedLog.content}
                             </div>
                           </div>
@@ -678,17 +499,7 @@ const MemberDetailModal = ({ show, onHide, userId, onMemberUpdated }) => {
                                 onHide();
                                 navigate(link.path);
                               }}
-                              style={{
-                                marginTop: '14px',
-                                background: '#1E9E57',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: '10px',
-                                padding: '8px 20px',
-                                fontSize: '13px',
-                                fontWeight: 600,
-                                cursor: 'pointer',
-                              }}
+                              className="mt-3.5 bg-admin-green text-white border-none rounded-[10px] py-2 px-5 text-[13px] font-semibold cursor-pointer hover:bg-admin-green-dark transition-all duration-200"
                             >
                               {link.label}
                             </button>
@@ -703,21 +514,13 @@ const MemberDetailModal = ({ show, onHide, userId, onMemberUpdated }) => {
           )}
         </Modal.Body>
 
-        <Modal.Footer style={{ border: 'none', padding: '0 24px 24px' }}>
-          <Button
+        <Modal.Footer className="border-none px-6 pt-0 pb-6">
+          <button
             onClick={onHide}
-            style={{
-              background: '#f5f5f5',
-              color: '#666',
-              border: 'none',
-              borderRadius: '12px',
-              padding: '10px 24px',
-              fontWeight: 600,
-              fontSize: '14px',
-            }}
+            className="bg-gray-100 text-gray-500 border-none rounded-xl py-2.5 px-6 font-semibold text-sm cursor-pointer hover:bg-gray-200 transition-all duration-200"
           >
             닫기
-          </Button>
+          </button>
         </Modal.Footer>
       </div>
     </Modal>

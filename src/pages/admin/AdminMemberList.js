@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Spinner, Alert, Form } from 'react-bootstrap';
+import { Spinner } from 'react-bootstrap';
 import { FaSearch } from 'react-icons/fa';
 import { getMembers, changeUserRole } from '../../apis/adminAPI';
 import MemberDetailModal from '../../components/admin/MemberDetailModal';
@@ -81,15 +81,15 @@ const AdminMemberList = () => {
 
   const getRoleStyle = (role) => {
     switch (role) {
-      case 'ADMIN': return { bg: '#FFEBEE', color: '#D32F2F', label: '관리자' };
-      case 'MANAGER': return { bg: '#FFF3E0', color: '#F57C00', label: '매니저' };
-      default: return { bg: '#F5F5F5', color: '#888', label: '일반' };
+      case 'ADMIN': return { bg: 'bg-danger-light', color: 'text-danger', label: '관리자' };
+      case 'MANAGER': return { bg: 'bg-warning-light', color: 'text-warning', label: '매니저' };
+      default: return { bg: 'bg-gray-100', color: 'text-gray-400', label: '일반' };
     }
   };
 
   const getStatusStyle = (member) => {
-    if (member.deletedAt) return { bg: '#FFEBEE', color: '#D32F2F', label: '탈퇴' };
-    return { bg: '#E8F5E9', color: '#1E9E57', label: '활성' };
+    if (member.deletedAt) return { bg: 'bg-danger-light', color: 'text-danger', label: '탈퇴' };
+    return { bg: 'bg-green-lighter', color: 'text-admin-green', label: '활성' };
   };
 
   const openMemberDetail = (userId) => {
@@ -99,25 +99,13 @@ const AdminMemberList = () => {
 
   return (
     <div>
-      <h5 style={{ fontWeight: 800, marginBottom: '20px', fontSize: '18px', color: '#222' }}>
+      <h5 className="font-extrabold mb-5 text-lg text-gray-900">
         회원 관리
       </h5>
 
       {/* 검색바 */}
-      <div style={{
-        display: 'flex',
-        background: '#fff',
-        borderRadius: '14px',
-        overflow: 'hidden',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-        marginBottom: '20px',
-      }}>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          paddingLeft: '16px',
-          color: '#aaa',
-        }}>
+      <div className="flex bg-white rounded-[14px] overflow-hidden shadow-card mb-5">
+        <div className="flex items-center pl-4 text-gray-400">
           <FaSearch size={14} />
         </div>
         <input
@@ -126,119 +114,58 @@ const AdminMemberList = () => {
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           onKeyDown={handleKeyPress}
-          style={{
-            flex: 1,
-            border: 'none',
-            background: 'transparent',
-            padding: '12px',
-            fontSize: '14px',
-            outline: 'none',
-          }}
+          className="flex-1 border-none bg-transparent p-3 text-sm outline-none"
         />
         <button
           onClick={handleSearch}
-          style={{
-            border: 'none',
-            background: '#1E9E57',
-            color: '#fff',
-            padding: '12px 20px',
-            cursor: 'pointer',
-            fontWeight: 600,
-            fontSize: '13px',
-          }}
+          className="border-none bg-admin-green text-white py-3 px-5 cursor-pointer font-semibold text-[13px]"
         >
           검색
         </button>
       </div>
 
-      {error && <Alert variant="danger" dismissible onClose={() => setError(null)}>{error}</Alert>}
+      {error && (
+        <div className="bg-danger-light border border-danger/30 text-danger rounded-xl px-4 py-3 text-sm mb-4">
+          {error}
+          <button onClick={() => setError(null)} className="float-right text-danger font-bold ml-2">&times;</button>
+        </div>
+      )}
 
       {/* 회원 카드 리스트 */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div className="flex flex-col gap-3">
         {members.map((member) => {
           const roleStyle = getRoleStyle(member.role);
           const statusStyle = getStatusStyle(member);
           return (
             <div
               key={member.userId}
-              style={{
-                background: '#fff',
-                borderRadius: '16px',
-                padding: '16px 20px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                cursor: 'pointer',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
-              }}
+              className="bg-white rounded-2xl py-4 px-5 shadow-card transition-all duration-200 cursor-pointer hover:-translate-y-0.5 hover:shadow-card-hover"
             >
               <div
-                style={{ display: 'flex', alignItems: 'center', gap: '14px' }}
+                className="flex items-center gap-3.5"
                 onClick={() => openMemberDetail(member.userId)}
               >
                 {/* 이니셜 아바타 */}
-                <div style={{
-                  width: '44px',
-                  height: '44px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #1E9E57, #16a34a)',
-                  color: '#fff',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '18px',
-                  fontWeight: 700,
-                  flexShrink: 0,
-                }}>
+                <div
+                  className="w-11 h-11 rounded-full text-white flex items-center justify-center text-lg font-bold shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #1E9E57, #16a34a)' }}
+                >
                   {getInitial(member.email)}
                 </div>
 
                 {/* 회원 정보 */}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{
-                    fontSize: '14px',
-                    fontWeight: 600,
-                    color: '#222',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-gray-900 overflow-hidden text-ellipsis whitespace-nowrap">
                     {member.email}
                   </div>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    marginTop: '6px',
-                    flexWrap: 'wrap',
-                  }}>
-                    <span style={{
-                      background: roleStyle.bg,
-                      color: roleStyle.color,
-                      padding: '2px 10px',
-                      borderRadius: '20px',
-                      fontSize: '11px',
-                      fontWeight: 600,
-                    }}>
+                  <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                    <span className={`${roleStyle.bg} ${roleStyle.color} py-0.5 px-2.5 rounded-full text-[11px] font-semibold`}>
                       {roleStyle.label}
                     </span>
-                    <span style={{
-                      background: statusStyle.bg,
-                      color: statusStyle.color,
-                      padding: '2px 10px',
-                      borderRadius: '20px',
-                      fontSize: '11px',
-                      fontWeight: 600,
-                    }}>
+                    <span className={`${statusStyle.bg} ${statusStyle.color} py-0.5 px-2.5 rounded-full text-[11px] font-semibold`}>
                       {statusStyle.label}
                     </span>
-                    <span style={{ fontSize: '11px', color: '#aaa' }}>
+                    <span className="text-[11px] text-gray-400">
                       {formatDate(member.createdAt)}
                     </span>
                   </div>
@@ -246,37 +173,24 @@ const AdminMemberList = () => {
               </div>
 
               {/* 역할 변경 셀렉트 */}
-              <div style={{
-                marginTop: '12px',
-                paddingTop: '12px',
-                borderTop: '1px solid #f0f0f0',
-              }}
-              onClick={(e) => e.stopPropagation()}
+              <div
+                className="mt-3 pt-3 border-t border-gray-100"
+                onClick={(e) => e.stopPropagation()}
               >
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                }}>
-                  <span style={{ fontSize: '12px', color: '#888', whiteSpace: 'nowrap' }}>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-xs text-gray-400 whitespace-nowrap">
                     역할 변경
                   </span>
-                  <Form.Select
-                    size="sm"
+                  <select
                     value={member.role}
                     onChange={(e) => handleRoleChange(member.userId, e.target.value)}
                     disabled={!!member.deletedAt}
-                    style={{
-                      fontSize: '12px',
-                      borderRadius: '10px',
-                      border: '1px solid #e0e0e0',
-                      maxWidth: '140px',
-                    }}
+                    className="text-xs rounded-[10px] border border-gray-200 max-w-[140px] py-1.5 px-2 focus:outline-none focus:ring-2 focus:ring-admin-green"
                   >
                     <option value="USER">USER</option>
                     <option value="MANAGER">MANAGER</option>
                     <option value="ADMIN">ADMIN</option>
-                  </Form.Select>
+                  </select>
                 </div>
               </div>
             </div>
@@ -291,43 +205,22 @@ const AdminMemberList = () => {
       )}
 
       {!loading && members.length === 0 && (
-        <div style={{
-          textAlign: 'center',
-          padding: '60px 20px',
-          color: '#999',
-        }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>
+        <div className="text-center py-[60px] px-5 text-gray-400">
+          <div className="text-[48px] mb-4">
             <span role="img" aria-label="empty">&#128100;</span>
           </div>
-          <p style={{ margin: 0, fontSize: '14px' }}>회원이 없습니다.</p>
+          <p className="m-0 text-sm">회원이 없습니다.</p>
         </div>
       )}
 
       {!loading && hasMore && members.length > 0 && (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <Button
+        <div className="text-center mt-5">
+          <button
             onClick={() => setPage(prev => prev + 1)}
-            style={{
-              background: 'transparent',
-              border: '2px solid #1E9E57',
-              color: '#1E9E57',
-              borderRadius: '24px',
-              padding: '10px 32px',
-              fontWeight: 600,
-              fontSize: '13px',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#1E9E57';
-              e.currentTarget.style.color = '#fff';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent';
-              e.currentTarget.style.color = '#1E9E57';
-            }}
+            className="bg-transparent border-2 border-admin-green text-admin-green rounded-full py-2.5 px-8 font-semibold text-[13px] transition-all duration-200 hover:bg-admin-green hover:text-white"
           >
             더보기
-          </Button>
+          </button>
         </div>
       )}
 

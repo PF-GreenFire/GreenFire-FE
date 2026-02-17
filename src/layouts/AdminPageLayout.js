@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Container } from 'react-bootstrap';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { FaChartPie, FaBullhorn, FaUsers, FaFlag } from 'react-icons/fa';
 import NavBar from '../components/common/NavBar';
@@ -44,39 +43,22 @@ function AdminPageLayout() {
   const activeKey = location.pathname;
 
   return (
-    <div style={{ minHeight: '100vh' }}>      
+    <div className="min-h-screen">
       <NavBar />
 
       {/* 탭 네비게이션 */}
-      <div style={{
-        display: 'flex',
-        gap: '8px',
-        padding: '16px 20px',        
-        overflowX: 'auto',
-        maxWidth: '600px',
-        margin: '0 auto',
-      }}>
+      <div className="flex gap-1.5 py-4 px-[15px] max-w-[600px] mx-auto">
         {tabs.map((tab) => {
           const isActive = activeKey === tab.pageUrl;
           return (
             <button
               key={tab.pageUrl}
               onClick={() => navigate(tab.pageUrl)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                border: 'none',
-                background: isActive ? '#1E9E57' : '#F5F5F5',
-                color: isActive ? '#fff' : '#666',
-                padding: '8px 20px',
-                borderRadius: '20px',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.2s',
-              }}
+              className={`flex items-center gap-1 border-none py-1.5 px-3 rounded-full text-xs font-semibold cursor-pointer whitespace-nowrap transition-all duration-200 ${
+                isActive
+                  ? 'bg-admin-green text-white'
+                  : 'bg-gray-100 text-gray-500'
+              }`}
             >
               {TAB_ICONS[tab.pageUrl] || null}
               {tab.pageName}
@@ -86,9 +68,9 @@ function AdminPageLayout() {
       </div>
 
       {/* 페이지 콘텐츠 */}
-      <Container style={{ maxWidth: '600px', padding: '24px 15px' }}>
+      <div className="max-w-[600px] mx-auto py-6 px-[15px]">
         <Outlet />
-      </Container>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Button, Spinner, Alert, Card, Collapse } from 'react-bootstrap';
+import { Spinner, Collapse } from 'react-bootstrap';
 import { FaEye, FaUser, FaDownload, FaShare, FaChevronLeft, FaChevronDown, FaChevronUp, FaEdit, FaTrash, FaPaperclip, FaRegClock } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getNoticeDetail, getRelatedNotices, incrementNoticeView, deleteNotice } from '../../apis/noticeAPI';
@@ -131,26 +131,24 @@ const NoticeDetail = () => {
 
     if (loading) {
         return (
-            <Container className="text-center py-5" style={{ maxWidth: '600px' }}>
+            <div className="text-center py-12 max-w-[600px] mx-auto">
                 <Spinner animation="border" variant="success" size="sm" />
-                <p className="mt-3 text-muted" style={{ fontSize: '14px' }}>불러오는 중...</p>
-            </Container>
+                <p className="mt-3 text-gray-500 text-sm">불러오는 중...</p>
+            </div>
         );
     }
 
     if (error) {
         return (
-            <Container style={{ maxWidth: '600px', padding: '20px 15px' }}>
-                <Alert variant="danger" style={{ fontSize: '14px', borderRadius: '16px' }}>{error}</Alert>
-                <Button
-                    variant="outline-secondary"
-                    size="sm"
+            <div className="max-w-[600px] mx-auto py-5 px-4">
+                <div className="bg-danger-light border border-danger/30 text-danger rounded-xl px-4 py-3 text-sm">{error}</div>
+                <button
+                    className="mt-3 border-2 border-gray-400 text-gray-600 rounded-full font-semibold text-sm px-4 py-1.5 hover:bg-gray-100 transition-all"
                     onClick={() => navigate('/notices')}
-                    style={{ borderRadius: '20px' }}
                 >
                     목록으로
-                </Button>
-            </Container>
+                </button>
+            </div>
         );
     }
 
@@ -164,47 +162,28 @@ const NoticeDetail = () => {
 
     return (
         <>
-        <Container style={{ maxWidth: '600px', marginBottom: '120px', padding: '0', background: '#F8F9FA', minHeight: '100vh' }}>
+        <div className="max-w-[600px] mx-auto mb-[120px] p-0 bg-[#F8F9FA] min-h-screen">
             {/* 헤더 */}
-            <div
-                style={{
-                    height: '56px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '0 20px',
-                    position: 'sticky',
-                    top: 0,
-                    background: '#fff',
-                    zIndex: 10,
-                    borderBottom: '1px solid #f0f0f0',
-                }}
-            >
-                <Button
-                    variant="link"
-                    className="p-0"
-                    style={{ color: '#222', textDecoration: 'none' }}
+            <div className="h-14 flex items-center justify-between px-5 sticky top-0 bg-white z-10 border-b border-[#f0f0f0]">
+                <button
+                    className="p-0 text-[#222] no-underline bg-transparent border-none cursor-pointer"
                     onClick={() => navigate('/notices')}
                 >
                     <FaChevronLeft size={18} />
-                </Button>
+                </button>
 
-                <div style={{ fontWeight: 700, fontSize: '17px', letterSpacing: '-0.3px' }}>공지사항</div>
+                <div className="font-bold text-[17px] tracking-tight">공지사항</div>
 
                 {role === 'ADMIN' ? (
-                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <Button
-                      variant="link"
-                      className="p-0"
-                      style={{ color: '#1E9E57', textDecoration: 'none' }}
+                  <div className="flex gap-3 items-center">
+                    <button
+                      className="p-0 text-admin-green no-underline bg-transparent border-none cursor-pointer"
                       onClick={() => navigate(`/notices/${noticeCode}/edit`)}
                     >
                       <FaEdit size={15} />
-                    </Button>
-                    <Button
-                      variant="link"
-                      className="p-0"
-                      style={{ color: '#DC3545', textDecoration: 'none' }}
+                    </button>
+                    <button
+                      className="p-0 text-[#DC3545] no-underline bg-transparent border-none cursor-pointer"
                       onClick={async () => {
                         if (!window.confirm('정말 삭제할까요?')) return;
                         try {
@@ -218,78 +197,47 @@ const NoticeDetail = () => {
                       }}
                     >
                       <FaTrash size={14} />
-                    </Button>
+                    </button>
                   </div>
-                ) : <div style={{ width: 18 }} />}
+                ) : <div className="w-[18px]" />}
             </div>
 
-            <div style={{ padding: '20px' }}>
+            <div className="p-5">
                 {/* 본문 카드 */}
-                <Card className="border-0" style={{
-                    borderRadius: '20px',
-                    overflow: 'hidden',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
-                }}>
-                    <Card.Body style={{ padding: '24px 20px' }}>
+                <div className="bg-white rounded-[20px] overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)]">
+                    <div className="px-5 py-6">
                         {/* 배지 */}
-                        <div style={{ display: 'flex', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
-                            <span style={{
-                                background: catStyle.bg,
-                                color: catStyle.color,
-                                padding: '4px 12px',
-                                borderRadius: '20px',
-                                fontSize: '11px',
-                                fontWeight: 600,
-                            }}>
+                        <div className="flex gap-2 mb-3.5 flex-wrap">
+                            <span
+                                className="px-3 py-1 rounded-full text-[11px] font-semibold"
+                                style={{ background: catStyle.bg, color: catStyle.color }}
+                            >
                                 {getCategoryName(notice.noticeCategory)}
                             </span>
                             {notice.isImportant && (
-                                <span style={{
-                                    background: '#FFEBEE',
-                                    color: '#DC3545',
-                                    padding: '4px 12px',
-                                    borderRadius: '20px',
-                                    fontSize: '11px',
-                                    fontWeight: 600,
-                                }}>
+                                <span className="bg-danger-light text-[#DC3545] px-3 py-1 rounded-full text-[11px] font-semibold">
                                     중요
                                 </span>
                             )}
                         </div>
 
                         {/* 제목 */}
-                        <h5 style={{
-                            fontWeight: 700,
-                            color: '#111',
-                            marginBottom: '16px',
-                            lineHeight: 1.5,
-                            fontSize: '20px',
-                            letterSpacing: '-0.3px',
-                        }}>
+                        <h5 className="font-bold text-[#111] mb-4 leading-relaxed text-xl tracking-tight">
                             {notice.noticeTitle}
                         </h5>
 
                         {/* 메타 정보 */}
-                        <div style={{
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            gap: '16px',
-                            fontSize: '13px',
-                            color: '#999',
-                            marginBottom: '24px',
-                            paddingBottom: '18px',
-                            borderBottom: '1px solid #F0F0F0',
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <div className="flex flex-wrap gap-4 text-[13px] text-[#999] mb-6 pb-[18px] border-b border-[#F0F0F0]">
+                            <div className="flex items-center gap-[5px]">
                                 <FaRegClock size={12} />
                                 <span>{formatRelativeDate(notice.createdAt)}</span>
                             </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <div className="flex items-center gap-[5px]">
                                 <FaEye size={12} />
                                 <span>조회 {notice.viewCount}</span>
                             </div>
                             {notice.authorName && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <div className="flex items-center gap-[5px]">
                                     <FaUser size={12} />
                                     <span>{notice.authorName}</span>
                                 </div>
@@ -298,17 +246,12 @@ const NoticeDetail = () => {
 
                         {/* 이벤트 기간 */}
                         {notice.noticeCategory === 'EVENT' && notice.startDate && notice.endDate && (
-                            <div style={{
-                                background: 'linear-gradient(135deg, #EDF7FF 0%, #E3F2FD 100%)',
-                                borderRadius: '14px',
-                                padding: '14px 18px',
-                                marginBottom: '24px',
-                                fontSize: '13px',
-                                color: '#1976D2',
-                                border: '1px solid rgba(25, 118, 210, 0.1)',
-                            }}>
-                                <div style={{ fontWeight: 700, marginBottom: '6px' }}>이벤트 기간</div>
-                                <div style={{ color: '#1565C0' }}>
+                            <div
+                                className="rounded-[14px] px-[18px] py-3.5 mb-6 text-[13px] text-info border border-info/10"
+                                style={{ background: 'linear-gradient(135deg, #EDF7FF 0%, #E3F2FD 100%)' }}
+                            >
+                                <div className="font-bold mb-1.5">이벤트 기간</div>
+                                <div className="text-[#1565C0]">
                                     {formatDate(notice.startDate)} ~ {formatDate(notice.endDate)}
                                 </div>
                             </div>
@@ -316,38 +259,22 @@ const NoticeDetail = () => {
 
                         {/* 본문 */}
                         <div
-                            className="notice-content"
-                            style={{
-                                fontSize: '15px',
-                                lineHeight: 1.85,
-                                color: '#333',
-                                marginBottom: '28px',
-                                wordBreak: 'keep-all',
-                            }}
+                            className="notice-content text-[15px] leading-[1.85] text-[#333] mb-7 break-keep"
                             dangerouslySetInnerHTML={{ __html: notice.noticeContent }}
                         />
 
                         {/* 이미지 첨부파일 (본문 아래) */}
                         {imageFiles.length > 0 && (
-                            <div style={{ marginBottom: '24px' }}>
+                            <div className="mb-6">
                                 {imageFiles.map((img) => (
                                     <div
                                         key={img.imageCode}
-                                        style={{
-                                            background: '#F8F8F8',
-                                            borderRadius: '12px',
-                                            overflow: 'hidden',
-                                            marginBottom: '10px',
-                                        }}
+                                        className="bg-[#F8F8F8] rounded-xl overflow-hidden mb-2.5"
                                     >
                                         <img
                                             src={getImageUrl(img.path)}
                                             alt={img.originName}
-                                            style={{
-                                                width: '100%',
-                                                display: 'block',
-                                                borderRadius: '12px',
-                                            }}
+                                            className="w-full block rounded-xl"
                                         />
                                     </div>
                                 ))}
@@ -356,59 +283,27 @@ const NoticeDetail = () => {
 
                         {/* 비이미지 첨부파일 */}
                         {nonImageFiles.length > 0 && (
-                            <div style={{
-                                background: '#FAFAFA',
-                                borderRadius: '16px',
-                                padding: '16px 18px',
-                                marginBottom: '24px',
-                                border: '1px solid #F0F0F0',
-                            }}>
-                                <div style={{
-                                    fontSize: '13px',
-                                    fontWeight: 700,
-                                    color: '#555',
-                                    marginBottom: '12px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '6px',
-                                }}>
+                            <div className="bg-[#FAFAFA] rounded-2xl px-[18px] py-4 mb-6 border border-[#F0F0F0]">
+                                <div className="text-[13px] font-bold text-[#555] mb-3 flex items-center gap-1.5">
                                     <FaPaperclip size={12} />
                                     <span>첨부파일 ({nonImageFiles.length})</span>
                                 </div>
                                 {nonImageFiles.map((file) => (
                                     <div
                                         key={file.imageCode}
-                                        style={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                            padding: '12px 14px',
-                                            background: '#fff',
-                                            borderRadius: '12px',
-                                            marginBottom: '8px',
-                                            boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-                                        }}
+                                        className="flex justify-between items-center px-3.5 py-3 bg-white rounded-xl mb-2 shadow-[0_1px_4px_rgba(0,0,0,0.04)]"
                                     >
-                                        <div style={{ minWidth: 0, flex: 1 }}>
-                                            <div style={{
-                                                fontSize: '13px',
-                                                fontWeight: 600,
-                                                color: '#333',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap',
-                                            }}>{file.originName}</div>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="text-[13px] font-semibold text-[#333] overflow-hidden text-ellipsis whitespace-nowrap">
+                                                {file.originName}
+                                            </div>
                                         </div>
                                         <a
                                             href={getImageUrl(file.path)}
                                             download={file.originName}
                                             target="_blank"
                                             rel="noreferrer"
-                                            style={{
-                                                color: '#1E9E57',
-                                                marginLeft: '12px',
-                                                flexShrink: 0,
-                                            }}
+                                            className="text-admin-green ml-3 shrink-0"
                                         >
                                             <FaDownload size={14} />
                                         </a>
@@ -418,178 +313,81 @@ const NoticeDetail = () => {
                         )}
 
                         {/* 공유 */}
-                        <div style={{
-                            textAlign: 'center',
-                            paddingTop: '18px',
-                            borderTop: '1px solid #F0F0F0',
-                        }}>
-                            <Button
-                                variant="outline-success"
-                                size="sm"
+                        <div className="text-center pt-[18px] border-t border-[#F0F0F0]">
+                            <button
+                                className="border-2 border-admin-green text-admin-green rounded-full font-semibold hover:bg-admin-green hover:text-white transition-all text-[13px] px-6 py-2"
                                 onClick={handleShare}
-                                style={{
-                                    borderRadius: '24px',
-                                    padding: '8px 24px',
-                                    fontSize: '13px',
-                                    fontWeight: 600,
-                                    border: '1.5px solid #1E9E57',
-                                }}
                             >
-                                <FaShare className="me-1" size={12} /> 공유하기
-                            </Button>
+                                <FaShare className="inline mr-1" size={12} /> 공유하기
+                            </button>
                         </div>
-                    </Card.Body>
-                </Card>
+                    </div>
+                </div>
 
                 {/* 이전/다음 */}
                 {(notice.prevNotice || notice.nextNotice) && (
-                    <Card className="border-0 mt-3" style={{
-                        borderRadius: '16px',
-                        boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
-                    }}>
-                        <Card.Body style={{ padding: '4px 16px' }}>
+                    <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] mt-3">
+                        <div className="px-4 py-1">
                             {notice.prevNotice && (
                                 <div
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        padding: '14px 0',
-                                        borderBottom: notice.nextNotice ? '1px solid #F0F0F0' : 'none',
-                                        cursor: 'pointer',
-                                    }}
+                                    className={`flex justify-between items-center py-3.5 cursor-pointer ${notice.nextNotice ? 'border-b border-[#F0F0F0]' : ''}`}
                                     onClick={() => handleRelatedNoticeClick(notice.prevNotice.noticeCode)}
                                 >
-                                    <small style={{
-                                        color: '#1E9E57',
-                                        fontSize: '11px',
-                                        flexShrink: 0,
-                                        fontWeight: 600,
-                                        background: '#E8F5E9',
-                                        padding: '2px 8px',
-                                        borderRadius: '8px',
-                                    }}>이전</small>
-                                    <span style={{
-                                        fontSize: '13px',
-                                        color: '#444',
-                                        textAlign: 'right',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap',
-                                        marginLeft: '12px',
-                                    }}>
+                                    <small className="text-admin-green text-[11px] shrink-0 font-semibold bg-green-lighter px-2 py-0.5 rounded-lg">이전</small>
+                                    <span className="text-[13px] text-[#444] text-right overflow-hidden text-ellipsis whitespace-nowrap ml-3">
                                         {notice.prevNotice.noticeTitle}
                                     </span>
                                 </div>
                             )}
                             {notice.nextNotice && (
                                 <div
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        padding: '14px 0',
-                                        cursor: 'pointer',
-                                    }}
+                                    className="flex justify-between items-center py-3.5 cursor-pointer"
                                     onClick={() => handleRelatedNoticeClick(notice.nextNotice.noticeCode)}
                                 >
-                                    <small style={{
-                                        color: '#1E9E57',
-                                        fontSize: '11px',
-                                        flexShrink: 0,
-                                        fontWeight: 600,
-                                        background: '#E8F5E9',
-                                        padding: '2px 8px',
-                                        borderRadius: '8px',
-                                    }}>다음</small>
-                                    <span style={{
-                                        fontSize: '13px',
-                                        color: '#444',
-                                        textAlign: 'right',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap',
-                                        marginLeft: '12px',
-                                    }}>
+                                    <small className="text-admin-green text-[11px] shrink-0 font-semibold bg-green-lighter px-2 py-0.5 rounded-lg">다음</small>
+                                    <span className="text-[13px] text-[#444] text-right overflow-hidden text-ellipsis whitespace-nowrap ml-3">
                                         {notice.nextNotice.noticeTitle}
                                     </span>
                                 </div>
                             )}
-                        </Card.Body>
-                    </Card>
+                        </div>
+                    </div>
                 )}
 
                 {/* 관련 공지사항 */}
                 {relatedNotices.length > 0 && (
-                    <Card className="border-0 mt-3" style={{
-                        borderRadius: '16px',
-                        boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
-                    }}>
-                        <Card.Body style={{ padding: '16px 18px' }}>
+                    <div className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.05)] mt-3">
+                        <div className="px-[18px] py-4">
                             <div
-                                style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    cursor: 'pointer',
-                                }}
+                                className="flex justify-between items-center cursor-pointer"
                                 onClick={() => setShowRelated(!showRelated)}
                             >
-                                <span style={{ fontSize: '14px', fontWeight: 700, color: '#333' }}>관련 공지사항</span>
+                                <span className="text-sm font-bold text-[#333]">관련 공지사항</span>
                                 {showRelated ? <FaChevronUp size={12} color="#999" /> : <FaChevronDown size={12} color="#999" />}
                             </div>
 
                             <Collapse in={showRelated}>
-                                <div style={{ marginTop: '12px' }}>
+                                <div className="mt-3">
                                     {relatedNotices.map((related, idx) => {
                                         const relCatStyle = getCategoryStyle(related.noticeCategory);
                                         return (
                                             <div
                                                 key={related.noticeCode}
-                                                style={{
-                                                    display: 'flex',
-                                                    justifyContent: 'space-between',
-                                                    alignItems: 'center',
-                                                    padding: '12px 0',
-                                                    borderBottom: idx < relatedNotices.length - 1 ? '1px solid #F5F5F5' : 'none',
-                                                    cursor: 'pointer',
-                                                }}
+                                                className={`flex justify-between items-center py-3 cursor-pointer ${idx < relatedNotices.length - 1 ? 'border-b border-[#F5F5F5]' : ''}`}
                                                 onClick={() => handleRelatedNoticeClick(related.noticeCode)}
                                             >
-                                                <div style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '8px',
-                                                    minWidth: 0,
-                                                    flex: 1,
-                                                }}>
-                                                    <span style={{
-                                                        background: relCatStyle.bg,
-                                                        color: relCatStyle.color,
-                                                        padding: '2px 8px',
-                                                        borderRadius: '8px',
-                                                        fontSize: '10px',
-                                                        fontWeight: 600,
-                                                        flexShrink: 0,
-                                                    }}>
+                                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                    <span
+                                                        className="px-2 py-0.5 rounded-lg text-[10px] font-semibold shrink-0"
+                                                        style={{ background: relCatStyle.bg, color: relCatStyle.color }}
+                                                    >
                                                         {getCategoryName(related.noticeCategory)}
                                                     </span>
-                                                    <span style={{
-                                                        fontSize: '13px',
-                                                        color: '#444',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap',
-                                                    }}>
+                                                    <span className="text-[13px] text-[#444] overflow-hidden text-ellipsis whitespace-nowrap">
                                                         {related.noticeTitle}
                                                     </span>
                                                 </div>
-                                                <small style={{
-                                                    color: '#bbb',
-                                                    fontSize: '11px',
-                                                    marginLeft: '12px',
-                                                    flexShrink: 0,
-                                                }}>
+                                                <small className="text-[#bbb] text-[11px] ml-3 shrink-0">
                                                     {formatRelativeDate(related.createdAt)}
                                                 </small>
                                             </div>
@@ -597,11 +395,11 @@ const NoticeDetail = () => {
                                     })}
                                 </div>
                             </Collapse>
-                        </Card.Body>
-                    </Card>
+                        </div>
+                    </div>
                 )}
             </div>
-        </Container>
+        </div>
         <AppBar />
         </>
     );
