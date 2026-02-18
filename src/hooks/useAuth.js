@@ -21,7 +21,7 @@ const fetchMe = async () => {
   }
 
   try {
-    const { data } = await api.get('/api/v1/auth/me');
+    const { data } = await api.get('/api/auth/me');
     return data;
   } catch {
     setAccessToken(null);

@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useCallback, useRef, useEffect } from "react";
-import { Container, Row, Col, Button, Form, InputGroup } from "react-bootstrap";
-import { FaEye, FaEyeSlash, FaCheck, FaTimes } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaCheck, FaTimes, FaCamera } from "react-icons/fa";
+import { BsCalendar } from "react-icons/bs";
+import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { signup, checkEmailAvailable } from "../../apis/authAPI";
 import LoginPopup from "./LoginPopup";
@@ -117,15 +118,23 @@ const SignupPage = () => {
   const [showPw2, setShowPw2] = useState(false);
 
   const [formData, setFormData] = useState({
+    name: "",
+    nickname: "",
     email: "",
+    birth: "",
+    gender: "",
+    phone: "",
     password: "",
     passwordConfirm: "",
   });
+  const [profileImage, setProfileImage] = useState(null);
+  const [profilePreview, setProfilePreview] = useState(null);
+  const fileInputRef = useRef(null);
+  const dateInputRef = useRef(null);
 
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // 약관 동의 상태
   const [agreements, setAgreements] = useState({
     service: false,
     privacy: false,
@@ -143,8 +152,7 @@ const SignupPage = () => {
     setAgreements((prev) => ({ ...prev, [key]: checked }));
   };
 
-  // 이메일 중복 체크 상태
-  const [emailStatus, setEmailStatus] = useState(null); // null | "checking" | "available" | "taken" | "error"
+  const [emailStatus, setEmailStatus] = useState(null);
   const debounceRef = useRef(null);
 
   const passwordMismatch = useMemo(() => {
@@ -154,7 +162,6 @@ const SignupPage = () => {
     );
   }, [formData.password, formData.passwordConfirm]);
 
-  // 비밀번호 강도 검증
   const passwordChecks = useMemo(() => {
     return PASSWORD_RULES.map((rule) => ({
       ...rule,
@@ -169,19 +176,47 @@ const SignupPage = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
     if (name === "email") {
       setEmailStatus(null);
     }
   };
 
-  // 이메일 중복 체크 (debounce)
+  const handleProfileImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setError("프로필 이미지는 5MB 이하만 가능합니다.");
+      return;
+    }
+    setProfileImage(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setProfilePreview(reader.result);
+    reader.readAsDataURL(file);
+  };
+
+  const removeProfileImage = () => {
+    setProfileImage(null);
+    setProfilePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const formatPhone = (value) => {
+    const numbers = value.replace(/[^0-9]/g, "");
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+  };
+
+  const handlePhoneChange = (e) => {
+    const formatted = formatPhone(e.target.value);
+    setFormData((prev) => ({ ...prev, phone: formatted }));
+  };
+
   const checkEmail = useCallback(async (email) => {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setEmailStatus(null);
       return;
     }
-
     setEmailStatus("checking");
     try {
       const result = await checkEmailAvailable(email);
@@ -206,6 +241,8 @@ const SignupPage = () => {
 
   const validate = () => {
     if (!requiredAgreed) return "필수 약관에 동의해주세요.";
+    if (!formData.name) return "이름을 입력하세요.";
+    if (!formData.nickname) return "닉네임을 입력하세요.";
     if (!formData.email) return "이메일을 입력하세요.";
     if (!formData.password) return "비밀번호를 입력하세요.";
     if (!allPasswordRulesPassed) return "비밀번호가 보안 요구사항을 충족하지 않습니다.";
@@ -217,7 +254,7 @@ const SignupPage = () => {
   };
 
   const isSubmitDisabled =
-    isLoading || passwordMismatch || !allPasswordRulesPassed || emailStatus === "taken" || !requiredAgreed;
+    isLoading || passwordMismatch || !allPasswordRulesPassed || emailStatus === "taken" || !requiredAgreed || !formData.name || !formData.nickname;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -228,7 +265,16 @@ const SignupPage = () => {
 
     setIsLoading(true);
     try {
-      await signup(formData.email, formData.password);
+      await signup({
+        email: formData.email,
+        password: formData.password,
+        name: formData.name,
+        nickname: formData.nickname,
+        birth: formData.birth || null,
+        gender: formData.gender || null,
+        phone: formData.phone ? formData.phone.replace(/-/g, "") : null,
+        profileImage: profileImage,
+      });
       setShowLoginPopup(true);
     } catch (err) {
       console.error("Signup error:", err);
@@ -240,23 +286,20 @@ const SignupPage = () => {
 
   const renderEmailFeedback = () => {
     if (!emailStatus || emailStatus === "error") return null;
-
-    const styles = { fontSize: 13, marginTop: 4 };
-
     if (emailStatus === "checking") {
-      return <div style={{ ...styles, color: "#6c757d" }}>확인 중...</div>;
+      return <div className="text-xs text-gray-500 mt-1">확인 중...</div>;
     }
     if (emailStatus === "available") {
       return (
-        <div style={{ ...styles, color: "#198754" }}>
-          <FaCheck size={12} /> 사용 가능한 이메일입니다.
+        <div className="text-xs mt-1 flex items-center gap-1 text-admin-green-dark">
+          <FaCheck size={10} /> 사용 가능한 이메일입니다.
         </div>
       );
     }
     if (emailStatus === "taken") {
       return (
-        <div style={{ ...styles, color: "#dc3545" }}>
-          <FaTimes size={12} /> 이미 사용 중인 이메일입니다.
+        <div className="text-xs mt-1 flex items-center gap-1 text-red-600">
+          <FaTimes size={10} /> 이미 사용 중인 이메일입니다.
         </div>
       );
     }
@@ -265,215 +308,348 @@ const SignupPage = () => {
 
   return (
     <>
-      <Container className="py-5" style={{ maxWidth: 420 }}>
-        <Row className="justify-content-center">
-          <Col xs={12} className="text-center">
-            <div className="mb-3">
-              <h2 style={{ fontSize: 24, fontWeight: 600 }}>회원가입</h2>
-              <div className="text-secondary" style={{ fontSize: 14 }}>
-                가입 후 바로 로그인할 수 있어요
+      <div className="min-h-screen bg-white">
+        <div className="max-w-[563px] mx-auto px-[15px]">
+
+          {/* 헤더 */}
+          <div className="flex items-center relative py-4">
+            <button
+              className="bg-transparent border-none p-0 cursor-pointer flex items-center justify-center text-gray-800 absolute left-0 hover:text-green-primary"
+              onClick={() => navigate(-1)}
+              type="button"
+            >
+              <IoIosArrowBack size={24} />
+            </button>
+            <h1 className="text-xl font-semibold text-gray-800 m-0 w-full text-center">
+              회원가입
+            </h1>
+          </div>
+
+          <p className="text-center text-sm text-gray-400 m-0 mb-6">
+            가입 후 바로 로그인할 수 있어요
+          </p>
+
+          {/* 프로필 이미지 */}
+          <div className="flex justify-center mb-5">
+            <div
+              className="relative w-[120px] h-[120px] rounded-full border-[3px] border-green-primary overflow-hidden flex items-center justify-center bg-gray-50 cursor-pointer group"
+              onClick={() => !isLoading && fileInputRef.current?.click()}
+            >
+              {profilePreview ? (
+                <img
+                  src={profilePreview}
+                  alt="프로필 미리보기"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <FaCamera size={32} className="text-gray-300" />
+              )}
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:!opacity-100 transition-opacity duration-300">
+                <FaCamera size={28} className="text-white" />
+              </div>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              onChange={handleProfileImageChange}
+              className="hidden"
+              disabled={isLoading}
+            />
+          </div>
+
+          {profilePreview && (
+            <div className="flex justify-center mb-5">
+              <button
+                type="button"
+                onClick={removeProfileImage}
+                disabled={isLoading}
+                className="px-4 py-2 border border-gray-300 rounded-lg bg-white text-sm text-gray-400 cursor-pointer transition-all duration-300 hover:!bg-red-100 hover:!text-red-600 hover:!border-transparent focus:outline-none"
+              >
+                이미지 삭제
+              </button>
+            </div>
+          )}
+
+          <p className="text-center text-xs text-gray-400 m-0 mb-8">
+            JPG, PNG, GIF, WebP (최대 5MB)
+          </p>
+
+          <form onSubmit={handleSubmit}>
+            {error && (
+              <div className="mb-4 py-3 px-4 rounded-lg text-sm bg-red-50 border border-red-200 text-red-600">
+                {error}
+              </div>
+            )}
+
+            {/* 기본 정보 */}
+            <div className="mb-8">
+              <h2 className="text-lg font-semibold text-gray-800 mb-5">기본 정보</h2>
+
+              <div className="flex items-center mb-4">
+                <label className="w-[100px] flex-shrink-0 text-sm text-gray-800 font-medium">
+                  이름 <span className="text-red-600">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="이름을 입력하세요"
+                  disabled={isLoading}
+                  required
+                  className="flex-1 border border-green-primary rounded-lg py-3 px-4 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-primary"
+                />
+              </div>
+
+              <div className="flex items-center mb-4">
+                <label className="w-[100px] flex-shrink-0 text-sm text-gray-800 font-medium">
+                  닉네임 <span className="text-red-600">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="nickname"
+                  value={formData.nickname}
+                  onChange={handleChange}
+                  placeholder="닉네임을 입력하세요"
+                  disabled={isLoading}
+                  required
+                  className="flex-1 border border-green-primary rounded-lg py-3 px-4 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-primary"
+                />
+              </div>
+
+              <div className="flex items-center mb-4">
+                <label className="w-[100px] flex-shrink-0 text-sm text-gray-800 font-medium">
+                  생년월일
+                </label>
+                <div
+                  className="flex-1 relative flex items-center py-3 px-4 border border-gray-300 rounded-lg bg-white cursor-pointer"
+                  onClick={() => dateInputRef.current?.showPicker()}
+                >
+                  <span className={`flex-1 text-sm ${formData.birth ? 'text-gray-800' : 'text-gray-400'}`}>
+                    {formData.birth || '선택하세요'}
+                  </span>
+                  <BsCalendar className="text-lg text-gray-800" />
+                  <input
+                    ref={dateInputRef}
+                    type="date"
+                    name="birth"
+                    value={formData.birth}
+                    onChange={handleChange}
+                    disabled={isLoading}
+                    className="absolute top-0 left-0 w-full h-full opacity-0 pointer-events-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center mb-4">
+                <label className="w-[100px] flex-shrink-0 text-sm text-gray-800 font-medium">
+                  성별
+                </label>
+                <select
+                  name="gender"
+                  value={formData.gender}
+                  onChange={handleChange}
+                  disabled={isLoading}
+                  className="flex-1 border border-gray-300 rounded-lg py-3 px-4 text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-primary appearance-none cursor-pointer"
+                >
+                  <option value="">선택하세요</option>
+                  <option value="M">남성</option>
+                  <option value="F">여성</option>
+                </select>
+              </div>
+
+              <div className="flex items-center mb-4">
+                <label className="w-[100px] flex-shrink-0 text-sm text-gray-800 font-medium">
+                  휴대폰 번호
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handlePhoneChange}
+                  placeholder="010-1234-5678"
+                  maxLength={13}
+                  disabled={isLoading}
+                  className="flex-1 border border-gray-300 rounded-lg py-3 px-4 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-primary"
+                />
               </div>
             </div>
 
-            <img
-              src="/logo.svg"
-              alt="Green Fire Logo"
-              style={{ width: 140, marginBottom: "2rem" }}
-            />
+            {/* 계정 정보 */}
+            <div className="mb-8">
+              <h2 className="text-lg font-semibold text-gray-800 mb-5">계정 정보</h2>
 
-            <Form onSubmit={handleSubmit} className="text-start">
-              {error && (
-                <div className="alert alert-danger" role="alert">
-                  {error}
+              {/* 이메일 */}
+              <div className="flex items-start mb-4">
+                <label className="w-[100px] flex-shrink-0 text-sm text-gray-800 font-medium pt-3">
+                  이메일 <span className="text-red-600">*</span>
+                </label>
+                <div className="flex-1">
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    onBlur={handleEmailBlur}
+                    placeholder="이메일을 입력하세요"
+                    disabled={isLoading}
+                    required
+                    className="w-full border border-green-primary rounded-lg py-3 px-4 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-primary"
+                  />
+                  {renderEmailFeedback()}
                 </div>
-              )}
+              </div>
 
-              <Form.Group className="mb-3">
-                <Form.Label style={{ fontSize: 14, fontWeight: 600 }}>이메일</Form.Label>
-                <Form.Control
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  onBlur={handleEmailBlur}
-                  placeholder="이메일을 입력하세요"
-                  style={{ height: 48, fontSize: 14, borderColor: "#dee2e6" }}
-                  disabled={isLoading}
-                  required
-                />
-                {renderEmailFeedback()}
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label style={{ fontSize: 14, fontWeight: 600 }}>비밀번호</Form.Label>
-                <InputGroup>
-                  <Form.Control
-                    type={showPw1 ? "text" : "password"}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="비밀번호를 입력하세요"
-                    style={{ height: 48, fontSize: 14, borderColor: "#dee2e6" }}
-                    disabled={isLoading}
-                    required
-                  />
-                  <Button
-                    variant="outline-secondary"
-                    onClick={() => setShowPw1((v) => !v)}
-                    style={{ borderColor: "#dee2e6" }}
-                    disabled={isLoading}
-                  >
-                    {showPw1 ? <FaEyeSlash /> : <FaEye />}
-                  </Button>
-                </InputGroup>
-
-                {formData.password.length > 0 && (
-                  <div style={{ marginTop: 8 }}>
-                    {passwordChecks.map((rule) => (
-                      <div
-                        key={rule.key}
-                        style={{
-                          fontSize: 13,
-                          color: rule.passed ? "#198754" : "#dc3545",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 4,
-                          marginBottom: 2,
-                        }}
-                      >
-                        {rule.passed ? <FaCheck size={11} /> : <FaTimes size={11} />}
-                        {rule.label}
-                      </div>
-                    ))}
+              {/* 비밀번호 */}
+              <div className="flex items-start mb-4">
+                <label className="w-[100px] flex-shrink-0 text-sm text-gray-800 font-medium pt-3">
+                  비밀번호 <span className="text-red-600">*</span>
+                </label>
+                <div className="flex-1">
+                  <div className="flex gap-2">
+                    <input
+                      type={showPw1 ? "text" : "password"}
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      placeholder="비밀번호를 입력하세요"
+                      disabled={isLoading}
+                      required
+                      className="flex-1 border border-green-primary rounded-lg py-3 px-4 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPw1((v) => !v)}
+                      disabled={isLoading}
+                      className="px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-600 cursor-pointer transition-all duration-300 hover:!bg-green-badge hover:!text-green-dark hover:!border-transparent focus:outline-none"
+                    >
+                      {showPw1 ? <FaEyeSlash /> : <FaEye />}
+                    </button>
                   </div>
-                )}
-              </Form.Group>
+                  {formData.password.length > 0 && (
+                    <div className="mt-2">
+                      {passwordChecks.map((rule) => (
+                        <div
+                          key={rule.key}
+                          className={`flex items-center gap-1 mb-0.5 text-xs ${rule.passed ? 'text-admin-green-dark' : 'text-red-600'}`}
+                        >
+                          {rule.passed ? <FaCheck size={10} /> : <FaTimes size={10} />}
+                          {rule.label}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
 
-              <Form.Group className="mb-4">
-                <Form.Label style={{ fontSize: 14, fontWeight: 600 }}>
-                  비밀번호 확인
-                </Form.Label>
-                <InputGroup>
-                  <Form.Control
-                    type={showPw2 ? "text" : "password"}
-                    name="passwordConfirm"
-                    value={formData.passwordConfirm}
-                    onChange={handleChange}
-                    placeholder="비밀번호를 한번 더 입력하세요"
-                    style={{ height: 48, fontSize: 14, borderColor: "#dee2e6" }}
-                    disabled={isLoading}
-                    isInvalid={passwordMismatch}
-                    required
+              {/* 비밀번호 확인 */}
+              <div className="flex items-start mb-4">
+                <label className="w-[100px] flex-shrink-0 text-sm text-gray-800 font-medium pt-3">
+                  비밀번호 확인 <span className="text-red-600">*</span>
+                </label>
+                <div className="flex-1">
+                  <div className="flex gap-2">
+                    <input
+                      type={showPw2 ? "text" : "password"}
+                      name="passwordConfirm"
+                      value={formData.passwordConfirm}
+                      onChange={handleChange}
+                      placeholder="비밀번호를 한번 더 입력하세요"
+                      disabled={isLoading}
+                      required
+                      className={`flex-1 border rounded-lg py-3 px-4 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-primary ${
+                        passwordMismatch ? 'border-red-600' : 'border-green-primary'
+                      }`}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPw2((v) => !v)}
+                      disabled={isLoading}
+                      className="px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-600 cursor-pointer transition-all duration-300 hover:!bg-green-badge hover:!text-green-dark hover:!border-transparent focus:outline-none"
+                    >
+                      {showPw2 ? <FaEyeSlash /> : <FaEye />}
+                    </button>
+                  </div>
+                  {passwordMismatch && (
+                    <div className="mt-1 text-xs text-red-600">
+                      비밀번호가 일치하지 않습니다.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* 약관 동의 */}
+            <div className="mb-8">
+              <h2 className="text-lg font-semibold text-gray-800 mb-5">약관 동의</h2>
+              <div className="rounded-xl border border-gray-200 p-4">
+                <label className="flex items-center gap-3 cursor-pointer mb-3">
+                  <input
+                    type="checkbox"
+                    checked={agreements.service && agreements.privacy && agreements.marketing}
+                    onChange={(e) => handleAllAgree(e.target.checked)}
+                    className="w-[18px] h-[18px] cursor-pointer accent-green-primary"
                   />
-                  <Button
-                    variant="outline-secondary"
-                    onClick={() => setShowPw2((v) => !v)}
-                    style={{ borderColor: "#dee2e6" }}
-                    disabled={isLoading}
-                  >
-                    {showPw2 ? <FaEyeSlash /> : <FaEye />}
-                  </Button>
-                  <Form.Control.Feedback type="invalid">
-                    비밀번호가 일치하지 않습니다.
-                  </Form.Control.Feedback>
-                </InputGroup>
-              </Form.Group>
-
-              {/* 약관 동의 */}
-              <div
-                className="mb-4"
-                style={{
-                  border: "1px solid #dee2e6",
-                  borderRadius: 8,
-                  padding: "16px",
-                }}
-              >
-                <Form.Check
-                  type="checkbox"
-                  id="agree-all"
-                  label={
-                    <span style={{ fontWeight: 700, fontSize: 14 }}>
-                      전체 동의합니다
-                    </span>
-                  }
-                  checked={agreements.service && agreements.privacy && agreements.marketing}
-                  onChange={(e) => handleAllAgree(e.target.checked)}
-                  className="mb-2"
-                />
-                <hr style={{ margin: "8px 0 12px" }} />
+                  <span className="text-sm font-bold text-gray-800">전체 동의합니다</span>
+                </label>
+                <hr className="my-3 border-gray-200" />
 
                 {Object.entries(TERMS).map(([key, term]) => (
-                  <div key={key} style={{ marginBottom: 8 }}>
-                    <div className="d-flex align-items-center justify-content-between">
-                      <Form.Check
-                        type="checkbox"
-                        id={`agree-${key}`}
-                        label={
-                          <span style={{ fontSize: 13, color: term.required ? "#212529" : "#6c757d" }}>
-                            {term.label}
-                          </span>
-                        }
-                        checked={agreements[key]}
-                        onChange={(e) => handleAgreementChange(key, e.target.checked)}
-                      />
+                  <div key={key} className="mb-2">
+                    <div className="flex items-center justify-between">
+                      <label className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={agreements[key]}
+                          onChange={(e) => handleAgreementChange(key, e.target.checked)}
+                          className="w-4 h-4 cursor-pointer accent-green-primary"
+                        />
+                        <span className={`text-xs ${term.required ? 'text-gray-800' : 'text-gray-500'}`}>
+                          {term.label}
+                        </span>
+                      </label>
                       <span
-                        style={{
-                          fontSize: 12,
-                          color: "#6c757d",
-                          cursor: "pointer",
-                          textDecoration: "underline",
-                          whiteSpace: "nowrap",
-                          marginLeft: 8,
-                        }}
+                        className="text-xs text-gray-400 cursor-pointer underline ml-2 whitespace-nowrap"
                         onClick={() => setExpandedTerm(expandedTerm === key ? null : key)}
                       >
                         {expandedTerm === key ? "접기" : "보기"}
                       </span>
                     </div>
                     {expandedTerm === key && (
-                      <div
-                        style={{
-                          marginTop: 8,
-                          padding: "10px 12px",
-                          backgroundColor: "#f8f9fa",
-                          borderRadius: 6,
-                          fontSize: 12,
-                          color: "#495057",
-                          maxHeight: 160,
-                          overflowY: "auto",
-                          whiteSpace: "pre-wrap",
-                          lineHeight: 1.6,
-                        }}
-                      >
+                      <div className="mt-2 rounded-lg whitespace-pre-wrap py-2.5 px-3 bg-gray-50 text-xs text-gray-600 max-h-40 overflow-y-auto leading-relaxed">
                         {term.content}
                       </div>
                     )}
                   </div>
                 ))}
               </div>
+            </div>
 
-              <Button
+            {/* 버튼 영역 */}
+            <div className="flex flex-col gap-3 mb-[60px]">
+              <button
                 type="submit"
-                variant="success"
-                className="w-100"
-                style={{ height: 48, fontSize: 16, fontWeight: 600 }}
                 disabled={isSubmitDisabled}
+                className={`w-full py-3.5 border rounded-lg text-sm font-medium cursor-pointer transition-all duration-300 focus:outline-none ${
+                  isSubmitDisabled
+                    ? 'bg-gray-100 text-gray-400 border-gray-200 !cursor-not-allowed'
+                    : 'bg-green-primary text-white border-transparent hover:bg-green-dark'
+                }`}
               >
                 {isLoading ? "가입 중..." : "회원가입"}
-              </Button>
-
-              <div className="text-center mt-3" style={{ fontSize: 14 }}>
-                <span
-                  style={{ cursor: "pointer", color: "#198754", fontWeight: 700 }}
-                  onClick={() => navigate("/")}
-                >
-                  메인으로 돌아가기
-                </span>
-              </div>
-            </Form>
-          </Col>
-        </Row>
-      </Container>
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="w-full py-3.5 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray-600 cursor-pointer transition-all duration-300 hover:!bg-green-badge hover:!text-green-dark hover:!border-transparent focus:outline-none"
+              >
+                메인으로 돌아가기
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
 
       <LoginPopup
         show={showLoginPopup}

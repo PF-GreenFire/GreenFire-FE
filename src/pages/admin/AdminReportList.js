@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Table,
-  Button,
-  Badge,
-  Spinner,
-  Alert,
-  Form,
-  Modal,
-} from 'react-bootstrap';
+import { Spinner, Modal } from 'react-bootstrap';
 import { FaCheck, FaEye } from 'react-icons/fa';
 import { useSearchParams } from 'react-router-dom';
 import { getReports, handleReport } from '../../apis/reportAPI';
+
+const STATUS_FILTERS = [
+  { key: '', label: '전체' },
+  { key: 'PENDING', label: '대기' },
+  { key: 'HANDLED_DELETED', label: '삭제처리' },
+  { key: 'HANDLED_SUSPENDED', label: '정지처리' },
+  { key: 'DISMISSED', label: '기각' },
+];
 
 const AdminReportList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -61,12 +61,10 @@ const AdminReportList = () => {
     }
   };
 
-  const handleStatusFilterChange = (e) => {
-    const newStatus = e.target.value;
+  const handleStatusFilterChange = (newStatus) => {
     setStatusFilter(newStatus);
     setPage(1);
     setReports([]);
-    // URL 쿼리 파라미터 업데이트
     if (newStatus) {
       setSearchParams({ status: newStatus });
     } else {
@@ -101,7 +99,6 @@ const AdminReportList = () => {
         adminNote: adminNote || null,
       });
 
-      // 목록에서 해당 신고 상태 업데이트
       setReports((prev) =>
         prev.map((r) =>
           r.id === selectedReport.id
@@ -135,294 +132,300 @@ const AdminReportList = () => {
     });
   };
 
-  const getStatusBadge = (status) => {
+  const getStatusStyle = (status) => {
     switch (status) {
-      case 'PENDING':
-        return <Badge bg="warning" text="dark">대기</Badge>;
-      case 'HANDLED_DELETED':
-        return <Badge bg="danger">삭제처리</Badge>;
-      case 'HANDLED_SUSPENDED':
-        return <Badge bg="dark">정지처리</Badge>;
-      case 'DISMISSED':
-        return <Badge bg="secondary">기각</Badge>;
-      default:
-        return <Badge bg="secondary">{status}</Badge>;
+      case 'PENDING': return { tw: 'bg-warning-light text-warning', label: '대기' };
+      case 'HANDLED_DELETED': return { tw: 'bg-danger-light text-danger', label: '삭제처리' };
+      case 'HANDLED_SUSPENDED': return { tw: 'bg-purple-light text-purple', label: '정지처리' };
+      case 'DISMISSED': return { tw: 'bg-gray-100 text-gray-400', label: '기각' };
+      default: return { tw: 'bg-gray-100 text-gray-400', label: status };
     }
   };
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case 'PENDING':
-        return '처리 대기';
-      case 'HANDLED_DELETED':
-        return '처리완료-삭제';
-      case 'HANDLED_SUSPENDED':
-        return '처리완료-정지';
-      case 'DISMISSED':
-        return '기각';
-      default:
-        return status;
+      case 'PENDING': return '처리 대기';
+      case 'HANDLED_DELETED': return '처리완료-삭제';
+      case 'HANDLED_SUSPENDED': return '처리완료-정지';
+      case 'DISMISSED': return '기각';
+      default: return status;
     }
   };
 
-  const getResourceTypeBadge = (type) => {
+  const getResourceTypeStyle = (type) => {
     switch (type) {
-      case 'POST':
-        return <Badge bg="primary">게시글</Badge>;
-      case 'COMMENT':
-        return <Badge bg="info">댓글</Badge>;
-      case 'CHALLENGE':
-        return <Badge bg="success">챌린지</Badge>;
-      default:
-        return <Badge bg="secondary">{type}</Badge>;
+      case 'POST': return { tw: 'bg-info-light text-info', label: '게시글' };
+      case 'COMMENT': return { tw: 'bg-[#E0F7FA] text-[#00796B]', label: '댓글' };
+      case 'CHALLENGE': return { tw: 'bg-green-lighter text-admin-green', label: '챌린지' };
+      default: return { tw: 'bg-gray-100 text-gray-400', label: type };
     }
   };
 
-  const getCategoryBadge = (category) => {
+  const getCategoryStyle = (category) => {
     switch (category) {
-      case 'SPAM':
-        return <Badge bg="secondary">스팸</Badge>;
-      case 'INAPPROPRIATE':
-        return <Badge bg="warning" text="dark">부적절</Badge>;
-      case 'HARASSMENT':
-        return <Badge bg="danger">괴롭힘</Badge>;
-      case 'OTHER':
-        return <Badge bg="dark">기타</Badge>;
-      default:
-        return <Badge bg="secondary">{category}</Badge>;
+      case 'SPAM': return { tw: 'bg-gray-100 text-gray-400', label: '스팸' };
+      case 'INAPPROPRIATE': return { tw: 'bg-warning-light text-warning', label: '부적절' };
+      case 'HARASSMENT': return { tw: 'bg-danger-light text-danger', label: '괴롭힘' };
+      case 'OTHER': return { tw: 'bg-gray-200 text-gray-600', label: '기타' };
+      default: return { tw: 'bg-gray-100 text-gray-400', label: category };
     }
   };
+
+  const Badge = ({ style, label }) => (
+    <span className={`${style.tw} py-0.5 px-3 rounded-full text-[11px] font-semibold`}>
+      {label || style.label}
+    </span>
+  );
 
   return (
     <div>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h5 className="fw-bold mb-0">신고 관리</h5>
-        <Form.Select
-          value={statusFilter}
-          onChange={handleStatusFilterChange}
-          style={{ width: '150px', fontSize: '13px' }}
-        >
-          <option value="">전체</option>
-          <option value="PENDING">대기</option>
-          <option value="HANDLED_DELETED">삭제처리</option>
-          <option value="HANDLED_SUSPENDED">정지처리</option>
-          <option value="DISMISSED">기각</option>
-        </Form.Select>
+      <h5 className="font-extrabold mb-5 text-lg text-gray-900">
+        신고 관리
+      </h5>
+
+      {/* 상태 필터 - pill 버튼 그룹 */}
+      <div className="flex gap-2 mb-5 overflow-x-auto pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
+        {STATUS_FILTERS.map((filter) => (
+          <button
+            key={filter.key}
+            onClick={() => handleStatusFilterChange(filter.key)}
+            className={`border-none py-2 px-[18px] rounded-full text-[13px] cursor-pointer whitespace-nowrap transition-all duration-200 ${
+              statusFilter === filter.key
+                ? 'bg-admin-green text-white font-bold shadow-[0_2px_8px_rgba(30,158,87,0.3)]'
+                : 'bg-white text-gray-500 font-medium shadow-card'
+            }`}
+          >
+            {filter.label}
+          </button>
+        ))}
       </div>
 
       {error && (
-        <Alert variant="danger" dismissible onClose={() => setError(null)}>
+        <div className="bg-danger-light border border-danger/30 text-danger rounded-xl px-4 py-3 text-sm mb-4">
           {error}
-        </Alert>
+          <button onClick={() => setError(null)} className="float-right text-danger font-bold ml-2">&times;</button>
+        </div>
       )}
 
-      <div style={{ overflowX: 'auto' }}>
-        <Table hover size="sm" style={{ fontSize: '12px' }}>
-          <thead>
-            <tr className="table-light">
-              <th style={{ width: '8%' }}>ID</th>
-              <th style={{ width: '10%' }}>대상</th>
-              <th style={{ width: '10%' }}>유형</th>
-              <th style={{ width: '20%' }}>신고자</th>
-              <th style={{ width: '25%' }}>사유</th>
-              <th style={{ width: '10%' }}>상태</th>
-              <th style={{ width: '12%' }}>신고일</th>
-              <th style={{ width: '5%' }}>조치</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reports.map((report) => (
-              <tr key={report.id}>
-                <td>{report.id}</td>
-                <td>
-                  {getResourceTypeBadge(report.resourceType)}
-                  <div className="text-muted" style={{ fontSize: '10px' }}>
-                    #{report.resourceId}
-                  </div>
-                </td>
-                <td>{getCategoryBadge(report.category)}</td>
-                <td className="text-truncate" style={{ maxWidth: '120px' }}>
-                  {report.reporterEmail || report.reporterId}
-                </td>
-                <td
-                  className="text-truncate"
-                  style={{ maxWidth: '180px' }}
-                  title={report.reason}
-                >
-                  {report.reason}
-                </td>
-                <td>{getStatusBadge(report.status)}</td>
-                <td className="text-muted">{formatDate(report.createdAt)}</td>
-                <td>
-                  {report.status === 'PENDING' ? (
-                    <Button
-                      variant="outline-success"
-                      size="sm"
-                      className="p-1"
+      {/* 신고 카드 리스트 */}
+      <div className="flex flex-col gap-3">
+        {reports.map((report) => {
+          const isPending = report.status === 'PENDING';
+          return (
+            <div
+              key={report.id}
+              className={`bg-white rounded-2xl py-[18px] px-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover ${
+                isPending ? 'border-l-4 border-l-warning shadow-[0_2px_12px_rgba(245,124,0,0.1)]' : 'border-l-4 border-l-transparent shadow-card'
+              }`}
+            >
+              {/* 상단: 뱃지들 */}
+              <div className="flex items-center gap-1.5 mb-2.5 flex-wrap">
+                <Badge style={getResourceTypeStyle(report.resourceType)} />
+                <Badge style={getCategoryStyle(report.category)} />
+                <Badge style={getStatusStyle(report.status)} />
+                <span className="text-[11px] text-gray-300 ml-auto">
+                  #{report.id}
+                </span>
+              </div>
+
+              {/* 사유 */}
+              <p className="text-sm text-gray-700 mb-2.5 leading-relaxed line-clamp-2">
+                {report.reason}
+              </p>
+
+              {/* 하단: 메타 + 액션 */}
+              <div className="flex justify-between items-center">
+                <div className="text-xs text-gray-400">
+                  <span>{report.reporterEmail || report.reporterId}</span>
+                  <span className="mx-2">|</span>
+                  <span>{formatDate(report.createdAt)}</span>
+                </div>
+                <div>
+                  {isPending ? (
+                    <button
                       onClick={() => openHandleModal(report)}
-                      title="처리"
+                      className="flex items-center gap-1 bg-admin-green text-white border-none rounded-[10px] py-1.5 px-3.5 text-xs font-semibold cursor-pointer transition-all duration-200 hover:bg-admin-green-dark"
                     >
-                      <FaCheck size={10} />
-                    </Button>
+                      <FaCheck size={10} /> 처리
+                    </button>
                   ) : (
-                    <Button
-                      variant="outline-secondary"
-                      size="sm"
-                      className="p-1"
+                    <button
                       onClick={() => openHandleModal(report)}
-                      title="상세"
+                      className="flex items-center gap-1 bg-gray-100 text-gray-400 border-none rounded-[10px] py-1.5 px-3.5 text-xs font-semibold cursor-pointer transition-all duration-200 hover:bg-gray-200"
                     >
-                      <FaEye size={10} />
-                    </Button>
+                      <FaEye size={10} /> 상세
+                    </button>
                   )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {loading && (
-        <div className="text-center py-3">
-          <Spinner animation="border" variant="success" size="sm" />
+        <div className="text-center py-4">
+          <Spinner animation="border" variant="success" />
         </div>
       )}
 
       {!loading && reports.length === 0 && (
-        <div className="text-center py-4 text-muted">
-          신고 내역이 없습니다.
+        <div className="text-center py-[60px] px-5 text-gray-400">
+          <div className="text-[48px] mb-4">
+            <span role="img" aria-label="empty">&#128203;</span>
+          </div>
+          <p className="m-0 text-sm">신고 내역이 없습니다.</p>
         </div>
       )}
 
       {!loading && hasMore && reports.length > 0 && (
-        <div className="text-center py-2">
-          <Button
-            variant="outline-success"
-            size="sm"
+        <div className="text-center mt-5">
+          <button
             onClick={() => setPage((prev) => prev + 1)}
+            className="bg-transparent border-2 border-admin-green text-admin-green rounded-full py-2.5 px-8 font-semibold text-[13px] transition-all duration-200 hover:bg-admin-green hover:text-white"
           >
             더보기
-          </Button>
+          </button>
         </div>
       )}
 
       {/* 처리 모달 */}
       <Modal show={showHandleModal} onHide={closeHandleModal} centered>
-        <Modal.Header closeButton>
-          <Modal.Title style={{ fontSize: '16px', fontWeight: 600 }}>
-            신고 {selectedReport?.status === 'PENDING' ? '처리' : '상세'}
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedReport && (
-            <div style={{ fontSize: '13px' }}>
-              <div className="mb-3">
-                <strong>대상:</strong>{' '}
-                {getResourceTypeBadge(selectedReport.resourceType)}{' '}
-                <span className="text-muted">#{selectedReport.resourceId}</span>
-              </div>
-              <div className="mb-3">
-                <strong>신고 유형:</strong> {getCategoryBadge(selectedReport.category)}
-              </div>
-              <div className="mb-3">
-                <strong>신고자:</strong>{' '}
-                {selectedReport.reporterEmail || selectedReport.reporterId}
-              </div>
-              <div className="mb-3">
-                <strong>신고 사유:</strong>
-                <div
-                  className="mt-1 p-2 bg-light rounded"
-                  style={{ whiteSpace: 'pre-wrap' }}
-                >
-                  {selectedReport.reason}
-                </div>
-              </div>
-              <div className="mb-3">
-                <strong>신고일:</strong> {formatDate(selectedReport.createdAt)}
-              </div>
-
-              {selectedReport.status === 'PENDING' ? (
-                <>
-                  <hr />
-                  <Form.Group className="mb-3">
-                    <Form.Label style={{ fontWeight: 500 }}>
-                      처리 결과 <span className="text-danger">*</span>
-                    </Form.Label>
-                    <Form.Select
-                      value={handleStatus}
-                      onChange={(e) => setHandleStatus(e.target.value)}
-                      disabled={handleLoading}
-                    >
-                      <option value="">선택해주세요</option>
-                      <option value="HANDLED_DELETED">삭제 처리</option>
-                      <option value="HANDLED_SUSPENDED">사용자 정지</option>
-                      <option value="DISMISSED">기각</option>
-                    </Form.Select>
-                  </Form.Group>
-                  <Form.Group className="mb-3">
-                    <Form.Label style={{ fontWeight: 500 }}>관리자 메모</Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={3}
-                      value={adminNote}
-                      onChange={(e) => setAdminNote(e.target.value)}
-                      placeholder="처리 내용을 메모해주세요. (선택)"
-                      disabled={handleLoading}
-                      style={{ resize: 'none' }}
-                    />
-                  </Form.Group>
-                </>
-              ) : (
-                <>
-                  <hr />
-                  <div className="mb-2">
-                    <strong>처리 결과:</strong> {getStatusBadge(selectedReport.status)}
+        <div className="rounded-[20px] overflow-hidden">
+          <Modal.Header closeButton className="border-none pt-6 px-6 pb-3">
+            <Modal.Title className="text-lg font-bold">
+              신고 {selectedReport?.status === 'PENDING' ? '처리' : '상세'}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="px-6 pb-6 pt-3">
+            {selectedReport && (
+              <div>
+                {/* 신고 정보 카드 */}
+                <div className="bg-gray-50 rounded-[14px] p-[18px] mb-5">
+                  <div className="flex gap-1.5 mb-3.5 flex-wrap">
+                    <Badge style={getResourceTypeStyle(selectedReport.resourceType)} />
+                    <span className="text-xs text-gray-400">
+                      #{selectedReport.resourceId}
+                    </span>
                   </div>
-                  {selectedReport.handledByEmail && (
-                    <div className="mb-2">
-                      <strong>처리자:</strong> {selectedReport.handledByEmail}
+                  <div className="mb-2.5">
+                    <span className="text-xs text-gray-400">신고 유형</span>
+                    <div className="mt-1">
+                      <Badge style={getCategoryStyle(selectedReport.category)} />
                     </div>
-                  )}
-                  {selectedReport.handledAt && (
-                    <div className="mb-2">
-                      <strong>처리일:</strong> {formatDate(selectedReport.handledAt)}
+                  </div>
+                  <div className="mb-2.5">
+                    <span className="text-xs text-gray-400">신고자</span>
+                    <div className="text-sm text-gray-800 mt-0.5">
+                      {selectedReport.reporterEmail || selectedReport.reporterId}
                     </div>
-                  )}
-                  {selectedReport.adminNote && (
-                    <div className="mb-2">
-                      <strong>관리자 메모:</strong>
-                      <div className="mt-1 p-2 bg-light rounded">
-                        {selectedReport.adminNote}
+                  </div>
+                  <div className="mb-2.5">
+                    <span className="text-xs text-gray-400">신고 사유</span>
+                    <div className="mt-1.5 p-3 bg-white rounded-[10px] text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
+                      {selectedReport.reason}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-xs text-gray-400">신고일</span>
+                    <div className="text-[13px] text-gray-600 mt-0.5">
+                      {formatDate(selectedReport.createdAt)}
+                    </div>
+                  </div>
+                </div>
+
+                {selectedReport.status === 'PENDING' ? (
+                  <>
+                    <div className="mb-3">
+                      <label className="font-semibold text-sm block mb-1">
+                        처리 결과 <span className="text-danger">*</span>
+                      </label>
+                      <select
+                        value={handleStatus}
+                        onChange={(e) => setHandleStatus(e.target.value)}
+                        disabled={handleLoading}
+                        className="w-full border border-gray-300 rounded-xl py-2.5 px-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-admin-green"
+                      >
+                        <option value="">선택해주세요</option>
+                        <option value="HANDLED_DELETED">삭제 처리</option>
+                        <option value="HANDLED_SUSPENDED">사용자 정지</option>
+                        <option value="DISMISSED">기각</option>
+                      </select>
+                    </div>
+                    <div className="mb-3">
+                      <label className="font-semibold text-sm block mb-1">관리자 메모</label>
+                      <textarea
+                        rows={3}
+                        value={adminNote}
+                        onChange={(e) => setAdminNote(e.target.value)}
+                        placeholder="처리 내용을 메모해주세요. (선택)"
+                        disabled={handleLoading}
+                        className="w-full border border-gray-300 rounded-xl py-3 px-3.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-admin-green"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div className="bg-gray-50 rounded-[14px] p-[18px]">
+                    <div className="mb-2.5">
+                      <span className="text-xs text-gray-400">처리 결과</span>
+                      <div className="mt-1">
+                        <Badge style={getStatusStyle(selectedReport.status)} />
                       </div>
                     </div>
-                  )}
-                </>
-              )}
-            </div>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="outline-secondary" size="sm" onClick={closeHandleModal}>
-            닫기
-          </Button>
-          {selectedReport?.status === 'PENDING' && (
-            <Button
-              variant="success"
-              size="sm"
-              onClick={submitHandle}
-              disabled={handleLoading}
+                    {selectedReport.handledByEmail && (
+                      <div className="mb-2.5">
+                        <span className="text-xs text-gray-400">처리자</span>
+                        <div className="text-sm text-gray-800 mt-0.5">
+                          {selectedReport.handledByEmail}
+                        </div>
+                      </div>
+                    )}
+                    {selectedReport.handledAt && (
+                      <div className="mb-2.5">
+                        <span className="text-xs text-gray-400">처리일</span>
+                        <div className="text-[13px] text-gray-600 mt-0.5">
+                          {formatDate(selectedReport.handledAt)}
+                        </div>
+                      </div>
+                    )}
+                    {selectedReport.adminNote && (
+                      <div>
+                        <span className="text-xs text-gray-400">관리자 메모</span>
+                        <div className="mt-1.5 p-3 bg-white rounded-[10px] text-sm text-gray-800">
+                          {selectedReport.adminNote}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer className="border-none px-6 pb-6 pt-0">
+            <button
+              onClick={closeHandleModal}
+              className="bg-gray-100 text-gray-500 border-none rounded-xl py-2.5 px-5 font-semibold text-[13px] hover:bg-gray-200 transition-all"
             >
-              {handleLoading ? (
-                <>
-                  <Spinner animation="border" size="sm" className="me-1" />
-                  처리 중...
-                </>
-              ) : (
-                '처리 완료'
-              )}
-            </Button>
-          )}
-        </Modal.Footer>
+              닫기
+            </button>
+            {selectedReport?.status === 'PENDING' && (
+              <button
+                onClick={submitHandle}
+                disabled={handleLoading}
+                className="bg-admin-green text-white border-none rounded-xl py-2.5 px-5 font-semibold text-[13px] hover:bg-admin-green-dark transition-all disabled:opacity-50"
+              >
+                {handleLoading ? (
+                  <span className="flex items-center">
+                    <Spinner animation="border" size="sm" className="mr-1" />
+                    처리 중...
+                  </span>
+                ) : (
+                  '처리 완료'
+                )}
+              </button>
+            )}
+          </Modal.Footer>
+        </div>
       </Modal>
     </div>
   );

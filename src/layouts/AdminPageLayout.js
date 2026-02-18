@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Nav, Button } from 'react-bootstrap';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { FaHome } from 'react-icons/fa';
+import { FaChartPie, FaBullhorn, FaUsers, FaFlag } from 'react-icons/fa';
+import NavBar from '../components/common/NavBar';
 import { getAccessiblePages } from '../apis/adminAPI';
+
+const TAB_ICONS = {
+  '/admin/dashboard': <FaChartPie size={14} />,
+  '/admin/notices': <FaBullhorn size={14} />,
+  '/admin/members': <FaUsers size={14} />,
+  '/admin/reports': <FaFlag size={14} />,
+};
 
 const defaultTabs = [
   { pageName: '대시보드', pageUrl: '/admin/dashboard' },
@@ -36,51 +43,34 @@ function AdminPageLayout() {
   const activeKey = location.pathname;
 
   return (
-    <div style={{ backgroundColor: '#f8f9fa', minHeight: '100vh' }}>
-      {/* 상단 헤더 */}
-      <div style={{ backgroundColor: '#1E9E57', padding: '12px 0' }}>
-        <Container style={{ maxWidth: '800px' }}>
-          <div className="d-flex justify-content-between align-items-center">
-            <h5 className="fw-bold text-white mb-0">관리자</h5>
-            <Button
-              variant="outline-light"
-              size="sm"
-              onClick={() => navigate('/')}
-            >
-              <FaHome className="me-1" /> 홈으로
-            </Button>
-          </div>
-        </Container>
-      </div>
+    <div className="min-h-screen">
+      <NavBar />
 
       {/* 탭 네비게이션 */}
-      <div style={{ backgroundColor: '#fff', borderBottom: '1px solid #dee2e6' }}>
-        <Container style={{ maxWidth: '800px' }}>
-          <Nav variant="tabs" activeKey={activeKey} style={{ border: 'none' }}>
-            {tabs.map((tab) => (
-              <Nav.Item key={tab.pageUrl}>
-                <Nav.Link
-                  eventKey={tab.pageUrl}
-                  onClick={() => navigate(tab.pageUrl)}
-                  style={{
-                    fontSize: '14px',
-                    fontWeight: activeKey === tab.pageUrl ? 700 : 400,
-                    color: activeKey === tab.pageUrl ? '#1E9E57' : '#666',
-                    borderBottom: activeKey === tab.pageUrl ? '2px solid #1E9E57' : 'none',
-                  }}
-                >
-                  {tab.pageName}
-                </Nav.Link>
-              </Nav.Item>
-            ))}
-          </Nav>
-        </Container>
+      <div className="flex gap-1.5 py-4 px-[15px] max-w-[600px] mx-auto">
+        {tabs.map((tab) => {
+          const isActive = activeKey === tab.pageUrl;
+          return (
+            <button
+              key={tab.pageUrl}
+              onClick={() => navigate(tab.pageUrl)}
+              className={`flex items-center gap-1 border-none py-1.5 px-3 rounded-full text-xs font-semibold cursor-pointer whitespace-nowrap transition-all duration-200 ${
+                isActive
+                  ? 'bg-admin-green text-white'
+                  : 'bg-gray-100 text-gray-500'
+              }`}
+            >
+              {TAB_ICONS[tab.pageUrl] || null}
+              {tab.pageName}
+            </button>
+          );
+        })}
       </div>
 
       {/* 페이지 콘텐츠 */}
-      <Container style={{ maxWidth: '800px', padding: '20px 15px' }}>
+      <div className="max-w-[600px] mx-auto py-6 px-[15px]">
         <Outlet />
-      </Container>
+      </div>
     </div>
   );
 }

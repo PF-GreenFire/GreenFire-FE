@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import AppBar from "../components/common/AppBar";
-import MypageNavbar from "../components/mypage/MypageNavbar";
+import NavBar from "../components/common/NavBar";
 
 function MypageLayout() {
   // 현재 로케이션 불러오기
@@ -21,7 +21,7 @@ function MypageLayout() {
         position: "relative",
       }}
     >
-      <MypageNavbar />
+      <NavBar />
       <Container
         className="mt-3 flex-grow-1"
         style={{

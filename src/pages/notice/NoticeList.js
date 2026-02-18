@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Button, Spinner, Alert } from 'react-bootstrap';
+import { Spinner } from 'react-bootstrap';
 import { FaSearch, FaChevronLeft, FaPlus, FaEye, FaRegClock, FaImage } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { getNoticeList } from '../../apis/noticeAPI';
@@ -83,11 +83,11 @@ const NoticeList = () => {
     });
   };
 
-  const getCategoryStyle = (cat) => {
+  const getCategoryBadgeClasses = (cat) => {
     switch (cat) {
-      case 'EVENT': return { bg: '#FFF4E5', color: '#F57C00' };
-      case 'SYSTEM': return { bg: '#E3F2FD', color: '#1976D2' };
-      default: return { bg: '#E8F5E9', color: '#1E9E57' };
+      case 'EVENT': return 'bg-warning-light text-warning';
+      case 'SYSTEM': return 'bg-info-light text-info';
+      default: return 'bg-green-lighter text-admin-green';
     }
   };
 
@@ -101,97 +101,45 @@ const NoticeList = () => {
 
   // 히어로 카드 (첫 번째 공지)
   const HeroCard = ({ notice }) => {
-    const catStyle = getCategoryStyle(notice.noticeCategory);
+    const badgeClasses = getCategoryBadgeClasses(notice.noticeCategory);
     return (
       <div
         onClick={() => navigate(`/notices/${notice.noticeCode}`)}
+        className="relative rounded-[20px] overflow-hidden cursor-pointer mb-6 h-[220px] flex flex-col justify-end p-6"
         style={{
-          position: 'relative',
-          borderRadius: '20px',
-          overflow: 'hidden',
-          cursor: 'pointer',
-          marginBottom: '24px',
           boxShadow: '0 8px 30px rgba(0,0,0,0.08)',
           background: 'linear-gradient(135deg, #1E9E57 0%, #16a34a 100%)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          height: '220px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'flex-end',
-          padding: '24px',
         }}
       >
         {/* 우측 상단 뱃지 영역 */}
-        <div style={{ position: 'absolute', top: '16px', right: '16px', display: 'flex', gap: '8px' }}>
+        <div className="absolute top-4 right-4 flex gap-2">
           {notice.hasImages && (
-            <div style={{
-              background: 'rgba(255,255,255,0.25)',
-              backdropFilter: 'blur(4px)',
-              color: '#fff',
-              padding: '4px 10px',
-              borderRadius: '20px',
-              fontSize: '11px',
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-            }}>
+            <div className="flex items-center gap-1 text-white text-[11px] font-semibold px-2.5 py-1 rounded-[20px]"
+              style={{ background: 'rgba(255,255,255,0.25)', backdropFilter: 'blur(4px)' }}
+            >
               <FaImage size={10} />
             </div>
           )}
         </div>
 
         {notice.isImportant && (
-          <div style={{
-            position: 'absolute',
-            top: '16px',
-            left: '16px',
-            background: '#DC3545',
-            color: '#fff',
-            padding: '4px 12px',
-            borderRadius: '20px',
-            fontSize: '11px',
-            fontWeight: 700,
-          }}>
+          <div className="absolute top-4 left-4 bg-[#DC3545] text-white px-3 py-1 rounded-[20px] text-[11px] font-bold">
             중요
           </div>
         )}
-        <div style={{
-          display: 'inline-block',
-          background: catStyle.bg,
-          color: catStyle.color,
-          padding: '4px 12px',
-          borderRadius: '20px',
-          fontSize: '11px',
-          fontWeight: 600,
-          marginBottom: '12px',
-          width: 'fit-content',
-        }}>
+        <div className={`inline-block px-3 py-1 rounded-[20px] text-[11px] font-semibold mb-3 w-fit ${badgeClasses}`}>
           {getCategoryName(notice.noticeCategory)}
         </div>
-        <h2 style={{
-          color: '#fff',
-          fontSize: '20px',
-          fontWeight: 700,
-          marginBottom: '8px',
-          lineHeight: 1.3,
-          textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden',
-        }}>
+        <h2 className="text-white text-xl font-bold mb-2 leading-[1.3] line-clamp-2"
+          style={{ textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}
+        >
           {notice.noticeTitle}
         </h2>
-        <div style={{
-          display: 'flex',
-          gap: '16px',
-          color: 'rgba(255,255,255,0.8)',
-          fontSize: '12px',
-        }}>
-          <span><FaRegClock style={{ marginRight: '4px' }} />{formatDate(notice.createdAt)}</span>
-          <span><FaEye style={{ marginRight: '4px' }} />{notice.viewCount}</span>
+        <div className="flex gap-4 text-white/80 text-xs">
+          <span><FaRegClock className="inline mr-1" />{formatDate(notice.createdAt)}</span>
+          <span><FaEye className="inline mr-1" />{notice.viewCount}</span>
         </div>
       </div>
     );
@@ -199,96 +147,37 @@ const NoticeList = () => {
 
   // 일반 카드
   const NoticeCard = ({ notice }) => {
-    const catStyle = getCategoryStyle(notice.noticeCategory);
+    const badgeClasses = getCategoryBadgeClasses(notice.noticeCategory);
     return (
       <div
         onClick={() => navigate(`/notices/${notice.noticeCode}`)}
-        style={{
-          background: '#fff',
-          borderRadius: '16px',
-          overflow: 'hidden',
-          cursor: 'pointer',
-          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-          transition: 'transform 0.2s, box-shadow 0.2s',
-          height: '100%',
-          position: 'relative',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'translateY(-4px)';
-          e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.06)';
-        }}
+        className="bg-white rounded-2xl overflow-hidden cursor-pointer h-full relative transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
+        style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}
       >
         {/* 이미지 있음 표시 */}
         {notice.hasImages && (
-          <div style={{
-            position: 'absolute',
-            top: '10px',
-            right: '10px',
-            background: 'rgba(30, 158, 87, 0.1)',
-            color: '#1E9E57',
-            width: '28px',
-            height: '28px',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1,
-          }}>
+          <div className="absolute top-2.5 right-2.5 bg-admin-green/10 text-admin-green w-7 h-7 rounded-lg flex items-center justify-center z-[1]">
             <FaImage size={12} />
           </div>
         )}
 
-        <div style={{ padding: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px', flexWrap: 'wrap' }}>
-            <span style={{
-              background: catStyle.bg,
-              color: catStyle.color,
-              padding: '3px 10px',
-              borderRadius: '12px',
-              fontSize: '10px',
-              fontWeight: 600,
-            }}>
+        <div className="p-4">
+          <div className="flex items-center gap-1.5 mb-2.5 flex-wrap">
+            <span className={`px-2.5 py-[3px] rounded-xl text-[10px] font-semibold ${badgeClasses}`}>
               {getCategoryName(notice.noticeCategory)}
             </span>
             {notice.isImportant && (
-              <span style={{
-                background: '#FFEBEE',
-                color: '#DC3545',
-                padding: '3px 10px',
-                borderRadius: '12px',
-                fontSize: '10px',
-                fontWeight: 600,
-              }}>
+              <span className="bg-danger-light text-[#DC3545] px-2.5 py-[3px] rounded-xl text-[10px] font-semibold">
                 중요
               </span>
             )}
           </div>
-          <h3 style={{
-            fontSize: '14px',
-            fontWeight: 600,
-            color: '#222',
-            marginBottom: '12px',
-            lineHeight: 1.4,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-          }}>
+          <h3 className="text-sm font-semibold text-[#222] mb-3 leading-[1.4] line-clamp-2">
             {notice.noticeTitle}
           </h3>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            color: '#999',
-            fontSize: '11px',
-          }}>
+          <div className="flex justify-between items-center text-[#999] text-[11px]">
             <span>{formatDate(notice.createdAt)}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+            <span className="flex items-center gap-[3px]">
               <FaEye size={10} />{notice.viewCount}
             </span>
           </div>
@@ -299,70 +188,41 @@ const NoticeList = () => {
 
   return (
     <>
-      <Container style={{ maxWidth: '600px', padding: '0', paddingBottom: '100px', background: '#F8F9FA', minHeight: '100vh' }}>
+      <div className="max-w-[600px] mx-auto px-0 pb-[100px] bg-[#F8F9FA] min-h-screen">
         {/* 헤더 */}
-        <div style={{
-          padding: '16px 20px',
-          background: '#fff',
-          position: 'sticky',
-          top: 0,
-          zIndex: 100,
-          borderBottom: '1px solid #f0f0f0',
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}>
-            <Button variant="link" className="p-0" style={{ color: '#222' }} onClick={() => navigate("/")}>
+        <div className="px-5 py-4 bg-white sticky top-0 z-[100] border-b border-[#f0f0f0]">
+          <div className="flex items-center justify-between">
+            <button className="p-0 text-[#222] bg-transparent border-none cursor-pointer" onClick={() => navigate("/")}>
               <FaChevronLeft size={18} />
-            </Button>
-            <h1 style={{ fontSize: '18px', fontWeight: 700, margin: 0 }}>공지사항</h1>
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-              <Button variant="link" className="p-0" style={{ color: '#222' }} onClick={() => setShowSearch(v => !v)}>
+            </button>
+            <h1 className="text-lg font-bold m-0">공지사항</h1>
+            <div className="flex gap-4 items-center">
+              <button className="p-0 text-[#222] bg-transparent border-none cursor-pointer" onClick={() => setShowSearch(v => !v)}>
                 <FaSearch size={18} />
-              </Button>
+              </button>
               {role === 'ADMIN' && (
-                <Button variant="link" className="p-0" style={{ color: '#1E9E57' }} onClick={() => navigate('/notices/new')}>
+                <button className="p-0 text-admin-green bg-transparent border-none cursor-pointer" onClick={() => navigate('/notices/new')}>
                   <FaPlus size={18} />
-                </Button>
+                </button>
               )}
             </div>
           </div>
 
           {/* 검색 */}
           {showSearch && (
-            <div style={{ marginTop: '12px' }}>
-              <div style={{
-                display: 'flex',
-                background: '#F5F5F5',
-                borderRadius: '12px',
-                overflow: 'hidden',
-              }}>
+            <div className="mt-3">
+              <div className="flex bg-[#F5F5F5] rounded-xl overflow-hidden">
                 <input
                   type="text"
                   placeholder="검색어를 입력하세요"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   onKeyDown={handleKeyPress}
-                  style={{
-                    flex: 1,
-                    border: 'none',
-                    background: 'transparent',
-                    padding: '12px 16px',
-                    fontSize: '14px',
-                    outline: 'none',
-                  }}
+                  className="flex-1 border-none bg-transparent py-3 px-4 text-sm outline-none"
                 />
                 <button
                   onClick={handleSearch}
-                  style={{
-                    border: 'none',
-                    background: '#1E9E57',
-                    color: '#fff',
-                    padding: '12px 16px',
-                    cursor: 'pointer',
-                  }}
+                  className="border-none bg-admin-green text-white py-3 px-4 cursor-pointer"
                 >
                   <FaSearch />
                 </button>
@@ -372,14 +232,7 @@ const NoticeList = () => {
         </div>
 
         {/* 카테고리 탭 */}
-        <div style={{
-          display: 'flex',
-          gap: '8px',
-          padding: '16px 20px',
-          background: '#fff',
-          borderBottom: '1px solid #f0f0f0',
-          overflowX: 'auto',
-        }}>
+        <div className="flex gap-2 px-5 py-4 bg-white border-b border-[#f0f0f0] overflow-x-auto">
           {[
             { key: 'ALL', label: '전체' },
             { key: 'NOTICE', label: '공지' },
@@ -388,18 +241,11 @@ const NoticeList = () => {
             <button
               key={cat.key}
               onClick={() => handleCategoryChange(cat.key)}
-              style={{
-                border: 'none',
-                background: category === cat.key ? '#1E9E57' : '#F5F5F5',
-                color: category === cat.key ? '#fff' : '#666',
-                padding: '8px 20px',
-                borderRadius: '20px',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                transition: 'all 0.2s',
-              }}
+              className={`border-none px-5 py-2 rounded-[20px] text-[13px] font-semibold cursor-pointer whitespace-nowrap transition-all duration-200 ${
+                category === cat.key
+                  ? 'bg-admin-green text-white'
+                  : 'bg-[#F5F5F5] text-[#666]'
+              }`}
             >
               {cat.label}
             </button>
@@ -407,11 +253,17 @@ const NoticeList = () => {
         </div>
 
         {/* 콘텐츠 */}
-        <div style={{ padding: '20px' }}>
+        <div className="p-5">
           {error && (
-            <Alert variant="danger" dismissible onClose={() => setError(null)}>
-              {error}
-            </Alert>
+            <div className="bg-danger-light text-danger border border-danger/20 rounded-xl px-4 py-3 mb-4 flex items-center justify-between">
+              <span>{error}</span>
+              <button
+                onClick={() => setError(null)}
+                className="bg-transparent border-none text-danger text-lg cursor-pointer font-bold ml-2"
+              >
+                &times;
+              </button>
+            </div>
           )}
 
           {/* 히어로 (첫 번째 공지) */}
@@ -420,11 +272,7 @@ const NoticeList = () => {
           )}
 
           {/* 그리드 (나머지) */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '16px',
-          }}>
+          <div className="grid grid-cols-2 gap-4">
             {notices.slice(page === 1 ? 1 : 0).map((notice) => (
               <NoticeCard key={notice.noticeCode} notice={notice} />
             ))}
@@ -437,46 +285,32 @@ const NoticeList = () => {
           )}
 
           {!loading && notices.length === 0 && (
-            <div style={{
-              textAlign: 'center',
-              padding: '60px 20px',
-              color: '#999',
-            }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>
+            <div className="text-center py-[60px] px-5 text-[#999]">
+              <div className="text-5xl mb-4">
                 <span role="img" aria-label="empty">📭</span>
               </div>
-              <p style={{ margin: 0, fontSize: '15px' }}>등록된 공지사항이 없습니다.</p>
+              <p className="m-0 text-[15px]">등록된 공지사항이 없습니다.</p>
             </div>
           )}
 
           {!loading && hasMore && notices.length > 0 && (
-            <div style={{ textAlign: 'center', marginTop: '24px' }}>
-              <Button
-                variant="outline-success"
-                style={{
-                  borderRadius: '24px',
-                  padding: '10px 32px',
-                  fontWeight: 600,
-                }}
+            <div className="text-center mt-6">
+              <button
+                className="border border-admin-green text-admin-green bg-transparent rounded-3xl px-8 py-2.5 font-semibold cursor-pointer hover:bg-admin-green hover:text-white transition-all duration-200"
                 onClick={() => setPage(prev => prev + 1)}
               >
                 더 보기
-              </Button>
+              </button>
             </div>
           )}
 
           {!loading && !hasMore && notices.length > 0 && (
-            <div style={{
-              textAlign: 'center',
-              padding: '24px',
-              color: '#bbb',
-              fontSize: '13px',
-            }}>
+            <div className="text-center p-6 text-[#bbb] text-[13px]">
               모든 공지사항을 확인했습니다
             </div>
           )}
         </div>
-      </Container>
+      </div>
 
       <AppBar />
     </>

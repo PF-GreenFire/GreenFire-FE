@@ -70,7 +70,7 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const { data } = await api.post("/api/v1/auth/refresh");
+        const { data } = await api.post("/api/auth/refresh");
         const newToken = data.accessToken;
         setAccessToken(newToken);
         processQueue(null, newToken);

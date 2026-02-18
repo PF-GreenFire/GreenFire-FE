@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Badge, Spinner, Alert, Form, InputGroup } from 'react-bootstrap';
+import { Spinner } from 'react-bootstrap';
 import { FaSearch } from 'react-icons/fa';
 import { getMembers, changeUserRole } from '../../apis/adminAPI';
+import MemberDetailModal from '../../components/admin/MemberDetailModal';
 
 const AdminMemberList = () => {
   const [members, setMembers] = useState([]);
@@ -11,6 +12,8 @@ const AdminMemberList = () => {
   const [hasMore, setHasMore] = useState(true);
   const [searchInput, setSearchInput] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [showDetail, setShowDetail] = useState(false);
 
   const PAGE_SIZE = 20;
 
@@ -71,99 +74,163 @@ const AdminMemberList = () => {
     });
   };
 
-  const getStatusBadge = (member) => {
-    if (member.deletedAt) return <Badge bg="danger">탈퇴</Badge>;
-    return <Badge bg="success">활성</Badge>;
+  const getInitial = (email) => {
+    if (!email) return '?';
+    return email.charAt(0).toUpperCase();
   };
 
-  const getRoleBadge = (role) => {
+  const getRoleStyle = (role) => {
     switch (role) {
-      case 'ADMIN': return <Badge bg="danger">관리자</Badge>;
-      case 'MANAGER': return <Badge bg="warning" text="dark">매니저</Badge>;
-      default: return <Badge bg="secondary">일반</Badge>;
+      case 'ADMIN': return { bg: 'bg-danger-light', color: 'text-danger', label: '관리자' };
+      case 'MANAGER': return { bg: 'bg-warning-light', color: 'text-warning', label: '매니저' };
+      default: return { bg: 'bg-gray-100', color: 'text-gray-400', label: '일반' };
     }
+  };
+
+  const getStatusStyle = (member) => {
+    if (member.deletedAt) return { bg: 'bg-danger-light', color: 'text-danger', label: '탈퇴' };
+    return { bg: 'bg-green-lighter', color: 'text-admin-green', label: '활성' };
+  };
+
+  const openMemberDetail = (userId) => {
+    setSelectedUserId(userId);
+    setShowDetail(true);
   };
 
   return (
     <div>
-      <h5 className="fw-bold mb-3">회원 관리</h5>
+      <h5 className="font-extrabold mb-5 text-lg text-gray-900">
+        회원 관리
+      </h5>
 
-      <InputGroup className="mb-3">
-        <Form.Control
+      {/* 검색바 */}
+      <div className="flex bg-white rounded-[14px] overflow-hidden shadow-card mb-5">
+        <div className="flex items-center pl-4 text-gray-400">
+          <FaSearch size={14} />
+        </div>
+        <input
+          type="text"
           placeholder="이메일 검색..."
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           onKeyDown={handleKeyPress}
+          className="flex-1 border-none bg-transparent p-3 text-sm outline-none"
         />
-        <Button variant="outline-success" onClick={handleSearch}>
-          <FaSearch />
-        </Button>
-      </InputGroup>
+        <button
+          onClick={handleSearch}
+          className="border-none bg-admin-green text-white py-3 px-5 cursor-pointer font-semibold text-[13px]"
+        >
+          검색
+        </button>
+      </div>
 
-      {error && <Alert variant="danger" dismissible onClose={() => setError(null)}>{error}</Alert>}
+      {error && (
+        <div className="bg-danger-light border border-danger/30 text-danger rounded-xl px-4 py-3 text-sm mb-4">
+          {error}
+          <button onClick={() => setError(null)} className="float-right text-danger font-bold ml-2">&times;</button>
+        </div>
+      )}
 
-      <div style={{ overflowX: 'auto' }}>
-        <Table hover size="sm" style={{ fontSize: '13px' }}>
-          <thead>
-            <tr className="table-light">
-              <th style={{ width: '35%' }}>이메일</th>
-              <th style={{ width: '15%' }}>역할</th>
-              <th style={{ width: '15%' }}>가입일</th>
-              <th style={{ width: '10%' }}>상태</th>
-              <th style={{ width: '25%' }}>역할 변경</th>
-            </tr>
-          </thead>
-          <tbody>
-            {members.map((member) => (
-              <tr key={member.userId}>
-                <td className="text-truncate" style={{ maxWidth: '150px' }}>
-                  {member.email}
-                </td>
-                <td>{getRoleBadge(member.role)}</td>
-                <td className="text-muted">{formatDate(member.createdAt)}</td>
-                <td>{getStatusBadge(member)}</td>
-                <td>
-                  <Form.Select
-                    size="sm"
+      {/* 회원 카드 리스트 */}
+      <div className="flex flex-col gap-3">
+        {members.map((member) => {
+          const roleStyle = getRoleStyle(member.role);
+          const statusStyle = getStatusStyle(member);
+          return (
+            <div
+              key={member.userId}
+              className="bg-white rounded-2xl py-4 px-5 shadow-card transition-all duration-200 cursor-pointer hover:-translate-y-0.5 hover:shadow-card-hover"
+            >
+              <div
+                className="flex items-center gap-3.5"
+                onClick={() => openMemberDetail(member.userId)}
+              >
+                {/* 이니셜 아바타 */}
+                <div
+                  className="w-11 h-11 rounded-full text-white flex items-center justify-center text-lg font-bold shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #1E9E57, #16a34a)' }}
+                >
+                  {getInitial(member.email)}
+                </div>
+
+                {/* 회원 정보 */}
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-gray-900 overflow-hidden text-ellipsis whitespace-nowrap">
+                    {member.email}
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                    <span className={`${roleStyle.bg} ${roleStyle.color} py-0.5 px-2.5 rounded-full text-[11px] font-semibold`}>
+                      {roleStyle.label}
+                    </span>
+                    <span className={`${statusStyle.bg} ${statusStyle.color} py-0.5 px-2.5 rounded-full text-[11px] font-semibold`}>
+                      {statusStyle.label}
+                    </span>
+                    <span className="text-[11px] text-gray-400">
+                      {formatDate(member.createdAt)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 역할 변경 셀렉트 */}
+              <div
+                className="mt-3 pt-3 border-t border-gray-100"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className="text-xs text-gray-400 whitespace-nowrap">
+                    역할 변경
+                  </span>
+                  <select
                     value={member.role}
                     onChange={(e) => handleRoleChange(member.userId, e.target.value)}
                     disabled={!!member.deletedAt}
-                    style={{ fontSize: '12px' }}
+                    className="text-xs rounded-[10px] border border-gray-200 max-w-[140px] py-1.5 px-2 focus:outline-none focus:ring-2 focus:ring-admin-green"
                   >
                     <option value="USER">USER</option>
                     <option value="MANAGER">MANAGER</option>
                     <option value="ADMIN">ADMIN</option>
-                  </Form.Select>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+                  </select>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {loading && (
-        <div className="text-center py-3">
-          <Spinner animation="border" variant="success" size="sm" />
+        <div className="text-center py-4">
+          <Spinner animation="border" variant="success" />
         </div>
       )}
 
       {!loading && members.length === 0 && (
-        <div className="text-center py-4 text-muted">
-          회원이 없습니다.
+        <div className="text-center py-[60px] px-5 text-gray-400">
+          <div className="text-[48px] mb-4">
+            <span role="img" aria-label="empty">&#128100;</span>
+          </div>
+          <p className="m-0 text-sm">회원이 없습니다.</p>
         </div>
       )}
 
       {!loading && hasMore && members.length > 0 && (
-        <div className="text-center py-2">
-          <Button
-            variant="outline-success"
-            size="sm"
+        <div className="text-center mt-5">
+          <button
             onClick={() => setPage(prev => prev + 1)}
+            className="bg-transparent border-2 border-admin-green text-admin-green rounded-full py-2.5 px-8 font-semibold text-[13px] transition-all duration-200 hover:bg-admin-green hover:text-white"
           >
             더보기
-          </Button>
+          </button>
         </div>
       )}
+
+      {/* 회원 상세 모달 */}
+      <MemberDetailModal
+        show={showDetail}
+        onHide={() => setShowDetail(false)}
+        userId={selectedUserId}
+        onMemberUpdated={fetchMembers}
+      />
     </div>
   );
 };

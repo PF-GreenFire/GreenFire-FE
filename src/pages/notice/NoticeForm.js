@@ -1,6 +1,6 @@
 // pages/notice/NoticeForm.js
 import React, { useEffect, useMemo, useState } from 'react';
-import { Container, Form, Button, Spinner, Alert, Card, Badge } from 'react-bootstrap';
+import { Spinner } from 'react-bootstrap';
 import { FaChevronLeft, FaSave, FaTimes, FaImage, FaPaperclip, FaEye } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createNotice, updateNotice, getNoticeDetail } from '../../apis/noticeAPI';
@@ -167,9 +167,9 @@ const NoticeForm = ({ mode }) => {
 
   const getCategoryStyle = (cat) => {
     switch (cat) {
-      case 'EVENT': return { bg: '#FFF4E5', color: '#F57C00' };
-      case 'SYSTEM': return { bg: '#E3F2FD', color: '#1976D2' };
-      default: return { bg: '#E8F5E9', color: '#1E9E57' };
+      case 'EVENT': return 'bg-warning-light text-warning';
+      case 'SYSTEM': return 'bg-info-light text-info';
+      default: return 'bg-green-lighter text-admin-green';
     }
   };
 
@@ -184,185 +184,138 @@ const NoticeForm = ({ mode }) => {
   const isImageFile = (fileName) => /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(fileName);
   const getImageUrl = (path) => `${API_URL}/uploads/${path}`;
 
-  const catStyle = getCategoryStyle(form.noticeCategory);
-
   // 미리보기에서 보여줄 모든 이미지
   const previewExistingImages = existingImages.filter((img) => isImageFile(img.originName));
   const previewNewImages = filePreviews.filter((p) => p.isImage);
 
   return (
     <>
-      <Container style={{ maxWidth: '600px', padding: '0', paddingBottom: '90px', background: '#F8F9FA', minHeight: '100vh' }}>
+      <div className="max-w-[600px] mx-auto pb-[90px] bg-gray-50 min-h-screen">
         {/* 상단바 */}
-        <div
-          style={{
-            height: '56px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0 20px',
-            position: 'sticky',
-            top: 0,
-            background: '#fff',
-            zIndex: 10,
-            borderBottom: '1px solid #f0f0f0',
-          }}
-        >
-          <Button
-            variant="link"
-            className="p-0"
-            style={{ color: '#222', textDecoration: 'none' }}
+        <div className="h-14 flex items-center justify-between px-5 sticky top-0 bg-white z-10 border-b border-gray-100">
+          <button
+            className="p-0 text-gray-900 bg-transparent border-none"
             onClick={() => (isEdit ? navigate(`/notices/${noticeCode}`) : navigate('/notices'))}
             disabled={loading}
           >
             <FaChevronLeft size={18} />
-          </Button>
+          </button>
 
-          <div style={{ fontWeight: 700, fontSize: '17px', letterSpacing: '-0.3px' }}>
+          <div className="font-bold text-[17px] tracking-tight">
             {isEdit ? '공지사항 수정' : '공지사항 등록'}
           </div>
 
-          <div style={{ width: 18 }} />
+          <div className="w-[18px]" />
         </div>
 
-        <div style={{ padding: '20px' }}>
+        <div className="p-5">
           {error && (
-            <Alert variant="danger" dismissible onClose={() => setError(null)} style={{ borderRadius: '12px' }}>
+            <div className="bg-danger-light border border-danger/30 text-danger rounded-xl px-4 py-3 text-sm mb-4">
               {error}
-            </Alert>
+              <button onClick={() => setError(null)} className="float-right text-danger font-bold ml-2">&times;</button>
+            </div>
           )}
 
           {/* 입력 폼 */}
-          <Card className="border-0" style={{
-            borderRadius: '20px',
-            overflow: 'hidden',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
-          }}>
-            <Card.Body style={{ padding: '24px 20px' }}>
-              <Form.Group className="mb-3">
-                <Form.Label style={{ fontSize: '13px', fontWeight: 700, color: '#555' }}>제목</Form.Label>
-                <Form.Control
+          <div className="bg-white rounded-[20px] overflow-hidden" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+            <div className="py-6 px-5">
+              <div className="mb-3">
+                <label className="text-[13px] font-bold text-gray-600 block mb-1">제목</label>
+                <input
                   value={form.noticeTitle}
                   onChange={(e) => handleChange('noticeTitle', e.target.value)}
                   placeholder="제목을 입력하세요"
                   disabled={loading}
-                  style={{ borderRadius: '12px', padding: '12px 16px', border: '1px solid #E0E0E0' }}
+                  className="w-full rounded-xl py-3 px-4 border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-admin-green focus:border-admin-green"
                 />
-              </Form.Group>
+              </div>
 
-              <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-                <Form.Group style={{ flex: 1 }}>
-                  <Form.Label style={{ fontSize: '13px', fontWeight: 700, color: '#555' }}>카테고리</Form.Label>
-                  <Form.Select
+              <div className="flex gap-3 mb-4">
+                <div className="flex-1">
+                  <label className="text-[13px] font-bold text-gray-600 block mb-1">카테고리</label>
+                  <select
                     value={form.noticeCategory}
                     onChange={(e) => handleChange('noticeCategory', e.target.value)}
                     disabled={loading}
-                    style={{ borderRadius: '12px', padding: '12px 16px', border: '1px solid #E0E0E0' }}
+                    className="w-full rounded-xl py-3 px-4 border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-admin-green"
                   >
                     <option value="NOTICE">공지</option>
                     <option value="EVENT">이벤트</option>
                     <option value="SYSTEM">시스템</option>
-                  </Form.Select>
-                </Form.Group>
+                  </select>
+                </div>
 
-                <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '4px' }}>
-                  <Form.Check
-                    type="switch"
-                    id="important-switch"
-                    label={<span style={{ fontSize: '13px', fontWeight: 600, color: '#DC3545' }}>중요</span>}
-                    checked={form.isImportant}
-                    onChange={(e) => handleChange('isImportant', e.target.checked)}
-                    disabled={loading}
-                  />
+                <div className="flex items-end pb-1">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.isImportant}
+                      onChange={(e) => handleChange('isImportant', e.target.checked)}
+                      disabled={loading}
+                      className="w-4 h-4 accent-danger"
+                    />
+                    <span className="text-[13px] font-semibold text-danger">중요</span>
+                  </label>
                 </div>
               </div>
 
               {form.noticeCategory === 'EVENT' && (
-                <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-                  <Form.Group style={{ flex: 1 }}>
-                    <Form.Label style={{ fontSize: '13px', fontWeight: 700, color: '#555' }}>시작일</Form.Label>
-                    <Form.Control
+                <div className="flex gap-3 mb-4">
+                  <div className="flex-1">
+                    <label className="text-[13px] font-bold text-gray-600 block mb-1">시작일</label>
+                    <input
                       type="datetime-local"
                       value={form.startDate}
                       onChange={(e) => handleChange('startDate', e.target.value)}
                       disabled={loading}
-                      style={{ borderRadius: '12px', border: '1px solid #E0E0E0' }}
+                      className="w-full rounded-xl py-2.5 px-4 border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-admin-green"
                     />
-                  </Form.Group>
-                  <Form.Group style={{ flex: 1 }}>
-                    <Form.Label style={{ fontSize: '13px', fontWeight: 700, color: '#555' }}>종료일</Form.Label>
-                    <Form.Control
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-[13px] font-bold text-gray-600 block mb-1">종료일</label>
+                    <input
                       type="datetime-local"
                       value={form.endDate}
                       onChange={(e) => handleChange('endDate', e.target.value)}
                       disabled={loading}
-                      style={{ borderRadius: '12px', border: '1px solid #E0E0E0' }}
+                      className="w-full rounded-xl py-2.5 px-4 border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-admin-green"
                     />
-                  </Form.Group>
+                  </div>
                 </div>
               )}
 
-              <Form.Group className="mb-3">
-                <Form.Label style={{ fontSize: '13px', fontWeight: 700, color: '#555' }}>내용</Form.Label>
-                <Form.Control
-                  as="textarea"
+              <div className="mb-3">
+                <label className="text-[13px] font-bold text-gray-600 block mb-1">내용</label>
+                <textarea
                   rows={10}
                   value={form.noticeContent}
                   onChange={(e) => handleChange('noticeContent', e.target.value)}
                   placeholder="내용을 입력하세요 (HTML 지원)"
                   disabled={loading}
-                  style={{
-                    borderRadius: '12px',
-                    padding: '14px 16px',
-                    border: '1px solid #E0E0E0',
-                    fontSize: '14px',
-                    lineHeight: 1.6,
-                  }}
+                  className="w-full rounded-xl py-3.5 px-4 border border-gray-200 text-sm leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-admin-green"
                 />
-              </Form.Group>
+              </div>
 
               {/* 기존 이미지 (수정 시) */}
               {isEdit && existingImages.length > 0 && (
-                <div style={{
-                  background: '#FAFAFA',
-                  borderRadius: '16px',
-                  padding: '16px',
-                  marginBottom: '16px',
-                  border: '1px solid #F0F0F0',
-                }}>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#555', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div className="bg-gray-50 rounded-2xl p-4 mb-4 border border-gray-100">
+                  <div className="text-[13px] font-bold text-gray-600 mb-3 flex items-center gap-1.5">
                     <FaImage size={12} />
                     <span>기존 첨부파일 ({existingImages.length})</span>
                   </div>
-                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <div className="flex gap-2.5 flex-wrap">
                     {existingImages.map((img) => (
-                      <div key={img.imageCode} style={{ position: 'relative' }}>
+                      <div key={img.imageCode} className="relative">
                         {isImageFile(img.originName) ? (
                           <img
                             src={getImageUrl(img.path)}
                             alt={img.originName}
-                            style={{
-                              width: '80px',
-                              height: '80px',
-                              objectFit: 'cover',
-                              borderRadius: '10px',
-                              border: '1px solid #E0E0E0',
-                            }}
+                            className="w-20 h-20 object-cover rounded-[10px] border border-gray-200"
                           />
                         ) : (
-                          <div style={{
-                            width: '80px',
-                            height: '80px',
-                            borderRadius: '10px',
-                            border: '1px solid #E0E0E0',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            background: '#fff',
-                          }}>
-                            <FaPaperclip size={16} color="#999" />
-                            <span style={{ fontSize: '9px', color: '#999', marginTop: '4px', textAlign: 'center', padding: '0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
+                          <div className="w-20 h-20 rounded-[10px] border border-gray-200 flex flex-col items-center justify-center bg-white">
+                            <FaPaperclip size={16} className="text-gray-400" />
+                            <span className="text-[9px] text-gray-400 mt-1 text-center px-1 overflow-hidden text-ellipsis whitespace-nowrap w-full">
                               {img.originName}
                             </span>
                           </div>
@@ -374,36 +327,16 @@ const NoticeForm = ({ mode }) => {
               )}
 
               {/* 새 파일 첨부 */}
-              <div style={{
-                background: '#FAFAFA',
-                borderRadius: '16px',
-                padding: '16px',
-                marginBottom: '20px',
-                border: '1px dashed #D0D0D0',
-              }}>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: '#555', marginBottom: '12px' }}>
+              <div className="bg-gray-50 rounded-2xl p-4 mb-5 border border-dashed border-gray-300">
+                <div className="text-[13px] font-bold text-gray-600 mb-3">
                   파일 첨부
                 </div>
 
                 <label
                   htmlFor="file-input"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    padding: '12px',
-                    background: '#fff',
-                    borderRadius: '12px',
-                    border: '1px solid #E0E0E0',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    fontSize: '13px',
-                    color: '#666',
-                    transition: 'all 0.2s',
-                    marginBottom: newFiles.length > 0 ? '14px' : 0,
-                  }}
+                  className={`flex items-center justify-center gap-2 p-3 bg-white rounded-xl border border-gray-200 text-[13px] text-gray-500 transition-all duration-200 ${loading ? 'cursor-not-allowed' : 'cursor-pointer hover:bg-gray-50'} ${newFiles.length > 0 ? 'mb-3.5' : ''}`}
                 >
-                  <FaImage size={14} color="#1E9E57" />
+                  <FaImage size={14} className="text-admin-green" />
                   <span>파일 선택하기</span>
                 </label>
                 <input
@@ -413,46 +346,24 @@ const NoticeForm = ({ mode }) => {
                   accept="image/*,.pdf,.doc,.docx"
                   onChange={handleFileChange}
                   disabled={loading}
-                  style={{ display: 'none' }}
+                  className="hidden"
                 />
 
                 {/* 선택된 파일 미리보기 */}
                 {filePreviews.length > 0 && (
-                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                  <div className="flex gap-2.5 flex-wrap">
                     {filePreviews.map((preview, idx) => (
-                      <div
-                        key={idx}
-                        style={{
-                          position: 'relative',
-                          width: '80px',
-                        }}
-                      >
+                      <div key={idx} className="relative w-20">
                         {preview.isImage ? (
                           <img
                             src={preview.url}
                             alt={preview.name}
-                            style={{
-                              width: '80px',
-                              height: '80px',
-                              objectFit: 'cover',
-                              borderRadius: '10px',
-                              border: '1px solid #E0E0E0',
-                            }}
+                            className="w-20 h-20 object-cover rounded-[10px] border border-gray-200"
                           />
                         ) : (
-                          <div style={{
-                            width: '80px',
-                            height: '80px',
-                            borderRadius: '10px',
-                            border: '1px solid #E0E0E0',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            background: '#fff',
-                          }}>
-                            <FaPaperclip size={16} color="#999" />
-                            <span style={{ fontSize: '9px', color: '#999', marginTop: '4px', textAlign: 'center', padding: '0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', width: '100%' }}>
+                          <div className="w-20 h-20 rounded-[10px] border border-gray-200 flex flex-col items-center justify-center bg-white">
+                            <FaPaperclip size={16} className="text-gray-400" />
+                            <span className="text-[9px] text-gray-400 mt-1 text-center px-1 overflow-hidden text-ellipsis whitespace-nowrap w-full">
                               {preview.name}
                             </span>
                           </div>
@@ -460,24 +371,11 @@ const NoticeForm = ({ mode }) => {
                         {/* 삭제 버튼 */}
                         <div
                           onClick={() => removeNewFile(idx)}
-                          style={{
-                            position: 'absolute',
-                            top: '-6px',
-                            right: '-6px',
-                            width: '20px',
-                            height: '20px',
-                            background: '#DC3545',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer',
-                            boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
-                          }}
+                          className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-danger rounded-full flex items-center justify-center cursor-pointer shadow"
                         >
-                          <FaTimes size={10} color="#fff" />
+                          <FaTimes size={10} className="text-white" />
                         </div>
-                        <div style={{ fontSize: '10px', color: '#999', marginTop: '4px', textAlign: 'center' }}>
+                        <div className="text-[10px] text-gray-400 mt-1 text-center">
                           {formatFileSize(preview.size)}
                         </div>
                       </div>
@@ -487,161 +385,93 @@ const NoticeForm = ({ mode }) => {
               </div>
 
               {/* 등록/수정 버튼 */}
-              <Button
-                variant="success"
+              <button
                 onClick={handleSubmit}
                 disabled={loading}
-                style={{
-                  width: '100%',
-                  borderRadius: '14px',
-                  padding: '14px',
-                  fontSize: '15px',
-                  fontWeight: 700,
-                }}
+                className="w-full rounded-[14px] py-3.5 text-[15px] font-bold bg-admin-green text-white hover:bg-admin-green-dark transition-all disabled:opacity-50"
               >
                 {loading ? (
-                  <>
-                    <Spinner size="sm" className="me-2" />
+                  <span className="flex items-center justify-center">
+                    <Spinner size="sm" className="mr-2" />
                     처리중...
-                  </>
+                  </span>
                 ) : (
-                  <>
-                    <FaSave className="me-1" />
+                  <span className="flex items-center justify-center">
+                    <FaSave className="mr-1" />
                     {isEdit ? '수정 저장' : '등록'}
-                  </>
+                  </span>
                 )}
-              </Button>
+              </button>
 
               {/* 미리보기 버튼 */}
-              <Button
-                variant="outline-secondary"
+              <button
                 onClick={() => setShowPreview(!showPreview)}
-                style={{
-                  width: '100%',
-                  borderRadius: '14px',
-                  padding: '12px',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  marginTop: '10px',
-                  border: '1.5px solid #D0D0D0',
-                  color: '#666',
-                }}
+                className="w-full rounded-[14px] py-3 text-sm font-semibold mt-2.5 border-[1.5px] border-gray-300 text-gray-500 bg-white hover:bg-gray-50 transition-all"
               >
-                <FaEye className="me-2" size={14} />
+                <FaEye className="inline mr-2" size={14} />
                 {showPreview ? '미리보기 닫기' : '미리보기'}
-              </Button>
-            </Card.Body>
-          </Card>
+              </button>
+            </div>
+          </div>
 
           {/* 미리보기 */}
           {showPreview && (
-            <Card className="border-0 mt-3" style={{
-              borderRadius: '20px',
-              overflow: 'hidden',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.06)',
-            }}>
-              <div style={{
-                background: '#1E9E57',
-                color: '#fff',
-                padding: '12px 20px',
-                fontSize: '13px',
-                fontWeight: 600,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}>
+            <div className="bg-white rounded-[20px] overflow-hidden mt-3" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
+              <div className="bg-admin-green text-white py-3 px-5 text-[13px] font-semibold flex justify-between items-center">
                 <span>미리보기</span>
                 <FaTimes
                   size={14}
-                  style={{ cursor: 'pointer' }}
+                  className="cursor-pointer"
                   onClick={() => setShowPreview(false)}
                 />
               </div>
-              <Card.Body style={{ padding: '24px 20px' }}>
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
-                  <span style={{
-                    background: catStyle.bg,
-                    color: catStyle.color,
-                    padding: '4px 12px',
-                    borderRadius: '20px',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                  }}>
+              <div className="py-6 px-5">
+                <div className="flex gap-2 mb-3.5">
+                  <span className={`py-1 px-3 rounded-full text-[11px] font-semibold ${getCategoryStyle(form.noticeCategory)}`}>
                     {getCategoryName(form.noticeCategory)}
                   </span>
                   {form.isImportant && (
-                    <span style={{
-                      background: '#FFEBEE',
-                      color: '#DC3545',
-                      padding: '4px 12px',
-                      borderRadius: '20px',
-                      fontSize: '11px',
-                      fontWeight: 600,
-                    }}>
+                    <span className="bg-danger-light text-danger py-1 px-3 rounded-full text-[11px] font-semibold">
                       중요
                     </span>
                   )}
                 </div>
 
-                <h5 style={{
-                  fontWeight: 700,
-                  color: '#111',
-                  marginBottom: '16px',
-                  lineHeight: 1.5,
-                  fontSize: '20px',
-                  letterSpacing: '-0.3px',
-                }}>
+                <h5 className="font-bold text-gray-900 mb-4 leading-relaxed text-xl tracking-tight">
                   {form.noticeTitle || '제목 없음'}
                 </h5>
 
-                <div style={{
-                  fontSize: '15px',
-                  lineHeight: 1.85,
-                  color: '#333',
-                  marginBottom: '20px',
-                  wordBreak: 'keep-all',
-                  paddingBottom: '16px',
-                  borderBottom: '1px solid #F0F0F0',
-                }}
-                  dangerouslySetInnerHTML={{ __html: form.noticeContent || '<span style="color:#bbb">내용이 없습니다.</span>' }}
+                <div
+                  className="text-[15px] leading-[1.85] text-gray-800 mb-5 break-keep pb-4 border-b border-gray-100"
+                  dangerouslySetInnerHTML={{ __html: form.noticeContent || '<span class="text-gray-300">내용이 없습니다.</span>' }}
                 />
 
                 {/* 기존 이미지 미리보기 */}
                 {previewExistingImages.map((img) => (
-                  <div key={img.imageCode} style={{
-                    background: '#F8F8F8',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    marginBottom: '10px',
-                  }}>
+                  <div key={img.imageCode} className="bg-gray-50 rounded-xl overflow-hidden mb-2.5">
                     <img
                       src={getImageUrl(img.path)}
                       alt={img.originName}
-                      style={{ width: '100%', display: 'block', borderRadius: '12px' }}
+                      className="w-full block rounded-xl"
                     />
                   </div>
                 ))}
 
                 {/* 새 이미지 미리보기 */}
                 {previewNewImages.map((p, idx) => (
-                  <div key={idx} style={{
-                    background: '#F8F8F8',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    marginBottom: '10px',
-                  }}>
+                  <div key={idx} className="bg-gray-50 rounded-xl overflow-hidden mb-2.5">
                     <img
                       src={p.url}
                       alt={p.name}
-                      style={{ width: '100%', display: 'block', borderRadius: '12px' }}
+                      className="w-full block rounded-xl"
                     />
                   </div>
                 ))}
-              </Card.Body>
-            </Card>
+              </div>
+            </div>
           )}
         </div>
-      </Container>
+      </div>
 
       <AppBar />
     </>

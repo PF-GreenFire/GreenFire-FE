@@ -5,7 +5,7 @@ import api from "./axios";
  * @param {Object} params - { page, limit, category, searchKeyword, userCode }
  */
 export const getNoticeList = async (params) => {
-  const { data } = await api.get("/api/v1/notices", { params });
+  const { data } = await api.get("/api/notices", { params });
   return data;
 };
 
@@ -16,7 +16,7 @@ export const getNoticeList = async (params) => {
  */
 export const getNoticeDetail = async (noticeCode, userCode) => {
   const params = userCode ? { userCode } : {};
-  const { data } = await api.get(`/api/v1/notices/${noticeCode}`, { params });
+  const { data } = await api.get(`/api/notices/${noticeCode}`, { params });
   return data;
 };
 
@@ -26,7 +26,7 @@ export const getNoticeDetail = async (noticeCode, userCode) => {
  * @param {string} userCode 
  */
 export const incrementNoticeView = async (noticeCode, userCode) => {
-  const { data } = await api.post(`/api/v1/notices/${noticeCode}/view`, { userCode });
+  const { data } = await api.post(`/api/notices/${noticeCode}/view`, { userCode });
   return data;
 };
 
@@ -36,7 +36,7 @@ export const incrementNoticeView = async (noticeCode, userCode) => {
  * @param {number} limit 
  */
 export const getRelatedNotices = async (noticeCode, limit = 5) => {
-  const { data } = await api.get(`/api/v1/notices/${noticeCode}/related`, { 
+  const { data } = await api.get(`/api/notices/${noticeCode}/related`, { 
     params: { limit } 
   });
   return data;
@@ -47,7 +47,7 @@ export const getRelatedNotices = async (noticeCode, limit = 5) => {
  * @param {number} attachmentCode 
  */
 export const getAttachmentDownloadUrl = (attachmentCode) => {
-  return `${process.env.REACT_APP_API_URL}/api/v1/notices/attachments/${attachmentCode}/download`;
+  return `${process.env.REACT_APP_API_URL}/api/notices/attachments/${attachmentCode}/download`;
 };
 
 /**
@@ -55,7 +55,7 @@ export const getAttachmentDownloadUrl = (attachmentCode) => {
  * @param {FormData} formData 
  */
 export const createNotice = async (formData) => {
-  const { data } = await api.post("/api/v1/notices", formData, {
+  const { data } = await api.post("/api/notices", formData, {
     headers: { "Content-Type": "multipart/form-data" }
   });
   return data;
@@ -67,7 +67,7 @@ export const createNotice = async (formData) => {
  * @param {FormData} formData 
  */
 export const updateNotice = async (noticeCode, formData) => {
-  const { data } = await api.put(`/api/v1/notices/${noticeCode}`, formData, {
+  const { data } = await api.put(`/api/notices/${noticeCode}`, formData, {
     headers: { "Content-Type": "multipart/form-data" }
   });
   return data;
@@ -78,6 +78,6 @@ export const updateNotice = async (noticeCode, formData) => {
  * @param {number} noticeCode 
  */
 export const deleteNotice = async (noticeCode) => {
-  const { data } = await api.delete(`/api/v1/notices/${noticeCode}`);
+  const { data } = await api.delete(`/api/notices/${noticeCode}`);
   return data;
 };
