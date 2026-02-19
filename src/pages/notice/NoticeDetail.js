@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Spinner, Collapse } from 'react-bootstrap';
-import { FaEye, FaUser, FaDownload, FaShare, FaChevronLeft, FaChevronDown, FaChevronUp, FaEdit, FaTrash, FaPaperclip, FaRegClock } from 'react-icons/fa';
+import { FaEye, FaUser, FaDownload, FaChevronLeft, FaChevronDown, FaChevronUp, FaEdit, FaTrash, FaPaperclip, FaRegClock, FaListUl } from 'react-icons/fa';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getNoticeDetail, getRelatedNotices, incrementNoticeView, deleteNotice } from '../../apis/noticeAPI';
 import { useAuth } from '../../hooks/useAuth';
@@ -57,10 +57,17 @@ const NoticeDetail = () => {
         }
     };
 
-    // 이미지 URL 생성 (정적 파일 - 인증 불필요)
+    // TODO: 개발 서버 배포 후 공통 getImageUrl(imageUtils.js)로 교체 검토
+    // 개발 서버는 static-locations로 /uploads/ 없이도 접근 가능
     const getImageUrl = (path) => `${API_URL}/uploads/${path}`;
 
-    const isImageFile = (fileName) => /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(fileName);
+    const isDocumentFile = (path) => /\.(pdf|doc|docx)$/i.test(path || '');
+
+    const getFileName = (path) => {
+        if (!path) return '';
+        const parts = path.split('/');
+        return parts[parts.length - 1];
+    };
 
     const getCategoryStyle = (category) => {
         switch (category) {
@@ -115,16 +122,6 @@ const NoticeDetail = () => {
         return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
     };
 
-    const handleShare = () => {
-        const shareUrl = window.location.href;
-        if (navigator.share) {
-            navigator.share({ title: notice.noticeTitle, url: shareUrl });
-        } else {
-            navigator.clipboard.writeText(shareUrl);
-            alert('링크가 복사되었습니다.');
-        }
-    };
-
     const handleRelatedNoticeClick = (code) => {
         navigate(`/notices/${code}`);
     };
@@ -154,10 +151,10 @@ const NoticeDetail = () => {
 
     if (!notice) return null;
 
-    // images 배열에서 이미지/파일 분리
+    // images 배열에서 이미지/문서 분리 (확장자 없는 파일은 이미지로 취급)
     const allImages = notice.images || [];
-    const imageFiles = allImages.filter(img => isImageFile(img.originName));
-    const nonImageFiles = allImages.filter(img => !isImageFile(img.originName));
+    const imageFiles = allImages.filter(img => !isDocumentFile(img.path));
+    const nonImageFiles = allImages.filter(img => isDocumentFile(img.path));
     const catStyle = getCategoryStyle(notice.noticeCategory);
 
     return (
@@ -273,7 +270,7 @@ const NoticeDetail = () => {
                                     >
                                         <img
                                             src={getImageUrl(img.path)}
-                                            alt={img.originName}
+                                            alt={getFileName(img.path)}
                                             className="w-full block rounded-xl"
                                         />
                                     </div>
@@ -295,12 +292,12 @@ const NoticeDetail = () => {
                                     >
                                         <div className="min-w-0 flex-1">
                                             <div className="text-[13px] font-semibold text-[#333] overflow-hidden text-ellipsis whitespace-nowrap">
-                                                {file.originName}
+                                                {getFileName(file.path)}
                                             </div>
                                         </div>
                                         <a
                                             href={getImageUrl(file.path)}
-                                            download={file.originName}
+                                            download={getFileName(file.path)}
                                             target="_blank"
                                             rel="noreferrer"
                                             className="text-admin-green ml-3 shrink-0"
@@ -312,13 +309,13 @@ const NoticeDetail = () => {
                             </div>
                         )}
 
-                        {/* 공유 */}
+                        {/* 목록으로 */}
                         <div className="text-center pt-[18px] border-t border-[#F0F0F0]">
                             <button
                                 className="border-2 border-admin-green text-admin-green rounded-full font-semibold hover:bg-admin-green hover:text-white transition-all text-[13px] px-6 py-2"
-                                onClick={handleShare}
+                                onClick={() => navigate('/notices')}
                             >
-                                <FaShare className="inline mr-1" size={12} /> 공유하기
+                                <FaListUl className="inline mr-1.5" size={12} /> 목록으로
                             </button>
                         </div>
                     </div>

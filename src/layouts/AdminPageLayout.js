@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { FaChartPie, FaBullhorn, FaUsers, FaFlag } from 'react-icons/fa';
 import NavBar from '../components/common/NavBar';
+import AppBar from '../components/common/AppBar';
 import { getAccessiblePages } from '../apis/adminAPI';
 
 const TAB_ICONS = {
@@ -66,12 +67,14 @@ function AdminPageLayout() {
           );
         })}
       </div>
+      <AppBar />
 
       {/* 페이지 콘텐츠 */}
       <div className="max-w-[600px] mx-auto py-6 px-[15px]">
         <Outlet />
       </div>
     </div>
+    
   );
 }
 
