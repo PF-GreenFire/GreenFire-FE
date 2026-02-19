@@ -5,6 +5,9 @@ import ExDesign from './pages/ExDesign';
 import NearbyMain from './pages/map/NearbyMain';
 import ChallengeMain from './pages/challenge/ChallengeMain';
 import FeedMain from './pages/feed/FeedMain';
+import FeedDetail from './pages/feed/FeedDetail';
+import FeedCreate from './pages/feed/FeedCreate';
+import AdminFeedList from './pages/admin/AdminFeedList';
 import CustomLayout from './layouts/common/CustomLayout';
 import RegistChallenge from './pages/challenge/RegistChallenge';
 import ChallengeDetail from './pages/challenge/ChallengeDetail';
@@ -73,6 +76,7 @@ const App = () => {
           <Route path="notices" element={<AdminNoticeList />} />
           <Route path="members" element={<AdminMemberList />} />
           <Route path="reports" element={<AdminReportList />} />
+          <Route path="feed" element={<AdminFeedList />} />
         </Route>
 
         <Route path="/" element={<CustomLayout />}>
@@ -85,6 +89,12 @@ const App = () => {
           <Route path="challenges" element={<ChallengeMain />} />
           <Route path="challenges/:id" element={<ChallengeDetail />} />
           <Route path="feed" element={<FeedMain />} />
+          <Route path="feed/create" element={
+            <ProtectedRoute>
+              <FeedCreate />
+            </ProtectedRoute>
+          } />
+          <Route path="feed/:postCode" element={<FeedDetail />} />
 
           {/* challenge */}
           <Route path="challenge" element={

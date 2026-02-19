@@ -1,50 +1,42 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import HighlightedText from "../item/title/HighlightedTitle";
-import FeedPost from "../item/card/FeedPostCard";
+import FeedCard from "../feed/FeedCard";
+import { getFeaturedPostsAPI } from "../../apis/feedAPI";
 
 const Feed = () => {
-    const posts = [
-        {
-            id: 1,
-            user: {
-                name: '김초록',
-                username: 'saladybest12',
-                avatar: '/User_ex1.png',
-                verified: true
-            },
-            content: '아침 일찍 일어나서 ㅇㅇ구에서 하는 환경 미화 봉사활동에 참여했어요~ 어메 구지역구 초록불 친구님들은 어떤 아침을 보내고 계신가용',
-            image: '/Feed_ex1.png',
-            timestamp: '2024년 10월 1일 오후 4시 22분',
-            likes: 522,
-            tags: ['환경보호'],
-            tagIcon: '🌱'
-        },
-        {
-            id: 2,
-            user: {
-                name: '맹맹이',
-                username: 'mamyoung12',
-                avatar: '/User_ex1.png',
-                verified: true
-            },
-            content: '요즘 시작한 비건 식단! 오늘은 단호박으로 샐러드 만들었어요. 생각보다 맛있네요 ☺️',
-            image: '/Feed_ex2.png',
-            timestamp: '2024년 10월 1일 오전 10시 15분',
-            likes: 347,
-            tags: ['비건식단'],
-            tagIcon: '🥗'
-        }
-    ];
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const featuredPosts = useSelector((state) => state.feedReducer.featuredPosts);
+
+    useEffect(() => {
+        dispatch(getFeaturedPostsAPI(3));
+    }, [dispatch]);
 
     return (
         <div className="mb-4" style={{ maxWidth: "563px", margin: "0 auto" }}>
-            <HighlightedText
-                mainText="지금 초록불은"
-            />
+            <HighlightedText mainText="지금 초록불은" />
 
-            {posts.map(post => (
-                <FeedPost key={post.id} post={post} />
-            ))}
+            {featuredPosts.length > 0 ? (
+                <>
+                    {featuredPosts.slice(0, 3).map((post) => (
+                        <FeedCard key={post.postCode} post={post} />
+                    ))}
+                    <div className="text-center mt-2">
+                        <button
+                            onClick={() => navigate('/feed')}
+                            className="bg-transparent border-2 border-admin-green text-admin-green rounded-full py-2 px-6 text-sm font-semibold cursor-pointer hover:bg-admin-green hover:text-white transition-all"
+                        >
+                            피드 더보기
+                        </button>
+                    </div>
+                </>
+            ) : (
+                <div className="text-center py-8 text-gray-400">
+                    <p className="text-sm m-0">아직 추천 피드가 없습니다.</p>
+                </div>
+            )}
         </div>
     );
 };
