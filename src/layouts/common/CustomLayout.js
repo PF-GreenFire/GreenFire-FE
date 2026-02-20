@@ -12,7 +12,6 @@ function CustomLayout() {
   const showAppBar = [
     "/",
     "/nearby",
-    "/location",
     "/challenges",
     "/feed",
   ].includes(location.pathname);

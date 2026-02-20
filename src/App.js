@@ -29,7 +29,6 @@ import MypageChallengeMain from "./pages/mypage/ChallengeMain";
 import MypageEchoMemoryMain from "./pages/mypage/EchoMemoryMain";
 import MypageInfo from "./pages/mypage/MypageInfo";
 import MypageWithdrawal from "./pages/mypage/MypageWithdrawal";
-import LocationMain from "./pages/location/LocationMain";
 import { useAuth } from './hooks/useAuth';
 
 const App = () => {
@@ -81,7 +80,6 @@ const App = () => {
 
           {/* AppBar */}
           <Route path="nearby" element={<NearbyMain />} />
-          <Route path="location" element={<LocationMain />} />
           <Route path="challenges" element={<ChallengeMain />} />
           <Route path="challenges/:id" element={<ChallengeDetail />} />
           <Route path="feed" element={<FeedMain />} />
