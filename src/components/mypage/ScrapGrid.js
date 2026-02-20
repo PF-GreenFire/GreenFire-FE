@@ -9,7 +9,13 @@ const ScrapGrid = ({ scraps, activeTab, followFilter, loading, error }) => {
       case "greenFire":
         return <ScrapStoreCard key={item.id} item={item} />;
       case "challenge":
-        return <ScrapImageCard key={item.id} item={item} type="challenge" />;
+        return (
+          <ScrapImageCard
+            key={item.challengeCode}
+            item={item}
+            type="challenge"
+          />
+        );
       case "feed":
         return <ScrapImageCard key={item.id} item={item} type="feed" />;
       case "friend":
@@ -53,7 +59,7 @@ const ScrapGrid = ({ scraps, activeTab, followFilter, loading, error }) => {
       ) : (
         <div className="col-span-full text-center py-16 px-5">
           <p className="text-[15px] text-gray-400">
-            스크랩한 {activeTab}이(가) 없습니다.
+            {`스크랩한 ${activeTab}이(가) 없습니다.`}
           </p>
         </div>
       )}

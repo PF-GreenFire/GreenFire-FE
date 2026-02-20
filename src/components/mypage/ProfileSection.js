@@ -1,33 +1,42 @@
 import { useNavigate } from "react-router-dom";
 import { getImageUrl } from "../../utils/imageUtils";
 
-const ProfileSection = ({ user, coverImage }) => {
+const ProfileSection = ({ user }) => {
   const navigate = useNavigate();
 
   return (
     <div className="w-full w-[calc(100%+30px)]">
       {/* 배너 이미지 */}
       <div className="w-full h-[120px] overflow-hidden bg-gradient-to-br from-green-primary to-[#6B9B7A]">
-        <img
-          src={coverImage || "/images/mypage-banner.png"}
-          alt="배너"
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            e.target.style.display = "none";
-            e.target.parentElement.style.background =
-              "linear-gradient(135deg, #4A7C59 0%, #6B9B7A 100%)";
-          }}
-        />
+        {user.userCode && (
+          <img
+            src={getImageUrl(`user/me/${user.userCode}/cover-image`)}
+            alt="배너"
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.style.display = "none";
+              e.target.parentElement.style.background =
+                "linear-gradient(135deg, #4A7C59 0%, #6B9B7A 100%)";
+            }}
+          />
+        )}
       </div>
 
       {/* 프로필 정보 */}
       <div className="flex flex-col items-center -mt-[60px] relative z-[1] px-4">
         <div className="w-[120px] h-[120px] rounded-full bg-white border-4 border-white shadow-md overflow-hidden flex items-center justify-center">
-          {user.profileImage ? (
+          {user.userCode ? (
             <img
-              src={getImageUrl(user.profileImage)}
+              src={getImageUrl(`user/me/${user.userCode}/profile-image`)}
               alt="프로필"
               className="w-full h-full object-cover"
+              onError={(e) => {
+                e.target.onerror = (e2) => {
+                  e2.target.style.display = "none";
+                  e2.target.parentElement.innerHTML = "<span>🐱</span>";
+                };
+                e.target.src = "/default_profile.png";
+              }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-100 text-5xl">
@@ -47,7 +56,7 @@ const ProfileSection = ({ user, coverImage }) => {
           {user.nickname}
         </h2>
         <button
-          className="py-1.5 px-8 text-sm rounded-full bg-green-primary border-green-primary text-white hover:bg-green-dark hover:border-green-dark transition-colors"
+          className="py-1.5 px-8 text-sm rounded-full border-0 bg-green-primary text-white hover:bg-green-dark transition-colors"
           onClick={() => navigate("/mypage/info")}
         >
           내 정보 수정
