@@ -8,7 +8,7 @@ const CATEGORY_FILTERS = [
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 };
 
-const LocationMap = ({ stores = [], categoryFilter, onCategoryChange }) => {
+const LocationMap = ({ stores = [], categoryFilter, onCategoryChange, onBoundsChange }) => {
   const [center, setCenter] = useState(DEFAULT_CENTER);
 
   useEffect(() => {
@@ -23,11 +23,18 @@ const LocationMap = ({ stores = [], categoryFilter, onCategoryChange }) => {
   }, []);
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full h-full">
       <Map
         center={center}
-        style={{ width: "100%", height: "350px" }}
+        style={{ width: "100%", height: "100%" }}
         level={5}
+        onBoundsChanged={(map) => {
+          const bounds = map.getBounds();
+          onBoundsChange?.({
+            sw: { lat: bounds.getSouthWest().getLat(), lng: bounds.getSouthWest().getLng() },
+            ne: { lat: bounds.getNorthEast().getLat(), lng: bounds.getNorthEast().getLng() },
+          });
+        }}
       >
         {stores.map((store) => (
           <MapMarker
