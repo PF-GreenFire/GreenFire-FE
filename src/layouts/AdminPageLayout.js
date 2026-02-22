@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { FaChartPie, FaBullhorn, FaUsers, FaFlag, FaNewspaper } from 'react-icons/fa';
+import { FaChartPie, FaBullhorn, FaUsers, FaFlag, FaNewspaper, FaImage } from 'react-icons/fa';
 import NavBar from '../components/common/NavBar';
 import AppBar from '../components/common/AppBar';
 import { getAccessiblePages } from '../apis/adminAPI';
@@ -11,6 +11,7 @@ const TAB_ICONS = {
   '/admin/members': <FaUsers size={14} />,
   '/admin/reports': <FaFlag size={14} />,
   '/admin/feed': <FaNewspaper size={14} />,
+  '/admin/banners': <FaImage size={14} />,
 };
 
 const defaultTabs = [
@@ -19,6 +20,7 @@ const defaultTabs = [
   { pageName: '회원 관리', pageUrl: '/admin/members' },
   { pageName: '신고 관리', pageUrl: '/admin/reports' },
   { pageName: '피드 관리', pageUrl: '/admin/feed' },
+  { pageName: '배너 관리', pageUrl: '/admin/banners' },
 ];
 
 function AdminPageLayout() {

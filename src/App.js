@@ -22,6 +22,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminNoticeList from './pages/admin/AdminNoticeList';
 import AdminMemberList from './pages/admin/AdminMemberList';
 import AdminReportList from './pages/admin/AdminReportList';
+import AdminBannerList from './pages/admin/AdminBannerList';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import SessionExpiredModal from './components/common/SessionExpiredModal';
 import MypageLayout from "./layouts/MyPageLayout";
@@ -77,6 +78,7 @@ const App = () => {
           <Route path="members" element={<AdminMemberList />} />
           <Route path="reports" element={<AdminReportList />} />
           <Route path="feed" element={<AdminFeedList />} />
+          <Route path="banners" element={<AdminBannerList />} />
         </Route>
 
         <Route path="/" element={<CustomLayout />}>
