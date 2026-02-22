@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { Spinner } from "react-bootstrap";
 import {
   FaChevronLeft,
-  FaHeart,
-  FaRegHeart,
   FaRegComment,
   FaTrash,
   FaEllipsisV,
   FaChevronRight,
 } from "react-icons/fa";
+import { RiLeafFill, RiLeafLine } from "react-icons/ri";
+import { FiShare2 } from "react-icons/fi";
 import {
   getFeedDetailAPI,
   toggleLikeAPI,
@@ -18,19 +18,12 @@ import {
   addCommentAPI,
   deleteCommentAPI,
   deleteFeedPostAPI,
+  toggleFollowInFeedAPI,
 } from "../../apis/feedAPI";
 import { getImageUrl } from "../../utils/imageUtils";
+import { shareFeedPost } from "../../utils/shareUtils";
 import { useAuth } from "../../hooks/useAuth";
-
-const POST_TYPE_LABELS = {
-  CHALLENGE: "챌린지 인증",
-  GREENFIRE: "장소 후기",
-};
-
-const POST_TYPE_STYLES = {
-  CHALLENGE: "bg-emerald-100 text-emerald-700",
-  GREENFIRE: "bg-amber-100 text-amber-700",
-};
+import Toast from "../../components/common/Toast";
 
 const FeedDetail = () => {
   const { postCode } = useParams();
@@ -45,6 +38,7 @@ const FeedDetail = () => {
   const [commentText, setCommentText] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     dispatch(getFeedDetailAPI(postCode));
@@ -55,6 +49,19 @@ const FeedDetail = () => {
     if (!isLoggedIn) return;
     dispatch(toggleLikeAPI(Number(postCode)));
   };
+
+  const handleFollow = () => {
+    if (!isLoggedIn || !feedDetail) return;
+    dispatch(toggleFollowInFeedAPI(feedDetail.userCode, feedDetail.isFollowing));
+  };
+
+  const handleShare = async () => {
+    if (!feedDetail) return;
+    const copied = await shareFeedPost(feedDetail);
+    if (copied) setShowToast(true);
+  };
+
+  const handleCloseToast = useCallback(() => setShowToast(false), []);
 
   const handleAddComment = () => {
     if (!commentText.trim() || !isLoggedIn) return;
@@ -157,16 +164,35 @@ const FeedDetail = () => {
         </div>
       </div>
 
-      {/* 작성자 정보 */}
+      {/* 작성자 정보 + 팔로우 */}
       <div className="flex items-center gap-3 px-1 mb-3">
         <img
           src={getImageUrl(feedDetail.profileImage) || "/default-profile.png"}
           alt={feedDetail.nickname}
           className="w-10 h-10 rounded-full object-cover bg-gray-100"
         />
-        <div>
-          <div className="text-sm font-semibold text-gray-800">
-            {feedDetail.nickname}
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-gray-800">
+              {feedDetail.nickname}
+            </span>
+            {feedDetail.featured && (
+              <span className="text-[10px] font-semibold text-amber-500">
+                · 추천
+              </span>
+            )}
+            {isLoggedIn && !isOwner && (
+              <button
+                onClick={handleFollow}
+                className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border cursor-pointer transition-all ${
+                  feedDetail.isFollowing
+                    ? "bg-white text-gray-500 border-gray-300"
+                    : "bg-admin-green text-white border-transparent"
+                }`}
+              >
+                {feedDetail.isFollowing ? "팔로잉" : "팔로우"}
+              </button>
+            )}
           </div>
           <div className="text-xs text-gray-400">
             {formatDate(feedDetail.createdAt)}
@@ -218,20 +244,20 @@ const FeedDetail = () => {
         </div>
       )}
 
-      {/* 좋아요 / 댓글 */}
+      {/* 좋아요 / 댓글 / 공유 */}
       <div className="flex items-center gap-4 px-1 mb-3">
         <button
           onClick={handleLike}
           className="flex items-center gap-1.5 bg-transparent border-none cursor-pointer p-0"
         >
           {feedDetail.liked ? (
-            <FaHeart className="text-red-500" size={20} />
+            <RiLeafFill className="text-admin-green" size={21} />
           ) : (
-            <FaRegHeart className="text-gray-500" size={20} />
+            <RiLeafLine className="text-gray-500" size={21} />
           )}
           <span
             className={`text-sm font-semibold ${
-              feedDetail.liked ? "text-red-500" : "text-gray-600"
+              feedDetail.liked ? "text-admin-green" : "text-gray-600"
             }`}
           >
             {feedDetail.likeCount || 0}
@@ -244,30 +270,33 @@ const FeedDetail = () => {
           <FaRegComment className="text-gray-500" size={19} />
           <span className="text-sm text-gray-600">{comments.length}</span>
         </button>
+        <button
+          onClick={handleShare}
+          className="flex items-center bg-transparent border-none cursor-pointer p-0 text-gray-500 hover:text-gray-700 transition-colors"
+        >
+          <FiShare2 size={18} />
+        </button>
       </div>
 
-      {/* 본문 + 태그 */}
+      {/* 챌린지/장소 배너 */}
+      {(feedDetail.challengeTitle || feedDetail.storeName) && (
+        <div
+          className={`mx-1 mb-3 px-3 py-1.5 rounded-lg text-[12px] font-semibold ${
+            feedDetail.postType === "CHALLENGE"
+              ? "bg-emerald-50 text-emerald-700 border-l-[3px] border-emerald-500"
+              : "bg-amber-50 text-amber-700 border-l-[3px] border-amber-500"
+          }`}
+        >
+          {feedDetail.postType === "CHALLENGE" ? "🏆 " : "📍 "}
+          {feedDetail.challengeTitle || feedDetail.storeName}
+        </div>
+      )}
+
+      {/* 본문 */}
       <div className="px-1 mb-4">
         <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap m-0">
           {feedDetail.postContent}
         </p>
-        {feedDetail.postType && (
-          <div className="mt-3 flex items-center gap-2">
-            <span
-              className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
-                POST_TYPE_STYLES[feedDetail.postType] ||
-                "bg-gray-100 text-gray-500"
-              }`}
-            >
-              {POST_TYPE_LABELS[feedDetail.postType] || feedDetail.postType}
-            </span>
-            {(feedDetail.challengeTitle || feedDetail.storeName) && (
-              <span className="text-xs text-gray-500">
-                {feedDetail.challengeTitle || feedDetail.storeName}
-              </span>
-            )}
-          </div>
-        )}
       </div>
 
       {/* 댓글 구분선 */}
@@ -345,6 +374,12 @@ const FeedDetail = () => {
           </div>
         </div>
       )}
+
+      <Toast
+        message="링크가 복사되었습니다"
+        show={showToast}
+        onClose={handleCloseToast}
+      />
     </div>
   );
 };

@@ -4,6 +4,7 @@ import {
   resetFeedList,
   getFeedDetailSuccess,
   toggleLikeSuccess,
+  toggleFollowInFeed,
   getCommentsSuccess,
   addCommentSuccess,
   deleteCommentSuccess,
@@ -12,14 +13,21 @@ import {
 } from "../modules/FeedReducer";
 
 /**
- * 피드 목록 조회 (무한스크롤)
+ * 피드 목록 조회 (cursor 기반 무한스크롤)
+ * @param {string} type - 피드 타입 (RECOMMENDED, FOLLOWING, 빈 문자열=전체)
+ * @param {object|null} cursor - { postCode, score } 또는 null (첫 페이지)
+ * @param {number} size - 페이지 크기
  */
-export const getFeedListAPI = (type, page = 0, size = 10) => {
+export const getFeedListAPI = (type = "RECOMMENDED", cursor = null, size = 10) => {
   return async (dispatch) => {
     dispatch(setFeedLoading(true));
     try {
-      const params = new URLSearchParams({ page, size });
+      const params = new URLSearchParams({ size });
       if (type) params.append("type", type);
+      if (cursor) {
+        if (cursor.postCode != null) params.append("cursorPostCode", cursor.postCode);
+        if (cursor.score != null) params.append("cursorScore", cursor.score);
+      }
       const result = await api.get(`/api/feed?${params.toString()}`);
       if (result.status === 200) {
         dispatch(getFeedListSuccess(result));
@@ -165,6 +173,25 @@ export const getFeaturedPostsAPI = (limit = 5) => {
       }
     } catch (error) {
       console.error("추천 피드 조회 실패:", error);
+    }
+  };
+};
+
+/**
+ * 피드 내 팔로우/언팔로우 토글
+ */
+export const toggleFollowInFeedAPI = (targetUserCode, currentlyFollowing) => {
+  return async (dispatch) => {
+    try {
+      if (currentlyFollowing) {
+        await api.delete(`/user/follows/${targetUserCode}`);
+        dispatch(toggleFollowInFeed(targetUserCode, false));
+      } else {
+        await api.post(`/user/follows/${targetUserCode}`);
+        dispatch(toggleFollowInFeed(targetUserCode, true));
+      }
+    } catch (error) {
+      console.error("팔로우 토글 실패:", error);
     }
   };
 };

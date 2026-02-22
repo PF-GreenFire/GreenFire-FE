@@ -14,9 +14,9 @@ import { createFeedPostAPI } from "../../apis/feedAPI";
 import api from "../../apis/axios";
 
 const STEPS = [
-  { num: 1, label: "타입 선택" },
-  { num: 2, label: "대상 선택" },
-  { num: 3, label: "글 작성" },
+  { num: 1, label: "실천 선택" },
+  { num: 2, label: "어디에서?" },
+  { num: 3, label: "나의 이야기" },
 ];
 
 const FeedCreate = () => {
@@ -133,7 +133,7 @@ const FeedCreate = () => {
         >
           <FaChevronLeft size={18} />
         </button>
-        <h1 className="text-lg font-bold m-0">피드 작성</h1>
+        <h1 className="text-lg font-bold m-0">나의 초록 이야기</h1>
       </div>
 
       {/* 스텝 인디케이터 */}
@@ -173,7 +173,7 @@ const FeedCreate = () => {
       {step === 1 && (
         <div className="flex flex-col gap-3">
           <p className="text-center text-sm text-gray-500 mb-2">
-            어떤 피드를 작성하시겠어요?
+            오늘은 어떤 실천을 했나요?
           </p>
           <button
             onClick={() => {
@@ -191,9 +191,9 @@ const FeedCreate = () => {
               <FaTrophy className="text-emerald-600" size={20} />
             </div>
             <div className="text-left">
-              <div className="font-bold text-gray-800 mb-1">챌린지 인증</div>
+              <div className="font-bold text-gray-800 mb-1">챌린지에 참여했어요</div>
               <div className="text-xs text-gray-500">
-                참여 중인 챌린지의 인증 사진을 공유해요
+                함께한 챌린지 경험을 나눠보세요
               </div>
             </div>
           </button>
@@ -214,9 +214,9 @@ const FeedCreate = () => {
               <FaMapMarkerAlt className="text-amber-600" size={20} />
             </div>
             <div className="text-left">
-              <div className="font-bold text-gray-800 mb-1">장소 후기</div>
+              <div className="font-bold text-gray-800 mb-1">초록 장소를 다녀왔어요</div>
               <div className="text-xs text-gray-500">
-                초록불 장소 방문 후기를 남겨요
+                방문한 장소의 경험을 나눠보세요
               </div>
             </div>
           </button>
@@ -228,8 +228,8 @@ const FeedCreate = () => {
         <div>
           <p className="text-center text-sm text-gray-500 mb-3">
             {postType === "CHALLENGE"
-              ? "인증할 챌린지를 선택해주세요"
-              : "후기를 남길 장소를 선택해주세요"}
+              ? "어떤 챌린지에 참여했나요?"
+              : "어디를 다녀왔나요?"}
           </p>
 
           {/* 검색 */}
@@ -255,8 +255,8 @@ const FeedCreate = () => {
               </div>
               <p className="text-sm m-0">
                 {postType === "CHALLENGE"
-                  ? "참여 중인 챌린지가 없습니다."
-                  : "등록된 장소가 없습니다."}
+                  ? "아직 참여 중인 챌린지가 없어요"
+                  : "아직 방문한 장소가 없어요"}
               </p>
             </div>
           ) : (
@@ -330,7 +330,7 @@ const FeedCreate = () => {
                   : "bg-amber-100 text-amber-700"
               }`}
             >
-              {postType === "CHALLENGE" ? "챌린지 인증" : "장소 후기"}
+              {postType === "CHALLENGE" ? "🏆 챌린지 참여" : "📍 장소 방문"}
             </span>
             <span className="text-sm font-semibold text-gray-700 truncate">
               {postType === "CHALLENGE"
@@ -382,12 +382,12 @@ const FeedCreate = () => {
           {/* 내용 */}
           <div className="mb-6">
             <label className="text-sm font-semibold text-gray-700 mb-2 block">
-              내용 <span className="text-red-500">*</span>
+              나의 이야기 <span className="text-red-500">*</span>
             </label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="피드 내용을 작성해주세요..."
+              placeholder="어떤 경험을 했나요? 다른 분들에게도 추천하고 싶은 이유를 적어주세요"
               rows={5}
               maxLength={500}
               className="w-full border border-gray-200 rounded-xl p-3.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-admin-green"
@@ -409,7 +409,7 @@ const FeedCreate = () => {
                 등록 중...
               </span>
             ) : (
-              "등록하기"
+              "나의 실천 공유하기"
             )}
           </button>
         </div>

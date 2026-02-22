@@ -1,44 +1,45 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { Spinner } from "react-bootstrap";
-import { FaPlus } from "react-icons/fa";
 import { getFeedListAPI, resetFeedListAction } from "../../apis/feedAPI";
 import { useAuth } from "../../hooks/useAuth";
+import usePullToRefresh from "../../hooks/usePullToRefresh";
 import FeedCard from "../../components/feed/FeedCard";
-
-const TABS = [
-  { key: "", label: "전체" },
-  { key: "CHALLENGE", label: "챌린지 인증" },
-  { key: "GREENFIRE", label: "장소 후기" },
-];
+import FeedSkeleton from "../../components/feed/FeedSkeleton";
 
 const FeedMain = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { isLoggedIn } = useAuth();
-  const [activeTab, setActiveTab] = useState("");
   const observerRef = useRef(null);
   const sentinelRef = useRef(null);
+  const loadingRef = useRef(false);
+  const hasMoreRef = useRef(true);
+  const cursorRef = useRef(null);
 
   const { feedList, loading } = useSelector((state) => state.feedReducer);
-  const { posts, hasMore } = feedList;
+  const { posts, hasMore, cursor } = feedList;
+
+  // ref를 state와 동기화 (IntersectionObserver stale closure 방지)
+  useEffect(() => { loadingRef.current = loading; }, [loading]);
+  useEffect(() => { hasMoreRef.current = hasMore; }, [hasMore]);
+  useEffect(() => { cursorRef.current = cursor; }, [cursor]);
 
   // 초기 로드
   useEffect(() => {
     dispatch(resetFeedListAction());
-    dispatch(getFeedListAPI(activeTab, 0));
-  }, [dispatch, activeTab]);
+    dispatch(getFeedListAPI("RECOMMENDED", null));
+  }, [dispatch]);
 
   // 무한스크롤 IntersectionObserver
   const handleObserver = useCallback(
     (entries) => {
       const [entry] = entries;
-      if (entry.isIntersecting && hasMore && !loading) {
-        dispatch(getFeedListAPI(activeTab, feedList.page + 1));
+      if (entry.isIntersecting && hasMoreRef.current && !loadingRef.current) {
+        dispatch(getFeedListAPI("RECOMMENDED", cursorRef.current));
       }
     },
-    [dispatch, activeTab, feedList.page, hasMore, loading]
+    [dispatch]
   );
 
   useEffect(() => {
@@ -57,29 +58,57 @@ const FeedMain = () => {
     };
   }, [handleObserver]);
 
-  const handleTabChange = (tabKey) => {
-    if (tabKey === activeTab) return;
-    setActiveTab(tabKey);
-  };
+  // Pull-to-Refresh
+  const handleRefresh = useCallback(async () => {
+    dispatch(resetFeedListAction());
+    dispatch(getFeedListAPI("RECOMMENDED", null));
+    await new Promise((r) => setTimeout(r, 800));
+  }, [dispatch]);
+
+  const { pullDistance, isRefreshing } = usePullToRefresh(handleRefresh);
 
   return (
-    <div className="pb-24">
-      {/* 탭 */}
-      <div className="flex gap-2 mb-4 overflow-x-auto pb-1 px-1">
-        {TABS.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => handleTabChange(tab.key)}
-            className={`border-none py-2 px-4 rounded-full text-[13px] cursor-pointer whitespace-nowrap transition-all duration-200 ${
-              activeTab === tab.key
-                ? "bg-admin-green text-white font-bold shadow-[0_2px_8px_rgba(30,158,87,0.25)]"
-                : "bg-white text-gray-500 font-medium shadow-card"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+    <div className="pb-16">
+      {/* Pull-to-Refresh indicator */}
+      <div
+        className="overflow-hidden flex items-center justify-center transition-all"
+        style={{ height: pullDistance > 0 || isRefreshing ? Math.max(pullDistance, isRefreshing ? 48 : 0) : 0 }}
+      >
+        <svg
+          className="w-6 h-6 text-admin-green"
+          style={{
+            transform: `rotate(${isRefreshing ? 360 : pullDistance * 3}deg)`,
+            transition: isRefreshing ? "transform 0.6s linear" : "none",
+            animation: isRefreshing ? "App-logo-spin 0.8s linear infinite" : "none",
+          }}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
       </div>
+
+      {/* 글쓰기 유도 영역 (로그인 시만) */}
+      {isLoggedIn && (
+        <div
+          onClick={() => navigate("/feed/create")}
+          className="mb-3 bg-white rounded-2xl shadow-card overflow-hidden cursor-pointer hover:-translate-y-0.5 hover:shadow-card-hover transition-all"
+        >
+          <div className="flex items-center gap-3 px-4 py-3.5">
+            <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center text-lg">
+              🌱
+            </div>
+            <span className="text-sm text-gray-500">
+              나의 초록 이야기를 들려주세요
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* 스켈레톤 로딩 (초기 로드) */}
+      {loading && posts.length === 0 && <FeedSkeleton count={3} />}
 
       {/* 피드 카드 목록 */}
       <div className="flex flex-col gap-0">
@@ -88,42 +117,41 @@ const FeedMain = () => {
         ))}
       </div>
 
-      {/* 로딩 */}
-      {loading && (
+      {/* 로딩 (추가 로드) */}
+      {loading && posts.length > 0 && (
         <div className="text-center py-6">
-          <Spinner animation="border" variant="success" size="sm" />
+          <div className="w-6 h-6 mx-auto border-2 border-admin-green border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 
-      {/* 빈 상태 */}
+      {/* 빈 상태 (전체 게시물 없음) */}
       {!loading && posts.length === 0 && (
         <div className="text-center py-16 text-gray-400">
-          <div className="text-5xl mb-3">📝</div>
-          <p className="text-sm m-0">아직 피드가 없습니다.</p>
+          <div className="text-5xl mb-3">🌍</div>
+          <p className="text-sm font-medium text-gray-500 m-0">아직 초록 실천이 없어요</p>
+          <p className="text-xs text-gray-400 mt-1 m-0">첫 번째 초록 발자국을 남겨보세요!</p>
           {isLoggedIn && (
             <button
               onClick={() => navigate("/feed/create")}
               className="mt-4 bg-admin-green text-white border-none rounded-full py-2 px-6 text-sm font-semibold cursor-pointer hover:bg-admin-green-dark transition-all"
             >
-              첫 피드 작성하기
+              🌱 실천 기록 남기기
             </button>
           )}
         </div>
       )}
 
+      {/* 모든 피드를 다 봤을 때 */}
+      {!loading && !hasMore && posts.length > 0 && (
+        <div className="text-center py-8 text-gray-400">
+          <div className="text-3xl mb-2">🌿</div>
+          <p className="text-sm m-0">오늘의 초록 실천을 모두 확인했어요</p>
+          <p className="text-xs mt-1 m-0">함께 실천하는 우리, 대단해요! 🙌</p>
+        </div>
+      )}
+
       {/* 무한스크롤 감지 요소 */}
       <div ref={sentinelRef} className="h-4" />
-
-      {/* FAB 글쓰기 버튼 */}
-      {isLoggedIn && (
-        <button
-          onClick={() => navigate("/feed/create")}
-          className="fixed bottom-24 right-4 z-50 w-14 h-14 bg-admin-green text-white rounded-full shadow-lg flex items-center justify-center border-none cursor-pointer hover:bg-admin-green-dark hover:scale-105 transition-all"
-          style={{ maxWidth: "calc((563px - 32px))", right: "max(16px, calc((100vw - 563px) / 2 + 16px))" }}
-        >
-          <FaPlus size={20} />
-        </button>
-      )}
     </div>
   );
 };
