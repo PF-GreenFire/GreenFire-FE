@@ -4,24 +4,30 @@ import { createActions, handleActions } from "redux-actions";
 const initialState = {
   stores: [],
   totalCount: 0,
+  storeCategories: [],
 };
 
 /* 액션 */
 const GET_STORES = "store/GET_STORES";
+const GET_STORE_CATEGORIES = "store/GET_STORE_CATEGORIES";
 
 export const {
-  store: { getStores },
+  store: { getStores, getStoreCategories },
 } = createActions({
   [GET_STORES]: (result) => ({
     stores: result.data.stores || result.data,
     totalCount: result.data.totalCount || result.data.length,
+  }),
+  [GET_STORE_CATEGORIES]: (result) => ({
+    storeCategories: result.data,
   }),
 });
 
 /* 리듀서 */
 const storeReducer = handleActions(
   {
-    [GET_STORES]: (state, { payload }) => payload,
+    [GET_STORES]: (state, { payload }) => ({ ...state, ...payload }),
+    [GET_STORE_CATEGORIES]: (state, { payload }) => ({ ...state, ...payload }),
   },
   initialState,
 );

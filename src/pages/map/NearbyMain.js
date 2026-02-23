@@ -3,12 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { IoIosSearch } from "react-icons/io";
 import LocationMap from "./LocationMap";
 import NearbyStoreCard from "../../components/item/card/NearbyStoreCard";
-import { getAllStoresAPI } from "../../apis/storeAPI";
-
-const CATEGORY_MAP = {
-  greenCert: "녹색인증",
-  zeroWaste: "제로웨이스트",
-};
+import { getAllStoresAPI, getStoreCategoriesAPI } from "../../apis/storeAPI";
 
 const APPBAR_HEIGHT = 84;
 const PEEK_HEIGHT = 80;
@@ -18,15 +13,19 @@ const CLICK_THRESHOLD = 5;
 
 const NearbyMain = () => {
   const dispatch = useDispatch();
-  const { stores } = useSelector((state) => state.storeReducer);
+  const { stores, storeCategories } = useSelector(
+    (state) => state.storeReducer,
+  );
 
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState(null);
   const [mapBounds, setMapBounds] = useState(null);
+  const [selectedStoreCode, setSelectedStoreCode] = useState(null);
   const [sheetPosition, setSheetPosition] = useState("peek");
   const [translateY, setTranslateY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const dragState = useRef({ startY: 0, startTranslate: 0 });
+  const listRef = useRef(null);
 
   const getSnapPoints = useCallback(() => {
     const vh = window.innerHeight;
@@ -43,9 +42,10 @@ const NearbyMain = () => {
     setTranslateY(snaps.peek);
   }, [getSnapPoints]);
 
-  // 마운트 시 전체 매장 목록 조회
+  // 마운트 시 전체 매장 목록 + 카테고리 조회
   useEffect(() => {
     dispatch(getAllStoresAPI());
+    dispatch(getStoreCategoriesAPI());
   }, [dispatch]);
 
   // 윈도우 리사이즈 대응
@@ -67,7 +67,7 @@ const NearbyMain = () => {
       };
       setIsDragging(true);
     },
-    [translateY]
+    [translateY],
   );
 
   const handleTouchMove = useCallback(
@@ -80,7 +80,7 @@ const NearbyMain = () => {
       const clamped = Math.max(snaps.full, Math.min(snaps.peek, newTranslateY));
       setTranslateY(clamped);
     },
-    [isDragging, getSnapPoints]
+    [isDragging, getSnapPoints],
   );
 
   const snapTo = useCallback(
@@ -89,7 +89,7 @@ const NearbyMain = () => {
       setTranslateY(snaps[position]);
       setSheetPosition(position);
     },
-    [getSnapPoints]
+    [getSnapPoints],
   );
 
   const handleTouchEnd = useCallback(() => {
@@ -112,7 +112,9 @@ const NearbyMain = () => {
     // 가장 가까운 스냅 포인트 찾기
     let nearest = snapValues[0];
     for (const sv of snapValues) {
-      if (Math.abs(translateY - sv.value) < Math.abs(translateY - nearest.value)) {
+      if (
+        Math.abs(translateY - sv.value) < Math.abs(translateY - nearest.value)
+      ) {
         nearest = sv;
       }
     }
@@ -140,7 +142,7 @@ const NearbyMain = () => {
       };
       setIsDragging(true);
     },
-    [translateY]
+    [translateY],
   );
 
   useEffect(() => {
@@ -163,26 +165,43 @@ const NearbyMain = () => {
     };
   }, [isDragging, getSnapPoints, handleTouchEnd]);
 
+  // 마커 클릭 핸들러
+  const handleMarkerClick = useCallback((storeCode) => {
+    setSelectedStoreCode(storeCode);
+    snapTo("half");
+    if (listRef.current) {
+      listRef.current.scrollTop = 0;
+    }
+  }, [snapTo]);
+
   // 검색 + 지도 영역 필터링 (프론트)
   const filteredStores = stores.filter((store) => {
     const matchesSearch =
       !searchQuery ||
-      store.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      store.storeName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       store.address?.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesCategory =
-      !categoryFilter ||
-      store.category === CATEGORY_MAP[categoryFilter];
+      !categoryFilter || store.storeCategory === categoryFilter;
 
     const matchesBounds =
-      !mapBounds ||
-      (store.lat >= mapBounds.sw.lat &&
-        store.lat <= mapBounds.ne.lat &&
-        store.lng >= mapBounds.sw.lng &&
-        store.lng <= mapBounds.ne.lng);
+      mapBounds &&
+      store.latitude >= mapBounds.sw.lat &&
+      store.latitude <= mapBounds.ne.lat &&
+      store.longitude >= mapBounds.sw.lng &&
+      store.longitude <= mapBounds.ne.lng;
 
     return matchesSearch && matchesCategory && matchesBounds;
   });
+
+  // 선택된 매장을 맨 위로 정렬
+  const sortedStores = selectedStoreCode
+    ? [...filteredStores].sort((a, b) => {
+        if (a.storeCode === selectedStoreCode) return -1;
+        if (b.storeCode === selectedStoreCode) return 1;
+        return 0;
+      })
+    : filteredStores;
 
   return (
     <div className="flex flex-col" style={{ height: "calc(100vh - 56px)" }}>
@@ -214,9 +233,11 @@ const NearbyMain = () => {
       <div className="-mx-[15px] flex-1 overflow-hidden">
         <LocationMap
           stores={filteredStores}
+          categories={storeCategories || []}
           categoryFilter={categoryFilter}
           onCategoryChange={setCategoryFilter}
           onBoundsChange={setMapBounds}
+          onMarkerClick={handleMarkerClick}
         />
       </div>
 
@@ -253,11 +274,12 @@ const NearbyMain = () => {
 
         {/* 스크롤 가능한 가게 목록 */}
         <div
+          ref={listRef}
           className="overflow-y-auto"
           style={{ height: "calc(100% - 52px)" }}
         >
-          {filteredStores.length > 0 ? (
-            filteredStores.map((store) => (
+          {sortedStores.length > 0 ? (
+            sortedStores.map((store) => (
               <NearbyStoreCard key={store.storeCode} store={store} />
             ))
           ) : (
@@ -267,7 +289,7 @@ const NearbyMain = () => {
           )}
         </div>
       </div>
-   </div>
+    </div>
   );
 };
 

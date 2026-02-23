@@ -2,14 +2,21 @@ import React, { useState, useEffect, useRef } from "react";
 import { Map, MapMarker, CustomOverlayMap } from "react-kakao-maps-sdk";
 import { MdMyLocation } from "react-icons/md";
 
-const CATEGORY_FILTERS = [
-  { id: "greenCert", label: "🌿 녹색인증 제품" },
-  { id: "zeroWaste", label: "♻️ 제로웨이스트" },
-];
+const CATEGORY_EMOJI = {
+  "1": "🌿",
+  "2": "♻️",
+};
 
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 };
 
-const LocationMap = ({ stores = [], categoryFilter, onCategoryChange, onBoundsChange }) => {
+const LocationMap = ({
+  stores = [],
+  categories = [],
+  categoryFilter,
+  onCategoryChange,
+  onBoundsChange,
+  onMarkerClick,
+}) => {
   const [center, setCenter] = useState(DEFAULT_CENTER);
   const [myLocation, setMyLocation] = useState(null);
   const mapRef = useRef(null);
@@ -23,7 +30,7 @@ const LocationMap = ({ stores = [], categoryFilter, onCategoryChange, onBoundsCh
       },
       () => {
         setCenter(DEFAULT_CENTER);
-      }
+      },
     );
   }, []);
 
@@ -31,8 +38,14 @@ const LocationMap = ({ stores = [], categoryFilter, onCategoryChange, onBoundsCh
     if (!mapRef.current) return;
     const bounds = mapRef.current.getBounds();
     onBoundsChange?.({
-      sw: { lat: bounds.getSouthWest().getLat(), lng: bounds.getSouthWest().getLng() },
-      ne: { lat: bounds.getNorthEast().getLat(), lng: bounds.getNorthEast().getLng() },
+      sw: {
+        lat: bounds.getSouthWest().getLat(),
+        lng: bounds.getSouthWest().getLng(),
+      },
+      ne: {
+        lat: bounds.getNorthEast().getLat(),
+        lng: bounds.getNorthEast().getLng(),
+      },
     });
   }, [center]);
 
@@ -45,7 +58,7 @@ const LocationMap = ({ stores = [], categoryFilter, onCategoryChange, onBoundsCh
       },
       () => {
         alert("위치 정보를 가져올 수 없습니다.");
-      }
+      },
     );
   };
 
@@ -59,16 +72,23 @@ const LocationMap = ({ stores = [], categoryFilter, onCategoryChange, onBoundsCh
         onBoundsChanged={(map) => {
           const bounds = map.getBounds();
           onBoundsChange?.({
-            sw: { lat: bounds.getSouthWest().getLat(), lng: bounds.getSouthWest().getLng() },
-            ne: { lat: bounds.getNorthEast().getLat(), lng: bounds.getNorthEast().getLng() },
+            sw: {
+              lat: bounds.getSouthWest().getLat(),
+              lng: bounds.getSouthWest().getLng(),
+            },
+            ne: {
+              lat: bounds.getNorthEast().getLat(),
+              lng: bounds.getNorthEast().getLng(),
+            },
           });
         }}
       >
         {stores.map((store) => (
           <MapMarker
             key={store.storeCode}
-            position={{ lat: store.lat, lng: store.lng }}
-            title={store.name}
+            position={{ lat: store.latitude, lng: store.longitude }}
+            title={store.storeName}
+            onClick={() => onMarkerClick?.(store.storeCode)}
           />
         ))}
 
@@ -114,20 +134,24 @@ const LocationMap = ({ stores = [], categoryFilter, onCategoryChange, onBoundsCh
 
       {/* 카테고리 필터 버튼 오버레이 */}
       <div className="absolute top-3 left-3 flex gap-2 z-10">
-        {CATEGORY_FILTERS.map((cat) => (
+        {categories.map((category) => (
           <button
-            key={cat.id}
+            key={category.categoryCode}
             onClick={() =>
-              onCategoryChange(categoryFilter === cat.id ? null : cat.id)
+              onCategoryChange(
+                categoryFilter === category.categoryCode
+                  ? null
+                  : category.categoryCode,
+              )
             }
             className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium border shadow-sm transition-colors
               ${
-                categoryFilter === cat.id
+                categoryFilter === category.categoryCode
                   ? "bg-green-primary text-white border-green-primary"
                   : "bg-white text-gray-700 border-gray-300 hover:border-green-primary hover:text-green-primary"
               }`}
           >
-            {cat.label}
+            {CATEGORY_EMOJI[String(category.categoryCode)]} {category.categoryName}
           </button>
         ))}
       </div>
