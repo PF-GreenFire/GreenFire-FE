@@ -40,8 +40,8 @@ const EchoMemoryMain = () => {
 
   // coverImage를 Redux에서 초기화
   useEffect(() => {
-    if (reduxUser.userCode) {
-      setCoverImage(getImageUrl(`user/me/${reduxUser.userCode}/cover-image`));
+    if (reduxUser.imageCode) {
+      setCoverImage(getImageUrl(`user/me/cover-image/${reduxUser.imageCode}`));
     }
   }, [reduxUser.userCode]);
 

@@ -129,9 +129,11 @@ const MyPageInfo = () => {
             className="relative w-[120px] h-[120px] rounded-full border-[3px] border-green-primary overflow-hidden flex items-center justify-center bg-gray-50 cursor-pointer group"
             onClick={() => setShowProfileModal(true)}
           >
-            {userInfo.userCode ? (
+            {userInfo.profileImageCode ? (
               <img
-                src={getImageUrl(`user/me/${userInfo.userCode}/profile-image`)}
+                src={getImageUrl(
+                  `user/me/profile-image/${userInfo.profileImageCode}`,
+                )}
                 alt="프로필"
                 className="w-full h-full object-cover"
               />
@@ -287,8 +289,8 @@ const MyPageInfo = () => {
         onHide={() => setShowProfileModal(false)}
         nickname={userInfo.nickname}
         currentImage={
-          userInfo.userCode
-            ? getImageUrl(`user/me/${userInfo.userCode}/profile-image`)
+          userInfo.profileImageCode
+            ? getImageUrl(`user/me/profile-image/${userInfo.profileImageCode}`)
             : userInfo.profileImage
         }
         onSave={handleProfileImageSave}

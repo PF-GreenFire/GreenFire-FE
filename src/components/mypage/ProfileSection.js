@@ -8,9 +8,9 @@ const ProfileSection = ({ user }) => {
     <div className="w-full w-[calc(100%+30px)]">
       {/* 배너 이미지 */}
       <div className="w-full h-[120px] overflow-hidden bg-gradient-to-br from-green-primary to-[#6B9B7A]">
-        {user.userCode && (
+        {user.coverImageCode && (
           <img
-            src={getImageUrl(`user/me/${user.userCode}/cover-image`)}
+            src={getImageUrl(`user/me/cover-image/${user.coverImageCode}`)}
             alt="배너"
             className="w-full h-full object-cover"
             onError={(e) => {
@@ -25,9 +25,11 @@ const ProfileSection = ({ user }) => {
       {/* 프로필 정보 */}
       <div className="flex flex-col items-center -mt-[60px] relative z-[1] px-4">
         <div className="w-[120px] h-[120px] rounded-full bg-white border-4 border-white shadow-md overflow-hidden flex items-center justify-center">
-          {user.userCode ? (
+          {user.profileImageCode ? (
             <img
-              src={getImageUrl(`user/me/${user.userCode}/profile-image`)}
+              src={getImageUrl(
+                `user/me/profile-image/${user.profileImageCode}`,
+              )}
               alt="프로필"
               className="w-full h-full object-cover"
               onError={(e) => {
