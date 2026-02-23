@@ -1,57 +1,25 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { IoIosSearch } from "react-icons/io";
 import LocationMap from "./LocationMap";
 import NearbyStoreCard from "../../components/item/card/NearbyStoreCard";
+import { getAllStoresAPI } from "../../apis/storeAPI";
 
-// 임시 데이터
-const MOCK_STORES = [
-  {
-    storeCode: "1",
-    name: "초록밥",
-    category: "식식",
-    address: "서울시 강남구",
-    description: "초록밥은 'H' 다운 비건을 목표로 식물성 재료로 빵을 만들고 있습니다!",
-    imageUrl: "https://picsum.photos/80/80?random=1",
-    tags: ["🌿 녹색인증 제품"],
-    lat: 37.5172,
-    lng: 127.0473,
-  },
-  {
-    storeCode: "2",
-    name: "초로바",
-    category: "카페",
-    address: "서울시 서초구",
-    description: "친환경 원두와 텀블러를 사용하는 제로웨이스트 카페입니다.",
-    imageUrl: "https://picsum.photos/80/80?random=2",
-    tags: ["♻️ 제로웨이스트"],
-    lat: 37.4837,
-    lng: 127.0324,
-  },
-  {
-    storeCode: "3",
-    name: "에코마켓",
-    category: "마트",
-    address: "서울시 마포구",
-    description: "포장 없는 친환경 식재료를 판매합니다.",
-    imageUrl: "https://picsum.photos/80/80?random=3",
-    tags: ["🌿 녹색인증 제품", "♻️ 제로웨이스트"],
-    lat: 37.5568,
-    lng: 126.9246,
-  },
-];
-
-const CATEGORY_TAG_MAP = {
-  greenCert: "🌿 녹색인증 제품",
-  zeroWaste: "♻️ 제로웨이스트",
+const CATEGORY_MAP = {
+  greenCert: "녹색인증",
+  zeroWaste: "제로웨이스트",
 };
 
-const APPBAR_HEIGHT = 60;
+const APPBAR_HEIGHT = 84;
 const PEEK_HEIGHT = 80;
 const FULL_TOP = 56;
 const FLICK_THRESHOLD = 50;
 const CLICK_THRESHOLD = 5;
 
 const NearbyMain = () => {
+  const dispatch = useDispatch();
+  const { stores } = useSelector((state) => state.storeReducer);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState(null);
   const [mapBounds, setMapBounds] = useState(null);
@@ -74,6 +42,11 @@ const NearbyMain = () => {
     const snaps = getSnapPoints();
     setTranslateY(snaps.peek);
   }, [getSnapPoints]);
+
+  // 마운트 시 전체 매장 목록 조회
+  useEffect(() => {
+    dispatch(getAllStoresAPI());
+  }, [dispatch]);
 
   // 윈도우 리사이즈 대응
   useEffect(() => {
@@ -190,30 +163,25 @@ const NearbyMain = () => {
     };
   }, [isDragging, getSnapPoints, handleTouchEnd]);
 
-  // 검색/카테고리 필터 (지도 마커용)
-  const searchFilteredStores = MOCK_STORES.filter((store) => {
+  // 검색 + 지도 영역 필터링 (프론트)
+  const filteredStores = stores.filter((store) => {
     const matchesSearch =
       !searchQuery ||
-      store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      store.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      store.category?.toLowerCase().includes(searchQuery.toLowerCase());
+      store.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      store.address?.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesCategory =
       !categoryFilter ||
-      store.tags.includes(CATEGORY_TAG_MAP[categoryFilter]);
+      store.category === CATEGORY_MAP[categoryFilter];
 
-    return matchesSearch && matchesCategory;
-  });
+    const matchesBounds =
+      !mapBounds ||
+      (store.lat >= mapBounds.sw.lat &&
+        store.lat <= mapBounds.ne.lat &&
+        store.lng >= mapBounds.sw.lng &&
+        store.lng <= mapBounds.ne.lng);
 
-  // 검색/카테고리 + bounds 필터 (바텀시트 목록용)
-  const visibleStores = searchFilteredStores.filter((store) => {
-    if (!mapBounds) return true;
-    return (
-      store.lat >= mapBounds.sw.lat &&
-      store.lat <= mapBounds.ne.lat &&
-      store.lng >= mapBounds.sw.lng &&
-      store.lng <= mapBounds.ne.lng
-    );
+    return matchesSearch && matchesCategory && matchesBounds;
   });
 
   return (
@@ -245,7 +213,7 @@ const NearbyMain = () => {
       {/* 지도 — 남은 공간 전부 채움 */}
       <div className="-mx-[15px] flex-1 overflow-hidden">
         <LocationMap
-          stores={searchFilteredStores}
+          stores={filteredStores}
           categoryFilter={categoryFilter}
           onCategoryChange={setCategoryFilter}
           onBoundsChange={setMapBounds}
@@ -279,7 +247,7 @@ const NearbyMain = () => {
         >
           <div className="w-10 h-1 bg-gray-300 rounded-full" />
           <p className="text-xs text-gray-400 mt-1.5">
-            {visibleStores.length}개의 초록불 매장
+            {filteredStores.length}개의 초록불 매장
           </p>
         </div>
 
@@ -288,8 +256,8 @@ const NearbyMain = () => {
           className="overflow-y-auto"
           style={{ height: "calc(100% - 52px)" }}
         >
-          {visibleStores.length > 0 ? (
-            visibleStores.map((store) => (
+          {filteredStores.length > 0 ? (
+            filteredStores.map((store) => (
               <NearbyStoreCard key={store.storeCode} store={store} />
             ))
           ) : (
