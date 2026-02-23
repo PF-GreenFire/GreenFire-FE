@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { IoIosSearch } from "react-icons/io";
 import LocationMap from "./LocationMap";
@@ -7,7 +7,6 @@ import { getAllStoresAPI, getStoreCategoriesAPI } from "../../apis/storeAPI";
 
 const APPBAR_HEIGHT = 84;
 const PEEK_HEIGHT = 80;
-const FULL_TOP = 56;
 const FLICK_THRESHOLD = 50;
 const CLICK_THRESHOLD = 5;
 
@@ -21,19 +20,37 @@ const NearbyMain = () => {
   const [categoryFilter, setCategoryFilter] = useState(null);
   const [mapBounds, setMapBounds] = useState(null);
   const [selectedStoreCode, setSelectedStoreCode] = useState(null);
+  const [mapCenter, setMapCenter] = useState(null);
   const [sheetPosition, setSheetPosition] = useState("peek");
   const [translateY, setTranslateY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [containerHeight, setContainerHeight] = useState(0);
   const dragState = useRef({ startY: 0, startTranslate: 0 });
   const listRef = useRef(null);
+  const containerRef = useRef(null);
+  const headerRef = useRef(null);
 
   const getSnapPoints = useCallback(() => {
     const vh = window.innerHeight;
+    const headerHeight = headerRef.current?.offsetHeight || 0;
     return {
       peek: vh - APPBAR_HEIGHT - PEEK_HEIGHT,
       half: vh * 0.5,
-      full: FULL_TOP,
+      full: headerHeight,
     };
+  }, []);
+
+  // 컨테이너 높이 측정 (Navbar + mt-5 등 상단 요소 자동 반영)
+  useLayoutEffect(() => {
+    const measure = () => {
+      if (containerRef.current) {
+        const top = containerRef.current.getBoundingClientRect().top;
+        setContainerHeight(window.innerHeight - top - APPBAR_HEIGHT);
+      }
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
   }, []);
 
   // 초기 위치 설정
@@ -165,6 +182,24 @@ const NearbyMain = () => {
     };
   }, [isDragging, getSnapPoints, handleTouchEnd]);
 
+  // 주소/키워드 검색 → 지도 이동
+  const handleSearch = useCallback(() => {
+    if (!searchQuery.trim()) return;
+
+    const { kakao } = window;
+    if (!kakao?.maps?.services) return;
+
+    const places = new kakao.maps.services.Places();
+    places.keywordSearch(searchQuery, (result, status) => {
+      if (status === kakao.maps.services.Status.OK && result.length > 0) {
+        setMapCenter({
+          lat: parseFloat(result[0].y),
+          lng: parseFloat(result[0].x),
+        });
+      }
+    });
+  }, [searchQuery]);
+
   // 마커 클릭 핸들러
   const handleMarkerClick = useCallback((storeCode) => {
     setSelectedStoreCode(storeCode);
@@ -204,28 +239,38 @@ const NearbyMain = () => {
     : filteredStores;
 
   return (
-    <div className="flex flex-col" style={{ height: "calc(100vh - 56px)" }}>
-      {/* 페이지 타이틀 */}
-      <div className="text-center pt-2 pb-2">
-        <h2 className="text-[22px] font-bold text-green-primary mb-1">
-          내 주변 초록불
-        </h2>
-        <p className="text-[13px] text-gray-500">
-          주변의 초록불 지킴이들을 찾아보세요!
-        </p>
-      </div>
+    <div
+      ref={containerRef}
+      className="flex flex-col"
+      style={{ height: containerHeight ? `${containerHeight}px` : "auto" }}
+    >
+      <div ref={headerRef}>
+        {/* 페이지 타이틀 */}
+        <div className="text-center pt-2 pb-2">
+          <h2 className="text-[22px] font-bold text-green-primary mb-1">
+            내 주변 초록불
+          </h2>
+          <p className="text-[13px] text-gray-500">
+            주변의 초록불 지킴이들을 찾아보세요!
+          </p>
+        </div>
 
-      {/* 검색창 */}
-      <div className="px-4 pb-3">
-        <div className="flex items-center border border-green-primary rounded-full px-4 py-2 bg-white gap-2">
+        {/* 검색창 */}
+        <div className="px-4 pb-3">
+          <div className="flex items-center border border-green-primary rounded-full px-4 py-2 bg-white gap-2">
           <input
             type="text"
             placeholder="장소, 이름, 분야 검색"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             className="flex-1 border-none text-sm focus:outline-none placeholder:text-gray-400"
           />
-          <IoIosSearch className="text-xl text-green-primary flex-shrink-0" />
+          <IoIosSearch
+            className="text-xl text-green-primary flex-shrink-0 cursor-pointer"
+            onClick={handleSearch}
+          />
+          </div>
         </div>
       </div>
 
@@ -238,6 +283,7 @@ const NearbyMain = () => {
           onCategoryChange={setCategoryFilter}
           onBoundsChange={setMapBounds}
           onMarkerClick={handleMarkerClick}
+          externalCenter={mapCenter}
         />
       </div>
 

@@ -16,6 +16,7 @@ const LocationMap = ({
   onCategoryChange,
   onBoundsChange,
   onMarkerClick,
+  externalCenter,
 }) => {
   const [center, setCenter] = useState(DEFAULT_CENTER);
   const [myLocation, setMyLocation] = useState(null);
@@ -33,6 +34,13 @@ const LocationMap = ({
       },
     );
   }, []);
+
+  // 외부에서 전달된 좌표로 지도 이동
+  useEffect(() => {
+    if (externalCenter) {
+      setCenter(externalCenter);
+    }
+  }, [externalCenter]);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -126,7 +134,8 @@ const LocationMap = ({
       {/* 내 위치 버튼 */}
       <button
         onClick={handleMyLocation}
-        className="absolute bottom-4 right-3 z-10 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center border border-gray-200 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+        className="absolute bottom-24 right-3 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center border border-gray-200 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+        style={{ zIndex: 501 }}
         title="내 위치"
       >
         <MdMyLocation className="text-xl text-gray-600" />
