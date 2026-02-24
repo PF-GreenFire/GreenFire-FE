@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setActiveTab } from "../../modules/ScrapbookReducer";
 import { setFollowFilter } from "../../modules/FollowReducer";
-import { getFollowersAPI, getFollowingAPI } from "../../apis/followAPI";
+import { getFriendsAPI } from "../../apis/followAPI";
 import { getScrapsAPI } from "../../apis/scrapbookAPI";
 import PageHeader from "../../components/mypage/PageHeader";
 import TabButtons from "../../components/common/TabButtons";
@@ -88,89 +88,6 @@ const MOCK_DATA = {
       liked: true,
     },
   ],
-  challenge: [
-    {
-      id: 1,
-      title: "HEJ, PLOGGING",
-      host: "가연핑",
-      image: "https://picsum.photos/300/300?random=10",
-      status: "진행중",
-      participants: 120,
-      liked: true,
-    },
-    {
-      id: 2,
-      title: "플라스틱 없는 삶",
-      host: "시온핑",
-      image: "https://picsum.photos/300/300?random=11",
-      status: "모집중",
-      participants: 85,
-      liked: true,
-    },
-    {
-      id: 3,
-      title: "우리의 힘",
-      host: "예원핑",
-      image: "https://picsum.photos/300/300?random=12",
-      status: "진행중",
-      participants: 200,
-      liked: true,
-    },
-    {
-      id: 4,
-      title: "제로웨이스트 도전",
-      host: "다솔핑",
-      image: "https://picsum.photos/300/300?random=13",
-      status: "모집중",
-      participants: 50,
-      liked: true,
-    },
-    {
-      id: 5,
-      title: "텀블러 사용하기",
-      host: "가연핑",
-      image: "https://picsum.photos/300/300?random=14",
-      status: "진행중",
-      participants: 300,
-      liked: true,
-    },
-    {
-      id: 6,
-      title: "대중교통 이용",
-      host: "유진핑",
-      image: "https://picsum.photos/300/300?random=15",
-      status: "종료",
-      participants: 150,
-      liked: true,
-    },
-    {
-      id: 7,
-      title: "에코백 챌린지",
-      host: "시온핑",
-      image: "https://picsum.photos/300/300?random=16",
-      status: "진행중",
-      participants: 180,
-      liked: true,
-    },
-    {
-      id: 8,
-      title: "분리수거 마스터",
-      host: "예원핑",
-      image: "https://picsum.photos/300/300?random=17",
-      status: "모집중",
-      participants: 90,
-      liked: true,
-    },
-    {
-      id: 9,
-      title: "채식 일주일",
-      host: "다솔핑",
-      image: "https://picsum.photos/300/300?random=18",
-      status: "진행중",
-      participants: 75,
-      liked: true,
-    },
-  ],
   feed: [
     {
       id: 1,
@@ -236,87 +153,6 @@ const MOCK_DATA = {
       liked: true,
     },
   ],
-  // 팔로워 목록 (나를 팔로우하는 사람들)
-  followers: [
-    {
-      id: 1,
-      nickname: "가연핑",
-      userId: "ggggggggggg",
-      bio: "저는 가연핑입니다",
-      profileImage: "https://picsum.photos/100/100?random=30",
-      isFollowing: true,
-    },
-    {
-      id: 2,
-      nickname: "다솔핑",
-      userId: "ddddddddddd",
-      bio: "저는 다솔핑입니다",
-      profileImage: "https://picsum.photos/100/100?random=31",
-      isFollowing: false,
-    },
-    {
-      id: 3,
-      nickname: "예원핑",
-      userId: "yyyyyyyyyyy",
-      bio: "저는 예원핑입니다",
-      profileImage: "https://picsum.photos/100/100?random=32",
-      isFollowing: true,
-    },
-    {
-      id: 4,
-      nickname: "시온핑",
-      userId: "sssssssssss",
-      bio: "저는 시온핑입니다",
-      profileImage: "https://picsum.photos/100/100?random=33",
-      isFollowing: false,
-    },
-    {
-      id: 5,
-      nickname: "유진님핑",
-      userId: "yyyyyyyyyyyy",
-      bio: "저는 유진님핑입니다",
-      profileImage: "https://picsum.photos/100/100?random=34",
-      isFollowing: true,
-    },
-  ],
-  // 팔로잉 목록 (내가 팔로우하는 사람들)
-  following: [
-    {
-      id: 1,
-      nickname: "가연핑",
-      userId: "ggggggggggg",
-      bio: "저는 가연핑입니다",
-      profileImage: "https://picsum.photos/100/100?random=30",
-    },
-    {
-      id: 3,
-      nickname: "예원핑",
-      userId: "yyyyyyyyyyy",
-      bio: "저는 예원핑입니다",
-      profileImage: "https://picsum.photos/100/100?random=32",
-    },
-    {
-      id: 5,
-      nickname: "유진님핑",
-      userId: "yyyyyyyyyyyy",
-      bio: "저는 유진님핑입니다",
-      profileImage: "https://picsum.photos/100/100?random=34",
-    },
-    {
-      id: 6,
-      nickname: "민수핑",
-      userId: "mmmmmmmmmmm",
-      bio: "저는 민수핑입니다",
-      profileImage: "https://picsum.photos/100/100?random=35",
-    },
-    {
-      id: 7,
-      nickname: "지현핑",
-      userId: "jjjjjjjjjjj",
-      bio: "저는 지현핑입니다",
-      profileImage: "https://picsum.photos/100/100?random=36",
-    },
-  ],
 };
 
 const greenFireFilterOptions = ["전체", "지역명"];
@@ -337,7 +173,10 @@ const sortScraps = (data, sortBy) => {
       );
     case "이름순":
       return sorted.sort((a, b) =>
-        (a.title || a.name || "").localeCompare(b.title || b.name || "", "ko"),
+        (a.challengeTitle || a.title || a.name || "").localeCompare(
+          b.challengeTitle || b.title || b.name || "",
+          "ko",
+        ),
       );
     default:
       return sorted;
@@ -355,8 +194,7 @@ const ScrapbookMain = () => {
     loading: scrapbookLoading,
   } = useSelector((state) => state.scrapbookReducer);
   const {
-    followers,
-    following,
+    friends,
     activeFilter,
     loading: followLoading,
   } = useSelector((state) => state.followReducer);
@@ -374,8 +212,7 @@ const ScrapbookMain = () => {
         dispatch(getScrapsAPI("feed"));
         break;
       case "friend":
-        dispatch(getFollowersAPI());
-        dispatch(getFollowingAPI());
+        dispatch(getFriendsAPI());
         break;
       default:
         break;
@@ -390,19 +227,13 @@ const ScrapbookMain = () => {
           ? scrapbookScraps
           : MOCK_DATA.greenFire;
       case "challenge":
-        return scrapbookScraps.length > 0
-          ? scrapbookScraps
-          : MOCK_DATA.challenge;
+        return scrapbookScraps || [];
       case "feed":
         return scrapbookScraps.length > 0 ? scrapbookScraps : MOCK_DATA.feed;
-      case "friend": {
-        const apiData = activeFilter === "팔로워" ? followers : following;
-        return apiData.length > 0
-          ? apiData
-          : activeFilter === "팔로워"
-            ? MOCK_DATA.followers
-            : MOCK_DATA.following;
-      }
+      case "friend":
+        if (activeFilter === "팔로워") return friends.filter((f) => f.isFollower);
+        if (activeFilter === "팔로잉") return friends.filter((f) => f.isFollowing);
+        return friends;
       default:
         return [];
     }
@@ -435,13 +266,11 @@ const ScrapbookMain = () => {
       case "challenge":
         if (challengeFilter === "주최자") {
           return data.filter((item) =>
-            item.host?.toLowerCase().includes(query),
+            item.hostUser?.toLowerCase().includes(query),
           );
         }
-        return data.filter(
-          (item) =>
-            item.title?.toLowerCase().includes(query) ||
-            item.host?.toLowerCase().includes(query),
+        return data.filter((item) =>
+          item.challengeTitle?.toLowerCase().includes(query),
         );
       case "feed":
         if (feedFilter === "아이디") {

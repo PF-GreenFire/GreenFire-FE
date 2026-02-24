@@ -1,66 +1,28 @@
 import api from "./axios";
 import {
-  getFollowersRequest,
-  getFollowersSuccess,
-  getFollowersFailure,
-  getFollowingRequest,
-  getFollowingSuccess,
-  getFollowingFailure,
+  getFriendsRequest,
+  getFriendsSuccess,
+  getFriendsFailure,
   followUserSuccess,
   unfollowUserSuccess,
 } from "../modules/FollowReducer";
 
 /**
- * 나를 팔로우하는 사용자 목록 조회
- * @param {object} filters - { search: string }
+ * 팔로워/팔로잉 통합 목록 조회
+ * 응답: [{ userId, nickname, profileImage, bio, isFollowing, isFollower }, ...]
  */
-export const getFollowersAPI = (filters = {}) => {
+export const getFriendsAPI = () => {
   return async (dispatch) => {
-    dispatch(getFollowersRequest());
+    dispatch(getFriendsRequest());
     try {
-      const params = new URLSearchParams();
-      if (filters.search) params.append("search", filters.search);
-      const queryString = params.toString();
-      const url = queryString
-        ? `/v1/follows/followers?${queryString}`
-        : "/v1/follows/followers";
-
-      const result = await api.get(url);
+      const result = await api.get("/user/scraps/friends");
       if (result.status === 200) {
-        dispatch(getFollowersSuccess(result));
+        dispatch(getFriendsSuccess(result));
       }
     } catch (error) {
-      console.error("팔로워 목록 조회 중 에러가 발생했습니다:", error);
+      console.error("친구 목록 조회 중 에러가 발생했습니다:", error);
       dispatch(
-        getFollowersFailure(error.message || "통신 중 에러가 발생했습니다."),
-      );
-    }
-  };
-};
-
-/**
- * 내가 팔로우하는 사용자 목록 조회
- * @param {object} filters - { search: string }
- */
-export const getFollowingAPI = (filters = {}) => {
-  return async (dispatch) => {
-    dispatch(getFollowingRequest());
-    try {
-      const params = new URLSearchParams();
-      if (filters.search) params.append("search", filters.search);
-      const queryString = params.toString();
-      const url = queryString
-        ? `/v1/follows/following?${queryString}`
-        : "/v1/follows/following";
-
-      const result = await api.get(url);
-      if (result.status === 200) {
-        dispatch(getFollowingSuccess(result));
-      }
-    } catch (error) {
-      console.error("팔로잉 목록 조회 중 에러가 발생했습니다:", error);
-      dispatch(
-        getFollowingFailure(error.message || "통신 중 에러가 발생했습니다."),
+        getFriendsFailure(error.message || "통신 중 에러가 발생했습니다."),
       );
     }
   };

@@ -9,63 +9,6 @@ import SearchFilter from "../../components/common/SearchFilter";
 import FilterControls from "../../components/common/FilterControls";
 import ChallengeCardGrid from "../../components/mypage/ChallengeCardGrid";
 
-// 임시 챌린지 데이터
-const tempChallenges = [
-  {
-    id: 1,
-    title: "플로깅 챌린지",
-    type: "가연핑",
-    imageUrl: "https://picsum.photos/200?random=1",
-  },
-  {
-    id: 2,
-    title: "플라스틱 없는 삶",
-    type: "시온핑",
-    imageUrl: "https://picsum.photos/200?random=2",
-  },
-  {
-    id: 3,
-    title: "우리의 힘",
-    type: "예원핑",
-    imageUrl: "https://picsum.photos/200?random=3",
-  },
-  {
-    id: 4,
-    title: "플로깅 챌린지2",
-    type: "가연핑",
-    imageUrl: "https://picsum.photos/200?random=4",
-  },
-  {
-    id: 5,
-    title: "플라스틱 없는 삶2",
-    type: "시온핑",
-    imageUrl: "https://picsum.photos/200?random=5",
-  },
-  {
-    id: 6,
-    title: "우리의 힘2",
-    type: "예원핑",
-    imageUrl: "https://picsum.photos/200?random=6",
-  },
-  {
-    id: 7,
-    title: "플로깅 챌린지3",
-    type: "가연핑",
-    imageUrl: "https://picsum.photos/200?random=7",
-  },
-  {
-    id: 8,
-    title: "플라스틱 없는 삶3",
-    type: "시온핑",
-    imageUrl: "https://picsum.photos/200?random=8",
-  },
-  {
-    id: 9,
-    title: "우리의 힘3",
-    type: "예원핑",
-    imageUrl: "https://picsum.photos/200?random=9",
-  },
-];
 
 const ChallengeMain = () => {
   const navigate = useNavigate();
@@ -73,20 +16,16 @@ const ChallengeMain = () => {
 
   // Redux state
   const challengeData = useSelector((state) => state.challengeReducer);
+  const { user } = useSelector((state) => state.mypageReducer);
 
-  // Redux 데이터가 없으면 임시 데이터 사용
-  const challenges =
-    challengeData?.challenges?.length > 0
-      ? challengeData.challenges
-      : tempChallenges;
-  const totalCount = challengeData?.totalCount || challenges.length;
+  const challenges = challengeData?.challenges || [];
+  const totalCount = challengeData?.totalCount || 0;
 
   // Local state
   const [activeTab, setActiveTab] = useState("all"); // all, participating, created
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all"); // all, category, etc.
   const [sortBy, setSortBy] = useState("latest"); // latest, popular, deadline
-  const [username, setUsername] = useState("메밀면"); // 임시 사용자명
 
   // 초기 데이터 로드
   useEffect(() => {
@@ -130,6 +69,15 @@ const ChallengeMain = () => {
     navigate(`/challenges/${challengeId}`);
   };
 
+  // 탭별 빈 상태 메시지
+  const getEmptyMessage = () => {
+    switch (activeTab) {
+      case "participating": return "참여중인 챌린지가 없습니다.";
+      case "created":       return "내가 만든 챌린지가 없습니다.";
+      default:              return "챌린지가 없습니다.";
+    }
+  };
+
   // 뒤로가기 핸들러
   const handleGoBack = () => {
     navigate(-1);
@@ -167,7 +115,7 @@ const ChallengeMain = () => {
 
   return (
     <>
-      <PageHeader title={`${username}님의 챌린지`} />
+      <PageHeader title={`${user.nickname}님의 챌린지`} />
 
       <TabButtons
         tabs={tabs}
@@ -200,6 +148,7 @@ const ChallengeMain = () => {
         <ChallengeCardGrid
           challenges={challenges}
           onChallengeClick={handleChallengeClick}
+          emptyMessage={getEmptyMessage()}
         />
       </Container>
     </>
