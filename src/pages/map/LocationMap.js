@@ -57,15 +57,30 @@ const LocationMap = ({
     });
   }, [center]);
 
+  const moveTo = (loc) => {
+    setMyLocation(loc);
+    setCenter(loc);
+    if (mapRef.current) {
+      const kakao = window.kakao;
+      mapRef.current.setCenter(new kakao.maps.LatLng(loc.lat, loc.lng));
+    }
+  };
+
   const handleMyLocation = () => {
+    // 이미 위치를 알고 있으면 즉시 이동하고, 백그라운드에서 위치 갱신
+    if (myLocation) {
+      moveTo(myLocation);
+    }
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setMyLocation(loc);
-        setCenter(loc);
+        moveTo(loc);
       },
       () => {
-        alert("위치 정보를 가져올 수 없습니다.");
+        if (!myLocation) {
+          alert("위치 정보를 가져올 수 없습니다.");
+        }
       },
     );
   };

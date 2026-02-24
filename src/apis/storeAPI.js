@@ -1,5 +1,10 @@
 import api from "./axios";
-import { getStores, getStoreCategories } from "../modules/StoreReducer";
+import {
+  getStores,
+  getStoreCategories,
+  getStoreDetail,
+  getStoreDetailError,
+} from "../modules/StoreReducer";
 
 export const getAllStoresAPI = () => {
   return async (dispatch, getState) => {
@@ -25,6 +30,22 @@ export const getStoreCategoriesAPI = () => {
       }
     } catch (error) {
       console.error("매장 카테고리 조회 중 에러가 발생했습니다.", error);
+    }
+  };
+};
+
+// 매장 상세 조회
+export const getStoreDetailAPI = (storeCode) => {
+  return async (dispatch) => {
+    try {
+      const result = await api.get(`/location/stores/${storeCode}`);
+
+      if (result.status === 200) {
+        dispatch(getStoreDetail(result));
+      }
+    } catch (error) {
+      console.error("가게 정보 조회 중 에러가 발생했습니다.", error);
+      dispatch(getStoreDetailError());
     }
   };
 };
