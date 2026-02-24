@@ -1,6 +1,6 @@
 import React from "react";
 
-const ChallengeCardGrid = ({ challenges, onChallengeClick }) => {
+const ChallengeCardGrid = ({ challenges, onChallengeClick, emptyMessage = "챌린지가 없습니다." }) => {
   return (
     <div className="grid grid-cols-3 gap-3 pb-20 max-h-[60vh] overflow-y-auto">
       {challenges.length > 0 ? (
@@ -26,7 +26,7 @@ const ChallengeCardGrid = ({ challenges, onChallengeClick }) => {
         ))
       ) : (
         <div className="col-span-full text-center py-16 px-5 text-gray-400">
-          <p className="text-base m-0">챌린지가 없습니다.</p>
+          <p className="text-base m-0">{emptyMessage}</p>
         </div>
       )}
     </div>

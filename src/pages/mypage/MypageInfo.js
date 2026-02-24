@@ -129,9 +129,11 @@ const MyPageInfo = () => {
             className="relative w-[120px] h-[120px] rounded-full border-[3px] border-green-primary overflow-hidden flex items-center justify-center bg-gray-50 cursor-pointer group"
             onClick={() => setShowProfileModal(true)}
           >
-            {userInfo.profileImage ? (
+            {userInfo.profileImageCode ? (
               <img
-                src={getImageUrl(userInfo.profileImage)}
+                src={getImageUrl(
+                  `user/me/profile-image/${userInfo.profileImageCode}`,
+                )}
                 alt="프로필"
                 className="w-full h-full object-cover"
               />
@@ -162,13 +164,14 @@ const MyPageInfo = () => {
                 value={userInfo.nickname}
                 onChange={(e) => handleNicknameChange(e.target.value)}
                 className="text-xl font-semibold text-gray-800 bg-transparent py-1 w-auto min-w-[80px] max-w-[200px] focus:outline-none"
+                style={{ border: "none", borderBottom: "1px solid #D1D5DB" }}
               />
               <span className="text-sm text-gray-400">
                 {userInfo.nickname.length}/{maxNicknameLength}
               </span>
             </div>
             <p className="text-sm text-gray-600 m-0 mt-2">
-              ID: {userInfo.userId}
+              ID: {userInfo.email}
             </p>
           </div>
         </div>
@@ -285,7 +288,11 @@ const MyPageInfo = () => {
         show={showProfileModal}
         onHide={() => setShowProfileModal(false)}
         nickname={userInfo.nickname}
-        currentImage={userInfo.profileImage}
+        currentImage={
+          userInfo.profileImageCode
+            ? getImageUrl(`user/me/profile-image/${userInfo.profileImageCode}`)
+            : userInfo.profileImage
+        }
         onSave={handleProfileImageSave}
       />
 
