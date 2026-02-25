@@ -11,13 +11,6 @@ const DEFAULT_IMAGES = [
   "/profile/profile_1.png",
   "/profile/profile_2.png",
   "/profile/profile_3.png",
-  "/profile/profile_4.png",
-  "/profile/profile_5.png",
-  "/profile/profile_6.png",
-  "/profile/profile_7.png",
-  "/profile/profile_8.png",
-  "/profile/profile_9.png",
-  "/profile/profile_10.png",
 ];
 
 const IMAGES_PER_PAGE = 10;
@@ -223,7 +216,7 @@ const ProfileImageModal = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-5 gap-2 mb-4">
+        <div className="grid grid-cols-4 gap-2 mb-4">
           {getPageImages().map((item, index) =>
             item === "camera" ? (
               <button
@@ -249,7 +242,7 @@ const ProfileImageModal = ({
                   className="w-full h-full object-cover"
                 />
               </button>
-            )
+            ),
           )}
         </div>
 

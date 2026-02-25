@@ -7,9 +7,9 @@ const ProfileInfoSection = ({ user, onSettingsClick }) => {
     <div className="flex -mt-[50px] relative z-[1]">
       {/* 프로필 이미지 */}
       <div className="w-[90px] h-[90px] rounded-full bg-white border-4 border-white shadow-md overflow-hidden flex-shrink-0">
-        {user.profileImage ? (
+        {user.profileImageCode ? (
           <img
-            src={getImageUrl(user.profileImage)}
+            src={getImageUrl(`user/me/profile-image/${user.profileImageCode}`)}
             alt="프로필"
             className="w-full h-full object-cover"
           />

@@ -5,6 +5,7 @@ import challengeReducer from "./ChallengeReducer";
 import mypageReducer from "./MypageReducer";
 import followReducer from "./FollowReducer";
 import feedReducer from "./FeedReducer";
+import storeReducer from "./StoreReducer";
 
 const rootReducer = combineReducers({
     categoryReducer,
@@ -12,7 +13,8 @@ const rootReducer = combineReducers({
     challengeReducer,
     mypageReducer,
     followReducer,
-    feedReducer
+    feedReducer,
+    storeReducer
 });
 
 export default rootReducer;

@@ -40,15 +40,16 @@ const EchoMemoryMain = () => {
 
   // coverImage를 Redux에서 초기화
   useEffect(() => {
-    if (reduxUser.coverImage) {
-      setCoverImage(getImageUrl(reduxUser.coverImage));
+    if (reduxUser.imageCode) {
+      setCoverImage(getImageUrl(`user/me/cover-image/${reduxUser.imageCode}`));
     }
-  }, [reduxUser.coverImage]);
+  }, [reduxUser.userCode]);
 
   // 사용자 데이터 (Redux 데이터 우선, 폴백으로 기본값)
   const user = {
     nickname: reduxUser.nickname || "김초록",
-    username: "saladybest12",
+    userCode: reduxUser.userCode || null,
+    username: reduxUser.name || "김초록",
     profileImage: reduxUser.profileImage || null,
     level: 8,
     bio: "자기소개 영역 안녕하세요 김초록입니다 같이 환경 보호 해요~ 봉사활동 많이 다녀요 관심있으시면 우체통 보내주세요",
@@ -131,9 +132,21 @@ const EchoMemoryMain = () => {
         </div>
         <TabNavigation activeTab={activeTab} onTabClick={handleTabClick} />
         <PhotoGrid
-          posts={activeTab === "posts" ? echoMemoryPosts.posts : echoMemoryLikedPosts.posts}
-          hasMore={activeTab === "posts" ? echoMemoryPosts.hasMore : echoMemoryLikedPosts.hasMore}
-          onLoadMore={activeTab === "posts" ? handleLoadMorePosts : handleLoadMoreLikedPosts}
+          posts={
+            activeTab === "posts"
+              ? echoMemoryPosts.posts
+              : echoMemoryLikedPosts.posts
+          }
+          hasMore={
+            activeTab === "posts"
+              ? echoMemoryPosts.hasMore
+              : echoMemoryLikedPosts.hasMore
+          }
+          onLoadMore={
+            activeTab === "posts"
+              ? handleLoadMorePosts
+              : handleLoadMoreLikedPosts
+          }
         />
       </div>
 

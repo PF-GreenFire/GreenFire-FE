@@ -6,9 +6,7 @@ const ScrapFriendCard = ({ item, followFilter }) => {
   const dispatch = useDispatch();
 
   // 로컬 상태로 즉각적 UI 반영 (낙관적 업데이트)
-  const [isFollowing, setIsFollowing] = useState(
-    followFilter === "팔로잉" ? true : !!item.isFollowing
-  );
+  const [isFollowing, setIsFollowing] = useState(!!item.isFollowing);
 
   const handleMessageClick = (e) => {
     e.stopPropagation();
@@ -58,7 +56,7 @@ const ScrapFriendCard = ({ item, followFilter }) => {
       );
     }
 
-    // 팔로워 필터
+    // followFilter === "팔로워"
     if (isFollowing) {
       // 서로 팔로우 중 → 우체통 버튼
       return (
