@@ -284,6 +284,7 @@ const NearbyMain = () => {
           onBoundsChange={setMapBounds}
           onMarkerClick={handleMarkerClick}
           externalCenter={mapCenter}
+          sheetPosition={sheetPosition}
         />
       </div>
 

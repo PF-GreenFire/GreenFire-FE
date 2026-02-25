@@ -1,13 +1,24 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Map, MapMarker, CustomOverlayMap } from "react-kakao-maps-sdk";
 import { MdMyLocation } from "react-icons/md";
+import CATEGORY_EMOJI from "../../constants/categoryConstants";
 
-const CATEGORY_EMOJI = {
-  "1": "🌿",
-  "2": "♻️",
+const LOCATION_STORAGE_KEY = "lastKnownLocation";
+const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 };
+
+const getSavedLocation = () => {
+  try {
+    const saved = localStorage.getItem(LOCATION_STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {}
+  return null;
 };
 
-const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 };
+const saveLocation = (loc) => {
+  try {
+    localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(loc));
+  } catch {}
+};
 
 const LocationMap = ({
   stores = [],
@@ -17,9 +28,11 @@ const LocationMap = ({
   onBoundsChange,
   onMarkerClick,
   externalCenter,
+  sheetPosition,
 }) => {
-  const [center, setCenter] = useState(DEFAULT_CENTER);
-  const [myLocation, setMyLocation] = useState(null);
+  const cachedLocation = getSavedLocation();
+  const [center, setCenter] = useState(cachedLocation || DEFAULT_CENTER);
+  const [myLocation, setMyLocation] = useState(cachedLocation);
   const mapRef = useRef(null);
 
   useEffect(() => {
@@ -28,10 +41,12 @@ const LocationMap = ({
         const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         setCenter(loc);
         setMyLocation(loc);
+        saveLocation(loc);
       },
       () => {
-        setCenter(DEFAULT_CENTER);
+        if (!cachedLocation) setCenter(DEFAULT_CENTER);
       },
+      { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 },
     );
   }, []);
 
@@ -60,6 +75,7 @@ const LocationMap = ({
   const moveTo = (loc) => {
     setMyLocation(loc);
     setCenter(loc);
+    saveLocation(loc);
     if (mapRef.current) {
       const kakao = window.kakao;
       mapRef.current.setCenter(new kakao.maps.LatLng(loc.lat, loc.lng));
@@ -82,6 +98,7 @@ const LocationMap = ({
           alert("위치 정보를 가져올 수 없습니다.");
         }
       },
+      { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 },
     );
   };
 
@@ -146,15 +163,17 @@ const LocationMap = ({
         )}
       </Map>
 
-      {/* 내 위치 버튼 */}
-      <button
-        onClick={handleMyLocation}
-        className="absolute bottom-24 right-3 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center border border-gray-200 hover:bg-gray-50 active:bg-gray-100 transition-colors"
-        style={{ zIndex: 501 }}
-        title="내 위치"
-      >
-        <MdMyLocation className="text-xl text-gray-600" />
-      </button>
+      {/* 내 위치 버튼 — 바텀시트가 올라오면 숨김 */}
+      {sheetPosition === "peek" && (
+        <button
+          onClick={handleMyLocation}
+          className="absolute bottom-24 right-3 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center border border-gray-200 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+          style={{ zIndex: 501 }}
+          title="내 위치"
+        >
+          <MdMyLocation className="text-xl text-gray-600" />
+        </button>
+      )}
 
       {/* 카테고리 필터 버튼 오버레이 */}
       <div className="absolute top-3 left-3 flex gap-2 z-10">

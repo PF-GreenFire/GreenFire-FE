@@ -1,10 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { Map, MapMarker } from "react-kakao-maps-sdk";
 import { FaRegHeart } from "react-icons/fa";
-import { FiClock, FiPhone, FiGlobe, FiChevronLeft, FiCoffee } from "react-icons/fi";
+import {
+  FiClock,
+  FiPhone,
+  FiGlobe,
+  FiChevronLeft,
+  FiCoffee,
+  FiCopy,
+  FiNavigation,
+} from "react-icons/fi";
 import { getStoreDetailAPI } from "../../apis/storeAPI";
 import { getImageUrl } from "../../utils/imageUtils";
+import CATEGORY_EMOJI from "../../constants/categoryConstants";
+
+const LOCATION_STORAGE_KEY = "lastKnownLocation";
 
 const StoreDetail = () => {
   const { storeCode } = useParams();
@@ -14,6 +26,36 @@ const StoreDetail = () => {
     (state) => state.storeReducer,
   );
   const [activeTab, setActiveTab] = useState("posts");
+  const [copied, setCopied] = useState(false);
+
+  const fullAddress = storeDetail
+    ? `${storeDetail.address || ""}${storeDetail.detailAddress ? ` ${storeDetail.detailAddress}` : ""}`
+    : "";
+
+  const handleCopyAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(fullAddress);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      alert("주소를 복사할 수 없습니다.");
+    }
+  };
+
+  const handleDirections = () => {
+    let url;
+    try {
+      const saved = localStorage.getItem(LOCATION_STORAGE_KEY);
+      if (saved) {
+        const myLoc = JSON.parse(saved);
+        url = `https://map.kakao.com/link/from/내 위치,${myLoc.lat},${myLoc.lng}/to/${encodeURIComponent(storeDetail.storeName)},${storeDetail.latitude},${storeDetail.longitude}`;
+      }
+    } catch {}
+    if (!url) {
+      url = `https://map.kakao.com/link/to/${encodeURIComponent(storeDetail.storeName)},${storeDetail.latitude},${storeDetail.longitude}`;
+    }
+    window.open(url, "_blank");
+  };
 
   useEffect(() => {
     dispatch(getStoreDetailAPI(storeCode));
@@ -44,15 +86,15 @@ const StoreDetail = () => {
     );
   }
 
-  const storeImage = storeDetail.images?.[0]?.path;
-
   return (
     <div className="bg-white min-h-screen pb-[50px]">
       {/* 배너 이미지 */}
       <div className="relative h-[200px] bg-gray-200">
-        {storeImage ? (
+        {storeDetail.images.length > 0 ? (
           <img
-            src={getImageUrl(storeImage)}
+            src={getImageUrl(
+              `location/store-image/${storeDetail.images?.[0]?.imageCode}`,
+            )}
             alt={storeDetail.storeName}
             className="w-full h-full object-cover"
           />
@@ -78,6 +120,7 @@ const StoreDetail = () => {
               {storeDetail.storeName}
               {storeDetail.storeCategoryName && (
                 <span className="ml-2 text-[13px] font-normal text-gray-500">
+                  {CATEGORY_EMOJI[String(storeDetail.storeCategoryCode)]}{" "}
                   {storeDetail.storeCategoryName}
                 </span>
               )}
@@ -214,12 +257,50 @@ const StoreDetail = () => {
           </div>
         )}
 
-        {/* 장소 탭 - placeholder */}
-        {activeTab === "place" && (
-          <div className="flex items-center justify-center py-10 text-gray-400 text-sm">
-            장소 정보가 준비 중입니다.
-          </div>
-        )}
+        {/* 장소 탭 - 지도 + 주소 + 액션 버튼 */}
+        {activeTab === "place" &&
+          storeDetail.latitude &&
+          storeDetail.longitude && (
+            <div className="p-4">
+              <div className="rounded-xl overflow-hidden border border-gray-200">
+                <Map
+                  center={{
+                    lat: storeDetail.latitude,
+                    lng: storeDetail.longitude,
+                  }}
+                  style={{ width: "100%", height: "200px" }}
+                  level={4}
+                >
+                  <MapMarker
+                    position={{
+                      lat: storeDetail.latitude,
+                      lng: storeDetail.longitude,
+                    }}
+                    title={storeDetail.storeName}
+                  />
+                </Map>
+              </div>
+
+              <p className="text-sm text-gray-600 mt-4 px-1">{fullAddress}</p>
+
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={handleCopyAddress}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full border border-gray-300 bg-white text-sm text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  <FiCopy size={15} />
+                  {copied ? "복사완료" : "주소 복사"}
+                </button>
+                <button
+                  onClick={handleDirections}
+                  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full border border-green-700 bg-green-700 text-sm text-white hover:bg-green-800 transition-colors cursor-pointer"
+                >
+                  <FiNavigation size={15} />
+                  길찾기
+                </button>
+              </div>
+            </div>
+          )}
       </div>
     </div>
   );
