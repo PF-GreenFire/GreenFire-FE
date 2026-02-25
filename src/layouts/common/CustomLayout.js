@@ -9,13 +9,9 @@ function CustomLayout() {
   const location = useLocation();
 
   // 이 경로들에서만 AppBar 표시
-  const showAppBar = [
-    "/",
-    "/nearby",
-    "/location",
-    "/challenges",
-    "/feed",
-  ].includes(location.pathname);
+  const showAppBarPaths = ["/", "/nearby", "/challenges", "/feed"];
+  const showAppBar = showAppBarPaths.includes(location.pathname)
+    || location.pathname.startsWith("/store/");
 
   return (
     <>
