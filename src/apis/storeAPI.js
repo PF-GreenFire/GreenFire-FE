@@ -4,6 +4,7 @@ import {
   getStoreCategories,
   getStoreDetail,
   getStoreDetailError,
+  toggleStoreLike,
 } from "../modules/StoreReducer";
 
 export const getAllStoresAPI = () => {
@@ -30,6 +31,23 @@ export const getStoreCategoriesAPI = () => {
       }
     } catch (error) {
       console.error("매장 카테고리 조회 중 에러가 발생했습니다.", error);
+    }
+  };
+};
+
+// 매장 좋아요 토글
+export const toggleStoreLikeAPI = (storeCode, isLiked) => {
+  return async (dispatch) => {
+    dispatch(toggleStoreLike(storeCode));
+    try {
+      if (isLiked) {
+        await api.delete(`/location/stores/${storeCode}/like`);
+      } else {
+        await api.post(`/location/stores/${storeCode}/like`);
+      }
+    } catch (error) {
+      console.error("좋아요 처리 중 에러가 발생했습니다.", error);
+      dispatch(toggleStoreLike(storeCode));
     }
   };
 };

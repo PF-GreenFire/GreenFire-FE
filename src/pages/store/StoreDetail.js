@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Map, MapMarker } from "react-kakao-maps-sdk";
-import { FaRegHeart } from "react-icons/fa";
+import { FaRegHeart, FaHeart } from "react-icons/fa";
 import {
   FiClock,
   FiPhone,
@@ -12,7 +12,8 @@ import {
   FiCopy,
   FiNavigation,
 } from "react-icons/fi";
-import { getStoreDetailAPI } from "../../apis/storeAPI";
+import { getStoreDetailAPI, toggleStoreLikeAPI } from "../../apis/storeAPI";
+import { useAuth } from "../../hooks/useAuth";
 import { getImageUrl } from "../../utils/imageUtils";
 import CATEGORY_EMOJI from "../../constants/categoryConstants";
 
@@ -22,6 +23,7 @@ const StoreDetail = () => {
   const { storeCode } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { isLoggedIn } = useAuth();
   const { storeDetail, storeDetailError } = useSelector(
     (state) => state.storeReducer,
   );
@@ -124,11 +126,6 @@ const StoreDetail = () => {
                   {storeDetail.storeCategoryName}
                 </span>
               )}
-              {storeDetail.storeFoodType && (
-                <span className="ml-1 text-[13px] font-normal text-gray-400">
-                  · {storeDetail.storeFoodType}
-                </span>
-              )}
             </h2>
             <p className="text-[13px] text-gray-500 mt-1">
               {storeDetail.address}
@@ -136,7 +133,22 @@ const StoreDetail = () => {
             </p>
           </div>
           <div className="flex flex-col items-center shrink-0">
-            <FaRegHeart size={20} className="text-red-500 cursor-pointer" />
+            <button
+              onClick={() => {
+                if (!isLoggedIn) {
+                  alert("로그인이 필요합니다.");
+                  return;
+                }
+                dispatch(toggleStoreLikeAPI(storeCode, storeDetail.liked));
+              }}
+              className="bg-transparent border-none p-0 cursor-pointer"
+            >
+              {storeDetail.liked ? (
+                <FaHeart size={20} className="text-red-500" />
+              ) : (
+                <FaRegHeart size={20} className="text-red-500" />
+              )}
+            </button>
             <span className="text-xs text-gray-500 mt-0.5">
               {storeDetail.likeCount || 0}
             </span>
@@ -186,20 +198,6 @@ const StoreDetail = () => {
           )}
         </div>
 
-        {/* 인증 배지 */}
-        {storeDetail.certifications &&
-          storeDetail.certifications.length > 0 && (
-            <div className="flex gap-2 flex-wrap mt-3">
-              {storeDetail.certifications.map((cert, idx) => (
-                <span
-                  key={idx}
-                  className="inline-block px-2.5 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-xl"
-                >
-                  {cert}
-                </span>
-              ))}
-            </div>
-          )}
       </div>
 
       {/* 탭 영역 */}

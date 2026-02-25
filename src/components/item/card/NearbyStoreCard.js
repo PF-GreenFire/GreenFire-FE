@@ -1,10 +1,15 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { getImageUrl } from "../../../utils/imageUtils";
+import { toggleStoreLikeAPI } from "../../../apis/storeAPI";
+import { useAuth } from "../../../hooks/useAuth";
 
 const NearbyStoreCard = ({ store }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isLoggedIn } = useAuth();
 
   return (
     <div
@@ -37,10 +42,21 @@ const NearbyStoreCard = ({ store }) => {
             <p className="text-[13px] text-gray-500 mt-0.5">{store.address}</p>
           </div>
           <button
-            className="flex-shrink-0 ml-2 p-1 bg-transparent border-none text-gray-400 hover:text-red-400 transition-colors"
-            onClick={(e) => e.stopPropagation()}
+            className="flex-shrink-0 ml-2 p-1 bg-transparent border-none cursor-pointer transition-colors"
+            onClick={(e) => {
+              e.stopPropagation();
+              // if (!isLoggedIn) {
+              //   alert("로그인이 필요합니다.");
+              //   return;
+              // }
+              dispatch(toggleStoreLikeAPI(store.storeCode, store.liked));
+            }}
           >
-            <FaRegHeart size={16} />
+            {store.liked ? (
+              <FaHeart size={16} className="text-red-500" />
+            ) : (
+              <FaRegHeart size={16} className="text-gray-400" />
+            )}
           </button>
         </div>
 
