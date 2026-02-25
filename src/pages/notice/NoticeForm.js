@@ -181,11 +181,18 @@ const NoticeForm = ({ mode }) => {
     }
   };
 
-  const isImageFile = (fileName) => /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(fileName);
+  // TODO: 개발 서버 배포 후 공통 getImageUrl(imageUtils.js)로 교체 검토
   const getImageUrl = (path) => `${API_URL}/uploads/${path}`;
+  const isDocumentFile = (path) => /\.(pdf|doc|docx)$/i.test(path || '');
 
-  // 미리보기에서 보여줄 모든 이미지
-  const previewExistingImages = existingImages.filter((img) => isImageFile(img.originName));
+  const getFileName = (path) => {
+    if (!path) return '';
+    const parts = path.split('/');
+    return parts[parts.length - 1];
+  };
+
+  // 미리보기에서 보여줄 모든 이미지 (문서 제외)
+  const previewExistingImages = existingImages.filter((img) => !isDocumentFile(img.path));
   const previewNewImages = filePreviews.filter((p) => p.isImage);
 
   return (
@@ -306,17 +313,17 @@ const NoticeForm = ({ mode }) => {
                   <div className="flex gap-2.5 flex-wrap">
                     {existingImages.map((img) => (
                       <div key={img.imageCode} className="relative">
-                        {isImageFile(img.originName) ? (
+                        {!isDocumentFile(img.path) ? (
                           <img
                             src={getImageUrl(img.path)}
-                            alt={img.originName}
+                            alt={getFileName(img.path)}
                             className="w-20 h-20 object-cover rounded-[10px] border border-gray-200"
                           />
                         ) : (
                           <div className="w-20 h-20 rounded-[10px] border border-gray-200 flex flex-col items-center justify-center bg-white">
                             <FaPaperclip size={16} className="text-gray-400" />
                             <span className="text-[9px] text-gray-400 mt-1 text-center px-1 overflow-hidden text-ellipsis whitespace-nowrap w-full">
-                              {img.originName}
+                              {getFileName(img.path)}
                             </span>
                           </div>
                         )}
@@ -451,7 +458,7 @@ const NoticeForm = ({ mode }) => {
                   <div key={img.imageCode} className="bg-gray-50 rounded-xl overflow-hidden mb-2.5">
                     <img
                       src={getImageUrl(img.path)}
-                      alt={img.originName}
+                      alt={getFileName(img.path)}
                       className="w-full block rounded-xl"
                     />
                   </div>

@@ -4,6 +4,7 @@ import scrapbookReducer from "./ScrapbookReducer";
 import challengeReducer from "./ChallengeReducer";
 import mypageReducer from "./MypageReducer";
 import followReducer from "./FollowReducer";
+import feedReducer from "./FeedReducer";
 import storeReducer from "./StoreReducer";
 
 const rootReducer = combineReducers({
@@ -12,6 +13,7 @@ const rootReducer = combineReducers({
     challengeReducer,
     mypageReducer,
     followReducer,
+    feedReducer,
     storeReducer
 });
 
