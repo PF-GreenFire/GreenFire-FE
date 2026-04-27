@@ -1,15 +1,176 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { Button, Card, Container, Image, Spinner } from 'react-bootstrap';
+import { Tag } from 'antd';
+import {
+  applyChallengeAPI,
+  cancelChallengeApplyAPI,
+  deleteChallengeAPI,
+  getChallengeDetailAPI,
+} from '../../apis/challengeAPI';
+import { useAuth } from '../../hooks/useAuth';
+
+const STATUS_LABEL = {
+  RECRUITING: '모집중',
+  ONGOING: '진행중',
+  CLOSED: '종료',
+  CANCELLED: '취소됨',
+  PAUSED: '일시중지',
+};
+
+const statusColor = (status) => {
+  switch (status) {
+    case 'RECRUITING': return 'green';
+    case 'ONGOING': return 'blue';
+    case 'CLOSED': return 'red';
+    default: return 'default';
+  }
+};
 
 const ChallengeDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user, isLoggedIn } = useAuth();
+
+  const [challenge, setChallenge] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await dispatch(getChallengeDetailAPI(id));
+      setChallenge(data);
+      setError(null);
+    } catch (e) {
+      setError(
+        e?.response?.status === 404
+          ? '챌린지를 찾을 수 없습니다.'
+          : '챌린지 조회에 실패했습니다.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const handleApply = async () => {
+    if (!isLoggedIn) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+    setBusy(true);
+    try {
+      await dispatch(applyChallengeAPI(id));
+      alert('챌린지 참여 신청이 완료되었습니다.');
+      await load();
+    } catch (e) {
+      alert(e?.response?.data?.message || '참여 신청에 실패했습니다.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!window.confirm('챌린지 참여를 취소하시겠습니까?')) return;
+    setBusy(true);
+    try {
+      await dispatch(cancelChallengeApplyAPI(id));
+      alert('참여가 취소되었습니다.');
+      await load();
+    } catch (e) {
+      alert(e?.response?.data?.message || '참여 취소에 실패했습니다.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('이 챌린지를 삭제하시겠습니까? 되돌릴 수 없습니다.')) return;
+    setBusy(true);
+    try {
+      await dispatch(deleteChallengeAPI(id));
+      alert('삭제되었습니다.');
+      navigate('/challenges');
+    } catch (e) {
+      alert(e?.response?.data?.message || '삭제에 실패했습니다.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Container className="text-center py-5">
+        <Spinner animation="border" variant="success" />
+      </Container>
+    );
+  }
+
+  if (error || !challenge) {
+    return (
+      <Container className="text-center py-5 text-muted">
+        {error || '데이터가 없습니다.'}
+      </Container>
+    );
+  }
+
+  const isHost = user?.userId && challenge.hostUser && user.userId === challenge.hostUser;
+  const canApply = challenge.challengeStatus === 'RECRUITING';
+
   return (
-    <div style={{padding: '40px 0', textAlign: 'center'}}>
-      <h2>챌린지 상세 페이지 (임시)</h2>
-      <p>챌린지 ID: {id}</p>
-      <p>여기에 챌린지 상세 내용이 들어갑니다.</p>
-    </div>
+    <Container style={{ maxWidth: '563px', padding: '24px 16px' }}>
+      {challenge.thumbnailUrl && (
+        <Image
+          src={challenge.thumbnailUrl}
+          alt={challenge.challengeTitle}
+          fluid
+          rounded
+          className="mb-3"
+          style={{ maxHeight: 260, objectFit: 'cover', width: '100%' }}
+        />
+      )}
+
+      <div className="d-flex align-items-center gap-2 mb-2 flex-wrap">
+        <h3 className="m-0">{challenge.challengeTitle}</h3>
+        <Tag color={statusColor(challenge.challengeStatus)}>
+          {STATUS_LABEL[challenge.challengeStatus] || challenge.challengeStatus}
+        </Tag>
+      </div>
+
+      <div className="text-muted small mb-3">
+        기간 {challenge.startDate} ~ {challenge.endDate} · 정원 {challenge.recruitmentNum}명 · XP {challenge.xp}
+      </div>
+
+      <Card className="mb-4">
+        <Card.Body style={{ whiteSpace: 'pre-wrap' }}>
+          {challenge.challengeContent}
+        </Card.Body>
+      </Card>
+
+      <div className="d-flex gap-2 flex-wrap">
+        {canApply && (
+          <Button variant="success" disabled={busy} onClick={handleApply}>
+            참여 신청
+          </Button>
+        )}
+        <Button variant="outline-secondary" disabled={busy} onClick={handleCancel}>
+          참여 취소
+        </Button>
+        {isHost && (
+          <Button variant="outline-danger" disabled={busy} onClick={handleDelete}>
+            삭제
+          </Button>
+        )}
+      </div>
+    </Container>
   );
 };
 
-export default ChallengeDetail; 
+export default ChallengeDetail;

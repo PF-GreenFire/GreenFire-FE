@@ -4,7 +4,7 @@ import { getCategories, success } from "../modules/CategoryReducer";
 export const getCategoriesAPI = (categoryType) => {
   return async (dispatch, getState) => {
     try {
-      const result = await api.get(`/v1/category?categoryType=${categoryType}`);
+      const result = await api.get(`/api/category?categoryType=${categoryType}`);
 
       console.log("getCategoriesAPI result : ", result.data);
 
@@ -20,7 +20,7 @@ export const getCategoriesAPI = (categoryType) => {
 export const addCategoryAPI = (categoryRequest) => {
   return async (dispatch, getState) => {
     try {
-      const result = await api.post(`/v1/category`, categoryRequest);
+      const result = await api.post(`/api/category`, categoryRequest);
 
       console.log("addCategoryAPI result : ", result.data);
 
@@ -36,7 +36,7 @@ export const addCategoryAPI = (categoryRequest) => {
 export const deleteCategoryAPI = (categoryType, categoryId) => {
   return async (dispatch, getState) => {
     try {
-      const result = await api.delete(`/v1/category/${categoryId}`, {
+      const result = await api.delete(`/api/category/${categoryId}`, {
         params: { categoryType },
       });
 

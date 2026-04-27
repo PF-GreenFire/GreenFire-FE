@@ -1,29 +1,70 @@
 import api from "./axios";
 import { getChallenges } from "../modules/ChallengeReducer";
 
-const ENDPOINTS = {
-  all: "/v1/challenges",
-  participating: "/v1/challenges/participating",
-  created: "/v1/challenges/created",
+const BASE = "/api/challenges";
+
+export const getChallengesAPI = ({
+  page = 0,
+  size = 20,
+  searchKeyword,
+  categoryCode,
+} = {}) => {
+  return async (dispatch) => {
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    });
+    if (searchKeyword) params.append("searchKeyword", searchKeyword);
+    if (categoryCode != null && categoryCode !== "") {
+      params.append("categoryCode", String(categoryCode));
+    }
+
+    const result = await api.get(`${BASE}?${params.toString()}`);
+    if (result.status === 200) {
+      dispatch(getChallenges(result));
+    }
+    return result.data;
+  };
 };
 
-export const getChallengesAPI = (type = "all", params = {}) => {
-  return async (dispatch, getState) => {
-    try {
-      const queryParams = new URLSearchParams();
+export const getChallengeDetailAPI = (challengeCode) => {
+  return async () => {
+    const result = await api.get(`${BASE}/${challengeCode}`);
+    return result.data;
+  };
+};
 
-      if (params.search) queryParams.append("search", params.search);
-      if (params.sortBy) queryParams.append("sortBy", params.sortBy);
-      if (params.filter) queryParams.append("filter", params.filter);
+export const createChallengeAPI = (payload) => {
+  return async () => {
+    const result = await api.post(BASE, payload);
+    const location = result.headers?.location || result.headers?.Location;
+    const challengeCode = location
+      ? Number(location.split("/").pop())
+      : null;
+    return { challengeCode };
+  };
+};
 
-      const endpoint = ENDPOINTS[type] || ENDPOINTS.all;
-      const result = await api.get(`${endpoint}?${queryParams.toString()}`);
+export const updateChallengeAPI = (challengeCode, payload) => {
+  return async () => {
+    await api.patch(`${BASE}/${challengeCode}`, payload);
+  };
+};
 
-      if (result.status === 200) {
-        dispatch(getChallenges(result));
-      }
-    } catch (error) {
-      console.error("챌린지 조회 중 에러가 발생했습니다.", error);
-    }
+export const deleteChallengeAPI = (challengeCode) => {
+  return async () => {
+    await api.delete(`${BASE}/${challengeCode}`);
+  };
+};
+
+export const applyChallengeAPI = (challengeCode) => {
+  return async () => {
+    await api.post(`${BASE}/${challengeCode}/apply`);
+  };
+};
+
+export const cancelChallengeApplyAPI = (challengeCode) => {
+  return async () => {
+    await api.delete(`${BASE}/${challengeCode}/apply/cancel`);
   };
 };

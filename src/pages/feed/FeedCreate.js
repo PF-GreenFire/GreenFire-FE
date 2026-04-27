@@ -46,8 +46,9 @@ const FeedCreate = () => {
       setTargetLoading(true);
       try {
         if (postType === "CHALLENGE") {
-          const result = await api.get("/v1/challenges/participating");
-          setTargets(result.data || []);
+          // TODO: BE에 "내가 참여 중인 챌린지" 조회 엔드포인트 신설 시 교체
+          const result = await api.get("/api/challenges?page=0&size=100");
+          setTargets(result.data?.challenges || []);
         } else {
           const result = await api.get("/api/stores/approved");
           setTargets(result.data || []);

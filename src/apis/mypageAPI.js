@@ -212,8 +212,6 @@ export const withdrawUserAPI = (reason) => {
 
       if (result.status === 200) {
         dispatch(withdrawUserSuccess());
-        // 로컬스토리지 토큰 삭제
-        localStorage.removeItem("token");
         return { success: true };
       }
     } catch (error) {

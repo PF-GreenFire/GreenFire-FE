@@ -4,135 +4,138 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-초록불 (Green Fire) - A React-based web application for environmental challenges and cogmmunity engagement. The app includes features for nearby stores, challenges, feeds, and user profiles with Supabase authentication.
+초록불 (Green Fire) — A React-based web application for environmental challenges and community engagement. Pairs with the Spring Boot backend in `../../greenfire-be/GreenFire-BE`.
 
 ## Commands
 
-### Development
-
 ```bash
-npm start          # Start development server (localhost:3000)
+npm install
+npm start          # Dev server on http://localhost:3000
 npm run build      # Production build
-npm test          # Run tests in watch mode
+npm test           # react-scripts / Jest (watch mode)
 ```
 
-### Backend Configuration
+The dev server does **not** proxy — it talks directly to the backend via `REACT_APP_API_URL`. Backend must be running on `localhost:8080` for the app to function end-to-end.
 
-The app expects a backend API running at `http://localhost:8080/api` (configurable via `REACT_APP_API_URL` in `.env`).
+## Tech Stack
+
+- **React 18** (Create React App / `react-scripts` 5)
+- **react-router-dom 7** — flat route table in `src/App.js`
+- **Redux** (classic `createStore` + `redux-thunk` + `redux-logger`) with the `redux-actions` library for action/reducer wiring
+- **@tanstack/react-query** — used for the auth/session hook (`useAuth`)
+- **Ant Design 5** + **react-bootstrap** + **Sass** — mixed UI libraries
+- **Axios** — single shared instance in `src/apis/axios.js`
+- **Supabase JS client** — used only for storage/realtime helpers (auth itself is JWT, not Supabase)
 
 ## Architecture
 
-### State Management
+### Authentication
 
-- **Redux** with `redux-thunk` for async actions and `redux-logger` for debugging
-- Store configured in `src/store.js`
-- Root reducer combines all reducers in `src/modules/root.js`
-- Redux actions follow the `redux-actions` library pattern with `createActions` and `handleActions`
+JWT-based, **not** Supabase auth. Tokens are handled in two layers:
 
-### Routing Structure
+- **Access token**: in-memory only (`let accessToken` inside `src/apis/axios.js`). Set via `setAccessToken(...)` after login/refresh, attached to every request via the request interceptor.
+- **Refresh token**: HttpOnly cookie set by the backend (`withCredentials: true` is on the axios instance).
+- **401 handling**: response interceptor calls `POST /api/auth/refresh` once, queues concurrent failed requests, retries them with the new token. On refresh failure it clears the in-memory token and dispatches a `session-expired` window event — `SessionExpiredModal` (mounted in `App.js`) listens and prompts re-login.
+- **Session hook**: `src/hooks/useAuth.js` exposes `{ user, isLoggedIn, isLoading, role, isSessionExpired, onLoginSuccess, onLogout, clearSessionExpired }`. `user.userId` (UUID) is the canonical identifier — match it against backend-returned host/owner UUIDs.
+- **Protected routes**: `src/components/common/ProtectedRoute.js` wraps routes that need login or a specific role (`requiredRole="ADMIN"`).
 
-- **React Router v7** with nested routes
-- Main layout wrapper: `CustomLayout` (src/layouts/common/CustomLayout.js)
-- Conditional AppBar rendering based on route paths (/, /nearby, /challenges, /feed, /mypage)
-- All routes wrapped in CustomLayout with Outlet pattern
+There is **no `localStorage.token`** anywhere in the live code. Older docs/comments referencing it are outdated — do not reintroduce.
 
-Main Routes:
+### Routing (src/App.js)
 
-- `/` - MainPage
-- `/nearby` - NearbyMain (map/stores)
-- `/challenges` - ChallengeMain (list view)
-- `/challenges/:id` - ChallengeDetail
-- `/challenge` - RegistChallenge (create)
-- `/feed` - FeedMain
-- `/mypage` - MypageMain
+Routes are flat under three top-level groupings:
 
-### API Layer
-
-- Centralized axios instance in `src/apis/axios.js` with base URL from env
-- API modules follow naming pattern: `{feature}API.js`
-- Authentication uses Supabase (`authAPI.js`) with JWT tokens stored in localStorage
-- Redux thunk pattern: API functions return async action creators that dispatch Redux actions
-
-Example API pattern:
-
-```javascript
-export const getSomethingAPI = (params) => {
-  return async (dispatch, getState) => {
-    const result = await api.get("/endpoint");
-    if (result.status === 200) {
-      dispatch(actionCreator(result));
-    }
-  };
-};
+```
+/signup, /find-email, /reset-password         — auth pages (no layout)
+/notices, /notices/:noticeCode[/edit|/new]    — notice pages (no layout)
+/admin/*  → AdminPageLayout (ADMIN-only)
+  ├ dashboard, notices, members, reports, feed, banners
+/  → CustomLayout (mobile-first 563px container)
+  ├ index → MainPage
+  ├ nearby → NearbyMain
+  ├ challenges, challenges/:id, challenge (regist, login required)
+  ├ feed, feed/create (login required), feed/:postCode
+  └ store/:storeCode
+/mypage  → MypageLayout (login required)
+  └ scrapbook, achievements, challenges, eco-memories, info, withdrawal
 ```
 
-### Authentication Flow
+`SessionExpiredModal` is mounted at the App root, outside `<Routes>`, so it overlays any page.
 
-- Supabase auth integration (currently commented out in SupabaseClient.js but used in authAPI.js)
-- Token management: access_token stored in localStorage with key 'token'
-- Axios Authorization header set automatically after login
-- Login/logout functions in `src/apis/authAPI.js`
+### State Management
+
+- Store in `src/store.js` (`createStore(rootReducer, applyMiddleware(thunk, logger))`).
+- Reducers live in `src/modules/*Reducer.js` and are combined in `src/modules/root.js`. Existing reducers: `Category`, `Challenge`, `Feed`, `Follow`, `Mypage`, `Scrapbook`, `Store`.
+- Reducer pattern uses `redux-actions`:
+
+  ```js
+  export const {
+    challenge: { getChallenges },
+  } = createActions({
+    [GET_CHALLENGES]: (result) => ({
+      challenges: result.data.challenges || result.data,
+      totalCount: result.data.totalCount || result.data.length,
+    }),
+  });
+
+  const challengeReducer = handleActions(
+    { [GET_CHALLENGES]: (state, { payload }) => payload },
+    initialState,
+  );
+  ```
+
+- React Query coexists with Redux — used for auth/session state via `useAuth`. Don't migrate one to the other without a deliberate reason.
+
+### API Layer (src/apis/)
+
+- `axios.js` — shared instance + interceptors (above).
+- `SupabaseClient.js` — lazily memoized Supabase client (reads `REACT_APP_SUPABASE_URL` / `REACT_APP_SUPABASE_ANON_KEY`).
+- One module per domain: `authAPI`, `adminAPI`, `bannerAPI`, `categoryAPI`, `challengeAPI`, `feedAPI`, `followAPI`, `mypageAPI`, `noticeAPI`, `reportAPI`, `scrapbookAPI`, `storeAPI`.
+- Two coexisting styles:
+  - **Thunk style** (used when the response should hydrate Redux): exported function returns `async (dispatch) => { ... dispatch(action(result)) }`. Components call it with `dispatch(getChallengesAPI({...}))`.
+  - **Plain async** (used when the caller handles the response locally): exported function returns a Promise of `result.data`.
+- All paths use the `/api/...` prefix — backend `SecurityConfig` is built around it. Anything calling `/v1/...` is a stale leftover and should be fixed (only `scrapbookAPI` still has `/v1/scraps` calls — those are intentionally untouched until the BE scrap endpoint is finalized).
 
 ### Component Organization
 
 ```
-src/components/
-├── common/          # Shared layout components (NavBar, AppBar, Header, Footer, Banner)
-├── item/            # Reusable item components (cards, titles)
-│   ├── card/        # Card components (FeedPostCard, StoreInfoCard)
-│   └── title/       # Title components (HighlightedTitle)
-└── main/            # Main page sections (Challenge, Feed)
+src/
+├── apis/             # axios + per-domain API modules
+├── components/
+│   ├── common/       # NavBar, AppBar, Header, Footer, Banner, ProtectedRoute, SessionExpiredModal
+│   ├── item/         # card/, title/ — reusable item cards & titles
+│   └── main/         # main-page-only sections (Challenge, Feed)
+├── hooks/            # useAuth.js (React Query session hook)
+├── layouts/
+│   ├── common/       # CustomLayout (root Outlet)
+│   ├── AdminPageLayout
+│   └── MyPageLayout
+├── modules/          # Redux reducers + root.js
+├── pages/            # admin/, auth/, challenge/, feed/, map/, mypage/, notice/, store/, MainPage, ExDesign
+├── store.js
+└── App.js            # All route definitions live here
 ```
-
-### Page Structure
-
-Pages are organized by feature domains:
-
-- `auth/` - Authentication (LoginPopup)
-- `challenge/` - Challenge management
-- `feed/` - Feed/posts
-- `map/` - Location services (AddressSearch, LocationMap, NearbyMain)
-- `mypage/` - User profile
 
 ### Styling
 
-- **Bootstrap 5** via `react-bootstrap` for layout/components
-- **Sass** for custom styling (custom.scss)
-- Scoped CSS files for specific features (App.css, AppBar.css)
-- Mobile-first: max-width 563px container in CustomLayout
+- Bootstrap 5 via `react-bootstrap` for layout.
+- Ant Design 5 for richer widgets (modals, tables, forms in admin).
+- Sass for custom theming (`custom.scss`); per-feature CSS files (`App.css`, `AppBar.css`).
+- Mobile-first: `CustomLayout` clamps content to `max-width: 563px`.
 
-### Redux Module Pattern
+### Environment Variables (.env / .env.local)
 
-Reducers use `redux-actions` library:
+| Key | Purpose |
+|---|---|
+| `REACT_APP_API_URL` | Backend base URL — set to `http://localhost:8080/api` for local dev |
+| `REACT_APP_SUPABASE_URL` | Supabase project URL (storage/realtime only) |
+| `REACT_APP_SUPABASE_ANON_KEY` | Supabase anon key |
 
-```javascript
-// Action creators with createActions
-export const {
-  feature: { action1, action2 },
-} = createActions({
-  [ACTION_TYPE]: (result) => ({ data: result.data }),
-});
+Supabase keys are not committed; ask a teammate or set them in `.env.local`.
 
-// Reducer with handleActions
-const reducer = handleActions(
-  {
-    [ACTION_TYPE]: (state, { payload }) => payload,
-  },
-  initialState,
-);
-```
+## Conventions
 
-### Environment Variables
-
-Required in `.env` or `.env.local`:
-
-- `REACT_APP_API_URL` - Backend API base URL
-- `REACT_APP_SUPABASE_URL` - Supabase project URL
-- `REACT_APP_SUPABASE_ANON_KEY` - Supabase anonymous key
-
-## Development Notes
-
-- Backend API must be running for full functionality
-- Supabase credentials should be configured in `.env.local` (not committed)
-- The project uses Create React App - avoid ejecting unless absolutely necessary
-- Category management is implemented with full CRUD via Redux (get, add, delete)
+- Don't reintroduce `localStorage.removeItem("token")` style cleanup — there is no `token` key in localStorage. Just call `onLogout()` from `useAuth`.
+- New API calls go through the shared axios instance — don't `import axios from "axios"` directly.
+- Host/ownership checks compare `user?.userId` from `useAuth()` against the UUID returned by the backend (e.g. `challenge.hostUser`).
+- New top-level pages: add an import + `<Route>` in `src/App.js` under the appropriate layout group; wrap with `<ProtectedRoute>` when login or a role is required.
