@@ -1,9 +1,12 @@
 import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { IoIosSearch } from "react-icons/io";
+import { FiPlus } from "react-icons/fi";
 import LocationMap from "./LocationMap";
 import NearbyStoreCard from "../../components/item/card/NearbyStoreCard";
 import { getAllStoresAPI, getStoreCategoriesAPI } from "../../apis/storeAPI";
+import { useAuth } from "../../hooks/useAuth";
 
 const APPBAR_HEIGHT = 84;
 const PEEK_HEIGHT = 80;
@@ -12,9 +15,19 @@ const CLICK_THRESHOLD = 5;
 
 const NearbyMain = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
   const { stores, storeCategories } = useSelector(
     (state) => state.storeReducer,
   );
+
+  const handleApplyStore = () => {
+    if (!isLoggedIn) {
+      alert("매장 제보는 로그인 후 이용할 수 있습니다.");
+      return;
+    }
+    navigate("/store/apply");
+  };
 
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState(null);
@@ -275,7 +288,7 @@ const NearbyMain = () => {
       </div>
 
       {/* 지도 — 남은 공간 전부 채움 */}
-      <div className="-mx-[15px] flex-1 overflow-hidden">
+      <div className="-mx-[15px] flex-1 overflow-hidden relative">
         <LocationMap
           stores={filteredStores}
           categories={storeCategories || []}
@@ -285,7 +298,21 @@ const NearbyMain = () => {
           onMarkerClick={handleMarkerClick}
           externalCenter={mapCenter}
           sheetPosition={sheetPosition}
+          selectedStoreCode={selectedStoreCode}
         />
+
+        {/* 매장 제보 버튼 — 바텀시트가 peek 상태일 때만 노출 */}
+        {sheetPosition === "peek" && (
+          <button
+            onClick={handleApplyStore}
+            className="absolute bottom-40 right-3 flex items-center gap-1 px-3 h-10 bg-green-primary text-white rounded-full shadow-lg hover:bg-green-700 active:bg-green-800 transition-colors"
+            style={{ zIndex: 501 }}
+            title="매장 제보"
+          >
+            <FiPlus size={16} />
+            <span className="text-xs font-semibold">매장 제보</span>
+          </button>
+        )}
       </div>
 
       {/* 바텀시트 */}

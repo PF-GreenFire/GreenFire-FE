@@ -23,6 +23,7 @@ import AdminNoticeList from './pages/admin/AdminNoticeList';
 import AdminMemberList from './pages/admin/AdminMemberList';
 import AdminReportList from './pages/admin/AdminReportList';
 import AdminBannerList from './pages/admin/AdminBannerList';
+import AdminStoreList from './pages/admin/AdminStoreList';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import SessionExpiredModal from './components/common/SessionExpiredModal';
 import MypageLayout from "./layouts/MyPageLayout";
@@ -34,6 +35,8 @@ import MypageEchoMemoryMain from "./pages/mypage/EchoMemoryMain";
 import MypageInfo from "./pages/mypage/MypageInfo";
 import MypageWithdrawal from "./pages/mypage/MypageWithdrawal";
 import StoreDetail from './pages/store/StoreDetail';
+import ApplyStore from './pages/store/ApplyStore';
+import MyStoreApplications from './pages/mypage/MyStoreApplications';
 import { useAuth } from './hooks/useAuth';
 
 const App = () => {
@@ -79,6 +82,7 @@ const App = () => {
           <Route path="reports" element={<AdminReportList />} />
           <Route path="feed" element={<AdminFeedList />} />
           <Route path="banners" element={<AdminBannerList />} />
+          <Route path="stores" element={<AdminStoreList />} />
         </Route>
 
         <Route path="/" element={<CustomLayout />}>
@@ -96,6 +100,11 @@ const App = () => {
             </ProtectedRoute>
           } />
           <Route path="feed/:postCode" element={<FeedDetail />} />
+          <Route path="store/apply" element={
+            <ProtectedRoute>
+              <ApplyStore />
+            </ProtectedRoute>
+          } />
           <Route path="store/:storeCode" element={<StoreDetail />} />
 
           {/* challenge */}
@@ -120,6 +129,7 @@ const App = () => {
           <Route path="eco-memories" element={<MypageEchoMemoryMain />} />
           <Route path="info" element={<MypageInfo />} />
           <Route path="withdrawal" element={<MypageWithdrawal />} />
+          <Route path="store-applications" element={<MyStoreApplications />} />
         </Route>
       </Routes>
     </>

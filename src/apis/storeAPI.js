@@ -67,3 +67,31 @@ export const getStoreDetailAPI = (storeCode) => {
     }
   };
 };
+
+// 매장 신청 등록
+export const registApplyStoreAPI = (payload) => async () => {
+  const result = await api.post("/stores/apply", payload);
+  const location = result.headers?.location || result.headers?.Location;
+  const storeCode = location ? Number(location.split("/").pop()) : null;
+  return { storeCode };
+};
+
+// 본인이 신청한 매장 목록
+export const getMyApplyStoresAPI = ({ page = 1, limit = 10 } = {}) => async () => {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  const result = await api.get(`/stores/apply/list?${params.toString()}`);
+  return result.data; // { paging, storeList }
+};
+
+// (어드민) 상태별 매장 목록 페이징
+export const getStoresByStatusAPI = ({ status, page = 1, limit = 10 } = {}) => async () => {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  const result = await api.get(`/stores/${status}/list?${params.toString()}`);
+  return result.data; // { paging, storeList }
+};
+
+// (어드민) 매장 상태 변경
+export const updateStoreStatusAPI = (storeCode, status) => async () => {
+  const result = await api.patch(`/stores/change/${storeCode}`, { status });
+  return result.data;
+};

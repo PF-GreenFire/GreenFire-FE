@@ -3,6 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { getImageUrl } from "../../../utils/imageUtils";
+import {
+  haversineKm,
+  formatDistance,
+  getCachedLocation,
+} from "../../../utils/geoUtils";
 import { toggleStoreLikeAPI } from "../../../apis/storeAPI";
 import { useAuth } from "../../../hooks/useAuth";
 
@@ -10,6 +15,13 @@ const NearbyStoreCard = ({ store }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { isLoggedIn } = useAuth();
+
+  const myLoc = getCachedLocation();
+  const distance = myLoc
+    ? formatDistance(
+        haversineKm(myLoc.lat, myLoc.lng, store.latitude, store.longitude)
+      )
+    : "";
 
   return (
     <div
@@ -39,7 +51,14 @@ const NearbyStoreCard = ({ store }) => {
                 </span>
               )}
             </p>
-            <p className="text-[13px] text-gray-500 mt-0.5">{store.address}</p>
+            <p className="text-[13px] text-gray-500 mt-0.5">
+              {store.address}
+              {distance && (
+                <span className="ml-2 text-green-700 font-semibold">
+                  · {distance}
+                </span>
+              )}
+            </p>
           </div>
           <button
             className="flex-shrink-0 ml-2 p-1 bg-transparent border-none cursor-pointer transition-colors"

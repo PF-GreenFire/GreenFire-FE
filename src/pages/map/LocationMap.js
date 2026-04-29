@@ -1,10 +1,34 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Map, MapMarker, CustomOverlayMap } from "react-kakao-maps-sdk";
+import {
+  Map,
+  MapMarker,
+  CustomOverlayMap,
+  MarkerClusterer,
+} from "react-kakao-maps-sdk";
 import { MdMyLocation } from "react-icons/md";
 import CATEGORY_EMOJI from "../../constants/categoryConstants";
+import { haversineKm, formatDistance } from "../../utils/geoUtils";
 
 const LOCATION_STORAGE_KEY = "lastKnownLocation";
 const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 };
+
+// 카테고리별 마커 색상 (BE storeCategory int에 매핑)
+const MARKER_COLOR_BY_CATEGORY = {
+  1: "#16a34a", // green-600
+  2: "#0ea5e9", // sky-500
+  3: "#f59e0b", // amber-500
+  4: "#ec4899", // pink-500
+};
+const DEFAULT_MARKER_COLOR = "#16a34a";
+
+const makeMarkerImage = (color) => {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='28' height='38' viewBox='0 0 28 38'><path d='M14 0C6.3 0 0 6.3 0 14c0 10.5 14 24 14 24s14-13.5 14-24c0-7.7-6.3-14-14-14z' fill='${color}'/><circle cx='14' cy='14' r='5.5' fill='white'/></svg>`;
+  return {
+    src: `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`,
+    size: { width: 28, height: 38 },
+    options: { offset: { x: 14, y: 38 } },
+  };
+};
 
 const getSavedLocation = () => {
   try {
@@ -29,7 +53,9 @@ const LocationMap = ({
   onMarkerClick,
   externalCenter,
   sheetPosition,
+  selectedStoreCode,
 }) => {
+  const selectedStore = stores.find((s) => s.storeCode === selectedStoreCode);
   const cachedLocation = getSavedLocation();
   const [center, setCenter] = useState(cachedLocation || DEFAULT_CENTER);
   const [myLocation, setMyLocation] = useState(cachedLocation);
@@ -123,14 +149,90 @@ const LocationMap = ({
           });
         }}
       >
-        {stores.map((store) => (
-          <MapMarker
-            key={store.storeCode}
-            position={{ lat: store.latitude, lng: store.longitude }}
-            title={store.storeName}
-            onClick={() => onMarkerClick?.(store.storeCode)}
-          />
-        ))}
+        <MarkerClusterer
+          averageCenter={true}
+          minLevel={6}
+          calculator={[10, 30, 100]}
+          styles={[
+            {
+              width: "44px",
+              height: "44px",
+              background: "rgba(22, 163, 74, 0.85)",
+              borderRadius: "22px",
+              color: "#fff",
+              textAlign: "center",
+              lineHeight: "44px",
+              fontWeight: "bold",
+              fontSize: "13px",
+            },
+            {
+              width: "52px",
+              height: "52px",
+              background: "rgba(22, 163, 74, 0.9)",
+              borderRadius: "26px",
+              color: "#fff",
+              textAlign: "center",
+              lineHeight: "52px",
+              fontWeight: "bold",
+              fontSize: "14px",
+            },
+            {
+              width: "60px",
+              height: "60px",
+              background: "rgba(22, 163, 74, 0.95)",
+              borderRadius: "30px",
+              color: "#fff",
+              textAlign: "center",
+              lineHeight: "60px",
+              fontWeight: "bold",
+              fontSize: "15px",
+            },
+          ]}
+        >
+          {stores.map((store) => (
+            <MapMarker
+              key={store.storeCode}
+              position={{ lat: store.latitude, lng: store.longitude }}
+              title={store.storeName}
+              image={makeMarkerImage(
+                MARKER_COLOR_BY_CATEGORY[store.storeCategory] ||
+                  DEFAULT_MARKER_COLOR
+              )}
+              onClick={() => onMarkerClick?.(store.storeCode)}
+            />
+          ))}
+        </MarkerClusterer>
+
+        {/* 선택된 매장 InfoWindow */}
+        {selectedStore && (
+          <CustomOverlayMap
+            position={{
+              lat: selectedStore.latitude,
+              lng: selectedStore.longitude,
+            }}
+            yAnchor={1.5}
+            zIndex={20}
+          >
+            <div className="bg-white rounded-lg shadow-lg px-3 py-2 border border-gray-200 whitespace-nowrap min-w-[140px]">
+              <p className="text-[13px] font-semibold text-gray-900 truncate max-w-[180px]">
+                {selectedStore.storeName}
+              </p>
+              {myLocation && (
+                <p className="text-[11px] text-green-700 mt-0.5">
+                  📍{" "}
+                  {formatDistance(
+                    haversineKm(
+                      myLocation.lat,
+                      myLocation.lng,
+                      selectedStore.latitude,
+                      selectedStore.longitude
+                    )
+                  )}
+                </p>
+              )}
+            </div>
+          </CustomOverlayMap>
+        )}
 
         {/* 내 위치 마커 (파란 점) */}
         {myLocation && (
