@@ -68,3 +68,11 @@ export const cancelChallengeApplyAPI = (challengeCode) => {
     await api.delete(`${BASE}/${challengeCode}/apply/cancel`);
   };
 };
+
+// 챌린지 인증 게시물 목록 (BE: post 도메인의 challenge별 조회)
+export const getChallengePostsAPI = (challengeCode) => {
+  return async () => {
+    const result = await api.get(`/api/post/challenge/${challengeCode}`);
+    return result.data; // List<SimplePostDTO>
+  };
+};

@@ -8,6 +8,7 @@ import {
   cancelChallengeApplyAPI,
   deleteChallengeAPI,
   getChallengeDetailAPI,
+  getChallengePostsAPI,
 } from '../../apis/challengeAPI';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -38,6 +39,8 @@ const ChallengeDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [posts, setPosts] = useState([]);
+  const [postsLoading, setPostsLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -59,6 +62,25 @@ const ChallengeDetail = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  // 인증 피드 로드
+  useEffect(() => {
+    let cancelled = false;
+    setPostsLoading(true);
+    dispatch(getChallengePostsAPI(id))
+      .then((data) => {
+        if (!cancelled) setPosts(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        if (!cancelled) setPosts([]);
+      })
+      .finally(() => {
+        if (!cancelled) setPostsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [dispatch, id]);
 
   const handleApply = async () => {
     if (!isLoggedIn) {
@@ -123,6 +145,14 @@ const ChallengeDetail = () => {
 
   const isHost = user?.userId && challenge.hostUser && user.userId === challenge.hostUser;
   const canApply = challenge.challengeStatus === 'RECRUITING';
+  const canCertify =
+    isLoggedIn &&
+    (challenge.challengeStatus === 'RECRUITING' ||
+      challenge.challengeStatus === 'ONGOING');
+  const canEdit =
+    isHost &&
+    challenge.challengeStatus !== 'CLOSED' &&
+    challenge.challengeStatus !== 'CANCELLED';
 
   return (
     <Container style={{ maxWidth: '563px', padding: '24px 16px' }}>
@@ -160,15 +190,92 @@ const ChallengeDetail = () => {
             참여 신청
           </Button>
         )}
+        {canCertify && (
+          <Button
+            variant="outline-success"
+            onClick={() => navigate(`/feed/create?challengeCode=${id}`)}
+          >
+            인증글 작성
+          </Button>
+        )}
         <Button variant="outline-secondary" disabled={busy} onClick={handleCancel}>
           참여 취소
         </Button>
+        {canEdit && (
+          <Button
+            variant="outline-primary"
+            onClick={() => navigate(`/challenges/${id}/edit`)}
+          >
+            수정
+          </Button>
+        )}
         {isHost && (
           <Button variant="outline-danger" disabled={busy} onClick={handleDelete}>
             삭제
           </Button>
         )}
       </div>
+
+      {/* 인증 피드 */}
+      <h5 className="mt-5 mb-3">
+        인증 피드 <span className="text-muted small">({posts.length})</span>
+      </h5>
+      {postsLoading ? (
+        <div className="text-center py-3">
+          <Spinner animation="border" size="sm" variant="success" />
+        </div>
+      ) : posts.length === 0 ? (
+        <div className="text-center py-4 text-muted small">
+          아직 인증글이 없습니다.
+          {canCertify && ' 첫 번째로 인증해보세요!'}
+        </div>
+      ) : (
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '4px',
+          }}
+        >
+          {posts.map((post) => (
+            <div
+              key={post.postCode}
+              onClick={() => navigate(`/feed/${post.postCode}`)}
+              style={{
+                aspectRatio: '1',
+                cursor: 'pointer',
+                backgroundColor: '#f5f5f5',
+                overflow: 'hidden',
+                borderRadius: '4px',
+                position: 'relative',
+              }}
+              title={post.writer ? `by ${post.writer}` : ''}
+            >
+              {post.thumbnail ? (
+                <img
+                  src={post.thumbnail}
+                  alt=""
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                  }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              ) : (
+                <div
+                  className="d-flex align-items-center justify-content-center w-100 h-100 text-muted"
+                  style={{ fontSize: 24 }}
+                >
+                  📷
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </Container>
   );
 };

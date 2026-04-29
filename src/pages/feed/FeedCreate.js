@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { Spinner } from "react-bootstrap";
 import {
@@ -22,9 +22,11 @@ const STEPS = [
 const FeedCreate = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [searchParams] = useSearchParams();
+  const presetChallengeCode = searchParams.get("challengeCode");
 
-  const [step, setStep] = useState(1);
-  const [postType, setPostType] = useState(null);
+  const [step, setStep] = useState(presetChallengeCode ? 2 : 1);
+  const [postType, setPostType] = useState(presetChallengeCode ? "CHALLENGE" : null);
   const [selectedTarget, setSelectedTarget] = useState(null);
 
   // Step 2 데이터
@@ -70,6 +72,16 @@ const FeedCreate = () => {
     setPreviews(urls);
     return () => urls.forEach((u) => URL.revokeObjectURL(u));
   }, [files]);
+
+  // ChallengeDetail에서 challengeCode 쿼리로 진입한 경우, 챌린지 목록 로드 후 자동 선택
+  useEffect(() => {
+    if (!presetChallengeCode || selectedTarget) return;
+    if (postType !== "CHALLENGE" || !targets?.length) return;
+    const found = targets.find(
+      (t) => String(t.challengeCode) === String(presetChallengeCode)
+    );
+    if (found) setSelectedTarget(found);
+  }, [presetChallengeCode, postType, targets, selectedTarget]);
 
   const handleFileAdd = (e) => {
     const newFiles = Array.from(e.target.files);

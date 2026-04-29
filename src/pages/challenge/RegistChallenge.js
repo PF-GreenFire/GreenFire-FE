@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Button, Container, Form, Spinner } from 'react-bootstrap';
-import { createChallengeAPI } from '../../apis/challengeAPI';
+import {
+  createChallengeAPI,
+  getChallengeDetailAPI,
+  updateChallengeAPI,
+} from '../../apis/challengeAPI';
 
 // ChallengeMain 과 동일한 매핑 (BE category 테이블과 실제 일치 여부 실테스트 필요)
 const CATEGORIES = [
@@ -27,10 +31,43 @@ const initialForm = {
 };
 
 const RegistChallenge = () => {
+  const { id } = useParams();
+  const isEdit = !!id;
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [form, setForm] = useState(initialForm);
   const [submitting, setSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isEdit) return;
+    let cancelled = false;
+    setLoading(true);
+    dispatch(getChallengeDetailAPI(id))
+      .then((data) => {
+        if (cancelled || !data) return;
+        setForm({
+          challengeTitle: data.challengeTitle || '',
+          challengeContent: data.challengeContent || '',
+          recruitmentNum: data.recruitmentNum ?? 10,
+          startDate: data.startDate || '',
+          endDate: data.endDate || '',
+          xp: data.xp ?? 100,
+          thumbnailUrl: data.thumbnailUrl || '',
+          challengeCategoryCode: data.challengeCategoryCode ?? 1,
+          challengeStatus: data.challengeStatus || 'RECRUITING',
+        });
+      })
+      .catch(() => {
+        if (!cancelled) alert('챌린지 정보를 불러오지 못했습니다.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [dispatch, id, isEdit]);
 
   const onChange = (key) => (e) => {
     const v =
@@ -63,22 +100,49 @@ const RegistChallenge = () => {
 
     setSubmitting(true);
     try {
-      const { challengeCode } = await dispatch(createChallengeAPI(form));
-      if (challengeCode) {
-        navigate(`/challenges/${challengeCode}`);
+      if (isEdit) {
+        const payload = {
+          challengeTitle: form.challengeTitle,
+          challengeContent: form.challengeContent,
+          recruitmentNum: Number(form.recruitmentNum),
+          startDate: form.startDate,
+          endDate: form.endDate,
+          xp: Number(form.xp),
+          thumbnailUrl: form.thumbnailUrl || null,
+          challengeCategoryCode: Number(form.challengeCategoryCode),
+        };
+        await dispatch(updateChallengeAPI(id, payload));
+        alert('수정되었습니다.');
+        navigate(`/challenges/${id}`);
       } else {
-        navigate('/challenges');
+        const { challengeCode } = await dispatch(createChallengeAPI(form));
+        if (challengeCode) {
+          navigate(`/challenges/${challengeCode}`);
+        } else {
+          navigate('/challenges');
+        }
       }
     } catch (err) {
-      alert(err?.response?.data?.message || '등록에 실패했습니다.');
+      alert(
+        err?.response?.data?.message ||
+          (isEdit ? '수정에 실패했습니다.' : '등록에 실패했습니다.')
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
+  if (isEdit && loading) {
+    return (
+      <Container className="text-center py-5">
+        <Spinner animation="border" variant="success" />
+      </Container>
+    );
+  }
+
   return (
     <Container style={{ maxWidth: '563px', padding: '24px 16px' }}>
-      <h3 className="mb-4">새 챌린지 등록</h3>
+      <h3 className="mb-4">{isEdit ? '챌린지 수정' : '새 챌린지 등록'}</h3>
       <Form onSubmit={onSubmit}>
         <Form.Group className="mb-3">
           <Form.Label>제목</Form.Label>
@@ -172,8 +236,10 @@ const RegistChallenge = () => {
           {submitting ? (
             <>
               <Spinner animation="border" size="sm" className="me-2" />
-              등록 중...
+              {isEdit ? '수정 중...' : '등록 중...'}
             </>
+          ) : isEdit ? (
+            '수정 저장'
           ) : (
             '등록하기'
           )}

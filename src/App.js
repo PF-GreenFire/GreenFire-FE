@@ -113,6 +113,11 @@ const App = () => {
               <RegistChallenge />
             </ProtectedRoute>
           } />
+          <Route path="challenges/:id/edit" element={
+            <ProtectedRoute>
+              <RegistChallenge />
+            </ProtectedRoute>
+          } />
         </Route>
 
         {/* Mypage 전용 Layout */}
