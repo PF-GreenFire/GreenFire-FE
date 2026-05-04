@@ -76,3 +76,11 @@ export const getChallengePostsAPI = (challengeCode) => {
     return result.data; // List<SimplePostDTO>
   };
 };
+
+// 마감 임박 챌린지 (메인 섹션용)
+export const getClosingSoonChallengesAPI = (limit = 5) => {
+  return async () => {
+    const result = await api.get(`${BASE}/closing-soon?limit=${limit}`);
+    return result.data; // List<ChallengeDTO>
+  };
+};

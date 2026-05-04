@@ -1,7 +1,13 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import HighlightedText from "../item/title/HighlightedTitle";
+import { getClosingSoonChallengesAPI } from '../../apis/challengeAPI';
 
-const Challenge = ({ showHeader = true, onIconClick, selectedCategory }) => {
+const Challenge = ({ showHeader = true, onIconClick, selectedCategory, showCards = false }) => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     const categories = [
         { id: 0, name: '전체보기', icon: '/mainlogo.png' },
         { id: 1, name: '플로깅', icon: '/Frame 299.png' },
@@ -17,6 +23,30 @@ const Challenge = ({ showHeader = true, onIconClick, selectedCategory }) => {
         if (scrollRef.current) {
             scrollRef.current.scrollBy({ left: offset, behavior: 'smooth' });
         }
+    };
+
+    const [closingSoon, setClosingSoon] = useState([]);
+
+    useEffect(() => {
+        if (!showCards) return;
+        let cancelled = false;
+        dispatch(getClosingSoonChallengesAPI(5))
+            .then((data) => {
+                if (!cancelled) setClosingSoon(Array.isArray(data) ? data : []);
+            })
+            .catch(() => {
+                if (!cancelled) setClosingSoon([]);
+            });
+        return () => { cancelled = true; };
+    }, [dispatch, showCards]);
+
+    const daysLeft = (endDate) => {
+        if (!endDate) return null;
+        const end = new Date(endDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+        return diff;
     };
 
     return (
@@ -150,6 +180,68 @@ const Challenge = ({ showHeader = true, onIconClick, selectedCategory }) => {
                     &#8594;
                 </button>
             </div>
+
+            {/* 마감 임박 챌린지 카드 (메인 페이지 전용) */}
+            {showCards && (
+                closingSoon.length === 0 ? (
+                    <div className="text-center text-muted small py-3">
+                        모집 중인 챌린지가 없습니다.
+                    </div>
+                ) : (
+                    <div className="d-flex gap-3 overflow-auto pb-2 mt-3" style={{ scrollbarWidth: 'none' }}>
+                        {closingSoon.map((c) => {
+                            const d = daysLeft(c.endDate);
+                            return (
+                                <div
+                                    key={c.challengeCode}
+                                    onClick={() => navigate(`/challenges/${c.challengeCode}`)}
+                                    className="flex-shrink-0"
+                                    style={{
+                                        width: '180px',
+                                        cursor: 'pointer',
+                                        background: 'white',
+                                        borderRadius: '12px',
+                                        overflow: 'hidden',
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                                    }}
+                                >
+                                    <div style={{
+                                        height: '110px',
+                                        background: c.thumbnailUrl
+                                            ? `url(${c.thumbnailUrl}) center/cover`
+                                            : 'linear-gradient(135deg, #34d399, #059669)',
+                                        position: 'relative',
+                                    }}>
+                                        {d != null && (
+                                            <span style={{
+                                                position: 'absolute',
+                                                top: 8,
+                                                right: 8,
+                                                background: 'rgba(220, 38, 38, 0.92)',
+                                                color: 'white',
+                                                fontSize: 11,
+                                                fontWeight: 700,
+                                                padding: '2px 8px',
+                                                borderRadius: 12,
+                                            }}>
+                                                {d <= 0 ? '오늘 마감' : `D-${d}`}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="p-2">
+                                        <p className="mb-1 small fw-bold text-truncate">
+                                            {c.challengeTitle}
+                                        </p>
+                                        <p className="mb-0" style={{ fontSize: 11, color: '#6b7280' }}>
+                                            정원 {c.recruitmentNum}명 · XP {c.xp}
+                                        </p>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )
+            )}
         </div>
     );
 };
