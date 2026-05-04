@@ -1,8 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import { getImageUrl } from "../../utils/imageUtils";
+import { useAuth } from "../../hooks/useAuth";
+import { TIER_BY_CODE, getTierByPoints, getNextTier, tierProgress } from "../../utils/tierUtils";
 
 const ProfileSection = ({ user }) => {
   const navigate = useNavigate();
+  const { user: authUser } = useAuth();
+  const spark = authUser?.spark;
+  const tier = spark
+    ? (TIER_BY_CODE[spark.tierCode] || getTierByPoints(spark.total))
+    : getTierByPoints(0);
+  const next = getNextTier(tier);
+  const progress = spark ? tierProgress(spark.total, tier) : 0;
 
   return (
     <div className="w-full w-[calc(100%+30px)]">
@@ -63,6 +72,42 @@ const ProfileSection = ({ user }) => {
         >
           내 정보 수정
         </button>
+
+        {/* 멸종위기동물 등급 카드 */}
+        <div className="mt-5 w-full max-w-[480px] bg-white rounded-2xl shadow-md px-5 py-4">
+          <div className="flex items-center gap-4">
+            <div className="text-5xl flex-shrink-0">{tier.emoji}</div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-baseline gap-2">
+                <span className="text-base font-bold text-gray-800">
+                  {tier.label}
+                </span>
+                <span className="text-xs text-gray-400">의 보호자</span>
+              </div>
+              <p className="text-[11px] text-gray-500 mt-0.5 leading-snug">
+                {tier.blurb}
+              </p>
+              <div className="mt-2">
+                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-green-primary transition-all"
+                    style={{ width: `${Math.round(progress * 100)}%` }}
+                  />
+                </div>
+                <div className="flex justify-between mt-1 text-[10px] text-gray-400">
+                  <span>초록불씨 {spark?.total ?? 0}</span>
+                  {next ? (
+                    <span>
+                      다음 {next.emoji} {next.label}까지 {Math.max(0, (next.threshold - (spark?.total ?? 0)))}
+                    </span>
+                  ) : (
+                    <span>최고 등급 도달!</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

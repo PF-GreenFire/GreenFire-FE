@@ -233,7 +233,7 @@ const Challenge = ({ showHeader = true, onIconClick, selectedCategory, showCards
                                             {c.challengeTitle}
                                         </p>
                                         <p className="mb-0" style={{ fontSize: 11, color: '#6b7280' }}>
-                                            정원 {c.recruitmentNum}명 · XP {c.xp}
+                                            정원 {c.recruitmentNum}명 · 🌱{c.xp}
                                         </p>
                                     </div>
                                 </div>

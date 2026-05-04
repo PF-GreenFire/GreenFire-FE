@@ -198,14 +198,16 @@ const RegistChallenge = () => {
             />
           </Form.Group>
           <Form.Group className="col mb-3">
-            <Form.Label>XP</Form.Label>
+            <Form.Label>보상 초록불씨</Form.Label>
             <Form.Control
               type="number"
               min={0}
+              max={500}
               value={form.xp}
               onChange={onChange('xp')}
               required
             />
+            <Form.Text className="text-muted">최대 500까지</Form.Text>
           </Form.Group>
         </div>
 
