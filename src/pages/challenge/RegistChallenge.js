@@ -198,7 +198,7 @@ const RegistChallenge = () => {
             />
           </Form.Group>
           <Form.Group className="col mb-3">
-            <Form.Label>보상 초록불씨</Form.Label>
+            <Form.Label>보상 불씨</Form.Label>
             <Form.Control
               type="number"
               min={0}

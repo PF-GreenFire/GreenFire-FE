@@ -95,7 +95,7 @@ const ProfileSection = ({ user }) => {
                   />
                 </div>
                 <div className="flex justify-between mt-1 text-[10px] text-gray-400">
-                  <span>초록불씨 {spark?.total ?? 0}</span>
+                  <span>불씨 {spark?.total ?? 0}</span>
                   {next ? (
                     <span>
                       다음 {next.emoji} {next.label}까지 {Math.max(0, (next.threshold - (spark?.total ?? 0)))}

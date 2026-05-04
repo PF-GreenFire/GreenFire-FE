@@ -175,7 +175,7 @@ const ChallengeDetail = () => {
       </div>
 
       <div className="text-muted small mb-3">
-        기간 {challenge.startDate} ~ {challenge.endDate} · 정원 {challenge.recruitmentNum}명 · 보상 초록불씨 {challenge.xp}
+        기간 {challenge.startDate} ~ {challenge.endDate} · 정원 {challenge.recruitmentNum}명 · 보상 불씨 {challenge.xp}
       </div>
 
       <Card className="mb-4">
