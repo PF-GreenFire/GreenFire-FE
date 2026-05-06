@@ -8,6 +8,7 @@ import {
   FaTrash,
   FaEllipsisV,
   FaChevronRight,
+  FaFlag,
 } from "react-icons/fa";
 import { RiLeafFill, RiLeafLine } from "react-icons/ri";
 import { FiShare2 } from "react-icons/fi";
@@ -24,6 +25,7 @@ import { getImageUrl } from "../../utils/imageUtils";
 import { shareFeedPost } from "../../utils/shareUtils";
 import { useAuth } from "../../hooks/useAuth";
 import Toast from "../../components/common/Toast";
+import ReportModal from "../../components/common/ReportModal";
 
 const FeedDetail = () => {
   const { postCode } = useParams();
@@ -39,6 +41,7 @@ const FeedDetail = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showMenu, setShowMenu] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   useEffect(() => {
     dispatch(getFeedDetailAPI(postCode));
@@ -140,7 +143,7 @@ const FeedDetail = () => {
         </button>
         <span className="font-bold text-base">피드</span>
         <div className="relative">
-          {isOwner && (
+          {(isOwner || isLoggedIn) && (
             <button
               onClick={() => setShowMenu(!showMenu)}
               className="bg-transparent border-none cursor-pointer p-1 text-gray-500"
@@ -150,15 +153,27 @@ const FeedDetail = () => {
           )}
           {showMenu && (
             <div className="absolute right-0 top-8 bg-white shadow-lg rounded-xl py-1 z-10 min-w-[100px]">
-              <button
-                onClick={() => {
-                  setShowMenu(false);
-                  handleDeletePost();
-                }}
-                className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-500 bg-transparent border-none cursor-pointer hover:bg-gray-50"
-              >
-                <FaTrash size={12} /> 삭제
-              </button>
+              {isOwner ? (
+                <button
+                  onClick={() => {
+                    setShowMenu(false);
+                    handleDeletePost();
+                  }}
+                  className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-500 bg-transparent border-none cursor-pointer hover:bg-gray-50"
+                >
+                  <FaTrash size={12} /> 삭제
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    setShowMenu(false);
+                    setShowReportModal(true);
+                  }}
+                  className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-500 bg-transparent border-none cursor-pointer hover:bg-gray-50"
+                >
+                  <FaFlag size={12} /> 신고
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -379,6 +394,14 @@ const FeedDetail = () => {
         message="링크가 복사되었습니다"
         show={showToast}
         onClose={handleCloseToast}
+      />
+
+      <ReportModal
+        show={showReportModal}
+        onHide={() => setShowReportModal(false)}
+        resourceType="POST"
+        resourceId={feedDetail.postCode}
+        resourceTitle={feedDetail.postContent?.slice(0, 40)}
       />
     </div>
   );

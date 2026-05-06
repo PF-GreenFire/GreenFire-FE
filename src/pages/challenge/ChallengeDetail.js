@@ -11,6 +11,7 @@ import {
   getChallengePostsAPI,
 } from '../../apis/challengeAPI';
 import { useAuth } from '../../hooks/useAuth';
+import ReportModal from '../../components/common/ReportModal';
 
 const STATUS_LABEL = {
   RECRUITING: '모집중',
@@ -39,6 +40,7 @@ const ChallengeDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const [posts, setPosts] = useState([]);
   const [postsLoading, setPostsLoading] = useState(false);
 
@@ -214,6 +216,11 @@ const ChallengeDetail = () => {
             삭제
           </Button>
         )}
+        {!isHost && isLoggedIn && (
+          <Button variant="outline-danger" onClick={() => setShowReportModal(true)}>
+            신고
+          </Button>
+        )}
       </div>
 
       {/* 인증 피드 */}
@@ -276,6 +283,14 @@ const ChallengeDetail = () => {
           ))}
         </div>
       )}
+
+      <ReportModal
+        show={showReportModal}
+        onHide={() => setShowReportModal(false)}
+        resourceType="CHALLENGE"
+        resourceId={challenge.challengeCode}
+        resourceTitle={challenge.challengeTitle}
+      />
     </Container>
   );
 };
