@@ -20,6 +20,11 @@ import {
 } from "../modules/MypageReducer";
 import { base64ToFile } from "../utils/imageUtils";
 
+/** 뱃지 NEW 빨간 점 끄기. 사용자가 뱃지를 한 번 본 시점에 호출. */
+export const markBadgeViewedAPI = async (badgeCode) => {
+  await api.post(`/api/badges/${badgeCode}/view`);
+};
+
 /**
  * 마이페이지 전체 데이터 조회
  */

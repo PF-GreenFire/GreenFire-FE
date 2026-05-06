@@ -5,7 +5,7 @@ import AchievementProfileCard from "../../components/mypage/AchievementProfileCa
 import NewBadgeAlert from "../../components/mypage/NewBadgeAlert";
 import BadgesGrid from "../../components/mypage/BadgesGrid";
 import BadgeDetailModal from "../../components/mypage/BadgeDetailModal";
-import { getMypageAPI } from "../../apis/mypageAPI";
+import { getMypageAPI, markBadgeViewedAPI } from "../../apis/mypageAPI";
 
 const AchievementMain = () => {
   const dispatch = useDispatch();
@@ -56,10 +56,14 @@ const AchievementMain = () => {
   const hasNewBadge = badges.some((b) => b.unlocked && b.isNew && !b.isViewed);
 
   const handleBadgeClick = (badge) => {
-    if (badge.unlocked) {
-      setSelectedBadge(badge);
-      setShowModal(true);
-      // TODO: BE에 markViewed 호출 + 로컬 상태 갱신 (후속)
+    if (!badge.unlocked) return;
+    setSelectedBadge(badge);
+    setShowModal(true);
+
+    // NEW 빨간 점 끄기 — 비동기, 실패해도 UX엔 영향 없음
+    if (badge.isNew && !badge.isViewed) {
+      markBadgeViewedAPI(badge.id).catch(() => {});
+      // 다음 mypage 새로고침 시 BE 응답에 isViewed=true 반영됨
     }
   };
 
