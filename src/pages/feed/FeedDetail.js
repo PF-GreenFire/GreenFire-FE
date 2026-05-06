@@ -184,11 +184,15 @@ const FeedDetail = () => {
         <img
           src={getImageUrl(feedDetail.profileImage) || "/default-profile.png"}
           alt={feedDetail.nickname}
-          className="w-10 h-10 rounded-full object-cover bg-gray-100"
+          className="w-10 h-10 rounded-full object-cover bg-gray-100 cursor-pointer"
+          onClick={() => feedDetail.userCode && navigate(`/user/${feedDetail.userCode}`)}
         />
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-gray-800">
+            <span
+              className="text-sm font-semibold text-gray-800 cursor-pointer hover:underline"
+              onClick={() => feedDetail.userCode && navigate(`/user/${feedDetail.userCode}`)}
+            >
               {feedDetail.nickname}
             </span>
             {feedDetail.featured && (

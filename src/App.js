@@ -35,6 +35,7 @@ import MypageEchoMemoryMain from "./pages/mypage/EchoMemoryMain";
 import MypageInfo from "./pages/mypage/MypageInfo";
 import MypageWithdrawal from "./pages/mypage/MypageWithdrawal";
 import StoreDetail from './pages/store/StoreDetail';
+import UserProfilePage from './pages/user/UserProfilePage';
 import ApplyStore from './pages/store/ApplyStore';
 import MyStoreApplications from './pages/mypage/MyStoreApplications';
 import { useAuth } from './hooks/useAuth';
@@ -100,6 +101,7 @@ const App = () => {
             </ProtectedRoute>
           } />
           <Route path="feed/:postCode" element={<FeedDetail />} />
+          <Route path="user/:userId" element={<UserProfilePage />} />
           <Route path="store/apply" element={
             <ProtectedRoute>
               <ApplyStore />
