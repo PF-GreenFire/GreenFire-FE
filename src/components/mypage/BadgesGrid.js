@@ -1,6 +1,9 @@
 import React from "react";
 import { BsLock } from "react-icons/bs";
 
+// "🐝" 같은 이모지/짧은 문자는 src로 쓰면 안 되고 텍스트로 렌더
+const isEmojiSrc = (s) => typeof s === "string" && s.length <= 6 && !/^[/.\w-]/.test(s);
+
 const BadgesGrid = ({ badges, onBadgeClick }) => {
   // 데이터가 없을 때
   if (!badges || badges.length === 0) {
@@ -31,11 +34,15 @@ const BadgesGrid = ({ badges, onBadgeClick }) => {
 
           <div className="w-[80px] h-[80px] flex items-center justify-center">
             {badge.unlocked ? (
-              <img
-                src={badge.image}
-                alt={badge.name}
-                className="w-full h-full object-contain"
-              />
+              isEmojiSrc(badge.image) ? (
+                <span className="text-5xl select-none">{badge.image}</span>
+              ) : (
+                <img
+                  src={badge.image}
+                  alt={badge.name}
+                  className="w-full h-full object-contain"
+                />
+              )
             ) : (
               <div className="w-full h-full bg-gray-100 rounded-full flex items-center justify-center border-2 border-dashed border-gray-300">
                 <BsLock size={24} className="text-gray-400" />
