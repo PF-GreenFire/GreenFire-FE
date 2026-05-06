@@ -179,16 +179,25 @@ const LoginPopup = ({ show, onHide, initialEmail = '', onLoginSuccess }) => {
             <div className="flex justify-center gap-3">
               <button
                 type="button"
-                className="w-12 h-12 rounded-full flex items-center justify-center border-none p-0"
+                onClick={() => {
+                  const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+                  // REACT_APP_API_URL이 "/api"로 끝나는 경우도 처리
+                  const origin = apiBase.replace(/\/api\/?$/, '');
+                  window.location.href = `${origin}/oauth2/authorization/kakao`;
+                }}
+                className="w-12 h-12 rounded-full flex items-center justify-center border-none p-0 cursor-pointer"
                 style={{ backgroundColor: '#FEE500' }}
+                title="카카오로 시작하기"
               >
                 <img src="/kakao-icon.svg" alt="Kakao" className="w-6 h-6" />
               </button>
 
               <button
                 type="button"
-                className="w-12 h-12 rounded-full flex items-center justify-center border-none p-0"
+                disabled
+                className="w-12 h-12 rounded-full flex items-center justify-center border-none p-0 opacity-50 cursor-not-allowed"
                 style={{ backgroundColor: '#03C75A' }}
+                title="네이버 로그인 — 준비 중"
               >
                 <img src="/naver-icon.svg" alt="Naver" className="w-6 h-6" />
               </button>
