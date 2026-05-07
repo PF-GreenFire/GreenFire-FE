@@ -42,6 +42,7 @@ const FeedDetail = () => {
   const [showMenu, setShowMenu] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [reportingComment, setReportingComment] = useState(null);
 
   useEffect(() => {
     dispatch(getFeedDetailAPI(postCode));
@@ -349,7 +350,7 @@ const FeedDetail = () => {
                     <span className="text-[10px] text-gray-400">
                       {formatDate(comment.createdAt)}
                     </span>
-                    {user?.userCode === comment.userCode && (
+                    {user?.userCode === comment.userCode ? (
                       <button
                         onClick={() =>
                           handleDeleteComment(comment.commentCode)
@@ -358,6 +359,16 @@ const FeedDetail = () => {
                       >
                         <FaTrash size={10} />
                       </button>
+                    ) : (
+                      isLoggedIn && (
+                        <button
+                          onClick={() => setReportingComment(comment)}
+                          className="ml-auto bg-transparent border-none text-gray-300 cursor-pointer p-0 text-[10px] hover:text-red-500"
+                          title="댓글 신고"
+                        >
+                          🚩
+                        </button>
+                      )
                     )}
                   </div>
                   <p className="text-sm text-gray-700 m-0 mt-0.5 leading-relaxed">
@@ -406,6 +417,14 @@ const FeedDetail = () => {
         resourceType="POST"
         resourceId={feedDetail.postCode}
         resourceTitle={feedDetail.postContent?.slice(0, 40)}
+      />
+
+      <ReportModal
+        show={!!reportingComment}
+        onHide={() => setReportingComment(null)}
+        resourceType="COMMENT"
+        resourceId={reportingComment?.commentCode}
+        resourceTitle={(reportingComment?.commentContent || reportingComment?.content || "").slice(0, 40)}
       />
     </div>
   );

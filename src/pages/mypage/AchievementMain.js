@@ -60,10 +60,11 @@ const AchievementMain = () => {
     setSelectedBadge(badge);
     setShowModal(true);
 
-    // NEW 빨간 점 끄기 — 비동기, 실패해도 UX엔 영향 없음
+    // NEW 빨간 점 끄기 — 즉시 mypage 응답을 다시 받아 로컬 상태 갱신
     if (badge.isNew && !badge.isViewed) {
-      markBadgeViewedAPI(badge.id).catch(() => {});
-      // 다음 mypage 새로고침 시 BE 응답에 isViewed=true 반영됨
+      markBadgeViewedAPI(badge.id)
+        .then(() => dispatch(getMypageAPI()))
+        .catch(() => {});
     }
   };
 

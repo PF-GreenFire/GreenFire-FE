@@ -27,8 +27,30 @@ export const useUnreadNotifications = (intervalMs = 30000) => {
   useEffect(() => {
     fetchCount();
     if (!isLoggedIn) return;
-    intervalRef.current = setInterval(fetchCount, intervalMs);
-    return () => clearInterval(intervalRef.current);
+
+    const start = () => {
+      if (intervalRef.current) return;
+      intervalRef.current = setInterval(fetchCount, intervalMs);
+    };
+    const stop = () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+
+    // 탭이 보일 때만 폴링 — 백그라운드 탭은 정지
+    const onVisibility = () => {
+      if (document.hidden) stop();
+      else { fetchCount(); start(); }
+    };
+
+    if (!document.hidden) start();
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      stop();
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
   }, [fetchCount, isLoggedIn, intervalMs]);
 
   return { count, refresh: fetchCount };
