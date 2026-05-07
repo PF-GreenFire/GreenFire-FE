@@ -36,6 +36,7 @@ import MypageInfo from "./pages/mypage/MypageInfo";
 import MypageWithdrawal from "./pages/mypage/MypageWithdrawal";
 import StoreDetail from './pages/store/StoreDetail';
 import UserProfilePage from './pages/user/UserProfilePage';
+import NotificationListPage from './pages/notification/NotificationListPage';
 import ApplyStore from './pages/store/ApplyStore';
 import MyStoreApplications from './pages/mypage/MyStoreApplications';
 import { useAuth } from './hooks/useAuth';
@@ -102,6 +103,11 @@ const App = () => {
           } />
           <Route path="feed/:postCode" element={<FeedDetail />} />
           <Route path="user/:userId" element={<UserProfilePage />} />
+          <Route path="notifications" element={
+            <ProtectedRoute>
+              <NotificationListPage />
+            </ProtectedRoute>
+          } />
           <Route path="store/apply" element={
             <ProtectedRoute>
               <ApplyStore />

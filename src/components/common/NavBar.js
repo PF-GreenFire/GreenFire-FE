@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import { IoMdMenu } from "react-icons/io";
+import { IoMdMenu, IoMdNotificationsOutline } from "react-icons/io";
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import { useNavigate } from 'react-router-dom';
 import LoginPopup from '../../pages/auth/LoginPopup';
 import { useAuth } from '../../hooks/useAuth';
+import { useUnreadNotifications } from '../../hooks/useUnreadNotifications';
 
 function NavBar() {
     const [show, setShow] = useState(false);
     const [showLoginPopup, setShowLoginPopup] = useState(false);
     const navigate = useNavigate();
     const { isLoggedIn, isLoading: checking, role, onLoginSuccess, onLogout } = useAuth();
+    const { count: unreadCount } = useUnreadNotifications();
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -40,7 +42,21 @@ function NavBar() {
                         <div>
                             <h5 className="font-bold text-admin-green mb-0 cursor-pointer" onClick={() => navigate('/')}>GREEN FIRE</h5>
                         </div>
-                        <div className="flex">
+                        <div className="flex items-center gap-1">
+                            {isLoggedIn && (
+                                <button
+                                    className="text-admin-green p-1 bg-transparent border-none relative"
+                                    onClick={() => navigate('/notifications')}
+                                    title="알림"
+                                >
+                                    <IoMdNotificationsOutline size={24} />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute top-0 right-0 min-w-[16px] h-[16px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold flex items-center justify-center">
+                                            {unreadCount > 99 ? '99+' : unreadCount}
+                                        </span>
+                                    )}
+                                </button>
+                            )}
                             <button className="text-admin-green p-1 bg-transparent border-none" onClick={handleShow}>
                                 <IoMdMenu size={25} />
                             </button>
