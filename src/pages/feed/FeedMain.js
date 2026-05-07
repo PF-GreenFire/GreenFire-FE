@@ -1,7 +1,9 @@
-import React, { useEffect, useCallback, useRef } from "react";
+import React, { useEffect, useCallback, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import { IoIosSearch } from "react-icons/io";
 import { getFeedListAPI, resetFeedListAction } from "../../apis/feedAPI";
+import { searchByType } from "../../apis/searchAPI";
 import { useAuth } from "../../hooks/useAuth";
 import usePullToRefresh from "../../hooks/usePullToRefresh";
 import FeedCard from "../../components/feed/FeedCard";
@@ -67,6 +69,33 @@ const FeedMain = () => {
 
   const { pullDistance, isRefreshing } = usePullToRefresh(handleRefresh);
 
+  // 검색
+  const [searchInput, setSearchInput] = useState("");
+  const [searchResults, setSearchResults] = useState(null); // null = 검색 안 함, [] = 결과 없음
+  const [searching, setSearching] = useState(false);
+
+  const handleSearch = async () => {
+    const q = searchInput.trim();
+    if (!q) {
+      setSearchResults(null);
+      return;
+    }
+    setSearching(true);
+    try {
+      const data = await searchByType("POST", q, 30);
+      setSearchResults(data.items || []);
+    } catch {
+      setSearchResults([]);
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleSearchClear = () => {
+    setSearchInput("");
+    setSearchResults(null);
+  };
+
   return (
     <div className="pb-16">
       {/* Pull-to-Refresh indicator */}
@@ -89,6 +118,65 @@ const FeedMain = () => {
           <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
         </svg>
       </div>
+
+      {/* 검색바 */}
+      <div className="mb-3">
+        <div className="flex items-center border border-admin-green rounded-full px-4 py-2 bg-white gap-2">
+          <input
+            type="text"
+            placeholder="피드 내용 검색"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            className="flex-1 border-none text-sm focus:outline-none placeholder:text-gray-400 bg-transparent"
+          />
+          {searchInput && (
+            <button
+              onClick={handleSearchClear}
+              className="text-xs text-gray-400 bg-transparent border-none cursor-pointer p-0"
+            >
+              ✕
+            </button>
+          )}
+          <IoIosSearch
+            className="text-xl text-admin-green flex-shrink-0 cursor-pointer"
+            onClick={handleSearch}
+          />
+        </div>
+      </div>
+
+      {/* 검색 결과 (검색 모드일 때 기존 피드 대신 표시) */}
+      {searchResults !== null && (
+        <div className="mb-3">
+          <p className="text-xs text-gray-500 mb-2">
+            "{searchInput}" 검색 결과 {searchResults.length}건
+          </p>
+          {searching ? (
+            <div className="text-center py-6">
+              <div className="w-6 h-6 mx-auto border-2 border-admin-green border-t-transparent rounded-full animate-spin" />
+            </div>
+          ) : searchResults.length === 0 ? (
+            <div className="text-center py-10 text-gray-400 text-sm">
+              검색 결과가 없습니다.
+            </div>
+          ) : (
+            <ul className="divide-y divide-gray-100">
+              {searchResults.map((hit) => (
+                <li
+                  key={hit.id}
+                  onClick={() => navigate(`/feed/${hit.id}`)}
+                  className="py-3 cursor-pointer hover:bg-gray-50 px-2 rounded"
+                >
+                  <p className="text-sm text-gray-800 m-0 line-clamp-2">
+                    {hit.title}
+                    {hit.title?.length >= 40 && "..."}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       {/* 글쓰기 유도 영역 (로그인 시만) */}
       {isLoggedIn && (
