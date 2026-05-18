@@ -79,7 +79,9 @@ export const createFeedPostAPI = (data, files) => {
     if (files && files.length > 0) {
       files.forEach((f) => formData.append("images", f));
     }
-    const result = await api.post("/api/feed", formData);
+    const result = await api.post("/api/feed", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     return result;
   };
 };

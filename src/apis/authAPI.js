@@ -15,7 +15,9 @@ export const signup = async ({ email, password, name, nickname, birth, gender, p
   if (profileImage) {
     formData.append("profileImage", profileImage);
   }
-  const { data } = await api.post("/api/auth/signup", formData);
+  const { data } = await api.post("/api/auth/signup", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return data;
 };
 
