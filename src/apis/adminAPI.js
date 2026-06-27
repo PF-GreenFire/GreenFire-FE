@@ -56,7 +56,7 @@ export const suspendMember = async (userId, reason, until) => {
  * @param {number} userId
  */
 export const unsuspendMember = async (userId) => {
-  const { data } = await api.post(`/api/admin/members/${userId}/unsuspend`);
+  const { data } = await api.delete(`/api/admin/members/${userId}/suspend`);
   return data;
 };
 
