@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Container } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getChallengesAPI } from "../../apis/challengeAPI";
+import { getMyChallengesAPI } from "../../apis/challengeAPI";
 import PageHeader from "../../components/mypage/PageHeader";
 import TabButtons from "../../components/common/TabButtons";
 import SearchFilter from "../../components/common/SearchFilter";
@@ -32,15 +32,10 @@ const ChallengeMain = () => {
     loadChallenges();
   }, [activeTab, sortBy]);
 
-  // 챌린지 데이터 로드
+  // 챌린지 데이터 로드 — 마이페이지는 본인이 참여한 챌린지만 조회 (BE: /user/me/challenges)
+  // activeTab(all/participating/created) 별 필터/정렬은 클라이언트에서 처리
   const loadChallenges = () => {
-    const params = {
-      search: searchQuery,
-      sortBy: sortBy,
-      filter: filterType !== "all" ? filterType : undefined,
-    };
-
-    dispatch(getChallengesAPI(activeTab, params));
+    dispatch(getMyChallengesAPI({ page: 1, size: 50 }));
   };
 
   // 탭 클릭 핸들러

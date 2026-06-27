@@ -27,6 +27,22 @@ export const getChallengesAPI = ({
   };
 };
 
+// 마이페이지: 내가 참여한 챌린지 페이징
+// BE 응답: { challenges, totalCount, currentPage, hasMore }
+export const getMyChallengesAPI = ({ page = 1, size = 20 } = {}) => {
+  return async (dispatch) => {
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    });
+    const result = await api.get(`/user/me/challenges?${params.toString()}`);
+    if (result.status === 200) {
+      dispatch(getChallenges(result));
+    }
+    return result.data;
+  };
+};
+
 export const getChallengeDetailAPI = (challengeCode) => {
   return async () => {
     const result = await api.get(`${BASE}/${challengeCode}`);
